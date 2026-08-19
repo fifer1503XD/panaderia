@@ -3,6 +3,7 @@ import ProductForm from '../components/ProductForm';
 
 const Products = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -14,11 +15,30 @@ const Products = () => {
     }
   }, []);
 
-  // Guardar nuevo producto en estado y LocalStorage
-  const handleSaveProduct = (newProduct) => {
-    const updatedProducts = [...products, { ...newProduct, id: Date.now() }];
+  // Guardar (crear o editar) producto
+  const handleSaveProduct = (productData) => {
+    let updatedProducts;
+    
+    if (productData.id) {
+      // Es una edición: buscamos el producto por id y lo reemplazamos
+      updatedProducts = products.map(p => p.id === productData.id ? productData : p);
+    } else {
+      // Es uno nuevo: le asignamos un id
+      updatedProducts = [...products, { ...productData, id: Date.now() }];
+    }
+
     setProducts(updatedProducts);
     localStorage.setItem('bakery_products', JSON.stringify(updatedProducts));
+  };
+
+  const handleOpenEdit = (product) => {
+    setEditingProduct(product);
+    setIsFormOpen(true);
+  };
+
+  const handleOpenCreate = () => {
+    setEditingProduct(null);
+    setIsFormOpen(true);
   };
 
   // Filtrar productos basados en el término de búsqueda
@@ -35,7 +55,7 @@ const Products = () => {
     <div className="page-container">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1>Products Management</h1>
-        <button className="btn-primary" onClick={() => setIsFormOpen(true)}>
+        <button className="btn-primary" onClick={handleOpenCreate}>
           + Agregar Producto
         </button>
       </div>
@@ -74,6 +94,7 @@ const Products = () => {
                 <th style={{ padding: '1rem' }}>Precio 1</th>
                 <th style={{ padding: '1rem' }}>Precio 2</th>
                 <th style={{ padding: '1rem' }}>Precio 3</th>
+                <th style={{ padding: '1rem', textAlign: 'right' }}>Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -85,6 +106,15 @@ const Products = () => {
                   <td style={{ padding: '1rem' }}>${product.price1}</td>
                   <td style={{ padding: '1rem' }}>${product.price2 || '-'}</td>
                   <td style={{ padding: '1rem' }}>${product.price3 || '-'}</td>
+                  <td style={{ padding: '1rem', textAlign: 'right' }}>
+                    <button 
+                      className="btn-secondary" 
+                      style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                      onClick={() => handleOpenEdit(product)}
+                    >
+                      ✏️ Editar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -94,6 +124,7 @@ const Products = () => {
 
       {isFormOpen && (
         <ProductForm 
+          initialData={editingProduct}
           onClose={() => setIsFormOpen(false)} 
           onSave={handleSaveProduct} 
         />

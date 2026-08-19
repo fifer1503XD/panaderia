@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ProductForm.css';
 
-const ProductForm = ({ onClose, onSave }) => {
+const ProductForm = ({ initialData, onClose, onSave }) => {
   const [formData, setFormData] = useState({
     code: '',
     name: '',
@@ -12,6 +12,13 @@ const ProductForm = ({ onClose, onSave }) => {
     price3: '',
     minStock: 5 // Valor por defecto
   });
+
+  // Si nos pasan initialData, significa que estamos editando
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -24,11 +31,13 @@ const ProductForm = ({ onClose, onSave }) => {
     onClose();
   };
 
+  const isEditing = !!initialData;
+
   return (
     <div className="modal-overlay">
       <div className="modal-content glass-panel">
         <div className="modal-header">
-          <h2>Nuevo Producto</h2>
+          <h2>{isEditing ? "Editar Producto" : "Nuevo Producto"}</h2>
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="product-form">
@@ -76,7 +85,7 @@ const ProductForm = ({ onClose, onSave }) => {
 
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Cancelar</button>
-            <button type="submit" className="btn-primary">Guardar Producto</button>
+            <button type="submit" className="btn-primary">{isEditing ? "Actualizar Producto" : "Guardar Producto"}</button>
           </div>
         </form>
       </div>

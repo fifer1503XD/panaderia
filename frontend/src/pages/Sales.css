@@ -1,0 +1,231 @@
+.pos-layout {
+  display: flex;
+  gap: 2rem;
+  height: calc(100vh - 120px);
+}
+
+.pos-left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pos-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tables-header, .products-header {
+  margin-bottom: 1rem;
+}
+
+.tables-header h2, .products-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+.tables-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.table-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  background-color: var(--card-bg);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.table-btn span {
+  font-size: 0.8rem;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.table-btn.libre {
+  border-left: 4px solid var(--success);
+}
+
+.table-btn.ocupada {
+  border-left: 4px solid var(--accent-color);
+  background-color: rgba(230, 138, 30, 0.05);
+}
+
+.table-btn.selected {
+  border-color: var(--text-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.product-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.1s;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent-color);
+}
+
+.product-card:active {
+  transform: translateY(0);
+}
+
+.p-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.p-price {
+  color: var(--accent-color);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.p-stock {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Ticket Styles */
+.ticket-header {
+  padding-bottom: 1rem;
+  border-bottom: 1px dashed rgba(124, 96, 70, 0.3);
+  text-align: center;
+}
+
+.ticket-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.ticket-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-weight: bold;
+}
+
+.ticket-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.empty-cart {
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 2rem;
+}
+
+.ticket-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(124, 96, 70, 0.1);
+}
+
+.item-info {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.item-qty {
+  font-weight: bold;
+  color: var(--accent-color);
+  min-width: 25px;
+}
+
+.item-name {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.item-price {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 1.2rem;
+  padding: 0 0.2rem;
+}
+
+.ticket-summary {
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(124, 96, 70, 0.3);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.summary-row.total {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.ticket-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.ticket-actions button {
+  flex: 1;
+  padding: 12px;
+}
+
+.ticket-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
