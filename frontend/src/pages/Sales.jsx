@@ -86,7 +86,24 @@ const Sales = () => {
   const handleCheckout = () => {
     if (!selectedTable || selectedTable.order.length === 0) return;
 
-    // Descontar inventario
+    // Calcular totales de la orden actual para guardar el historial
+    const subtotalActual = selectedTable.order.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const taxActual = subtotalActual * 0.16;
+    const totalActual = subtotalActual + taxActual;
+
+    // 1. Guardar en Historial de Ventas
+    const newSaleRecord = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      tableId: selectedTableId,
+      items: selectedTable.order,
+      total: totalActual
+    };
+
+    const existingSales = JSON.parse(localStorage.getItem('bakery_sales_history') || '[]');
+    localStorage.setItem('bakery_sales_history', JSON.stringify([...existingSales, newSaleRecord]));
+
+    // 2. Descontar inventario
     let updatedProducts = [...products];
     
     selectedTable.order.forEach(orderItem => {
@@ -100,7 +117,7 @@ const Sales = () => {
     setProducts(updatedProducts);
     localStorage.setItem('bakery_products', JSON.stringify(updatedProducts));
 
-    // Liberar mesa
+    // 3. Liberar mesa
     const updatedTables = tables.map(table => {
       if (table.id === selectedTableId) {
         return { ...table, status: 'libre', order: [] };
@@ -110,7 +127,7 @@ const Sales = () => {
     setTables(updatedTables);
     localStorage.setItem('bakery_tables', JSON.stringify(updatedTables));
 
-    alert(`¡Factura de Mesa ${selectedTableId} cobrada con éxito e inventario descontado!`);
+    alert(`¡Factura de Mesa ${selectedTableId} cobrada con éxito por $${totalActual.toFixed(2)}!`);
   };
 
   const cancelOrder = () => {
