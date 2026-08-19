@@ -9,7 +9,8 @@ const ProductForm = ({ onClose, onSave }) => {
     department: '',
     price1: '',
     price2: '',
-    price3: ''
+    price3: '',
+    minStock: 5 // Valor por defecto
   });
 
   const handleChange = (e) => {
@@ -19,9 +20,7 @@ const ProductForm = ({ onClose, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Aquí conectaremos con el backend más adelante
-    console.log('Guardando producto:', formData);
-    if (onSave) onSave(formData);
+    onSave(formData);
     onClose();
   };
 
@@ -33,9 +32,15 @@ const ProductForm = ({ onClose, onSave }) => {
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
         <form onSubmit={handleSubmit} className="product-form">
-          <div className="form-group">
-            <label>Código</label>
-            <input type="text" name="code" value={formData.code} onChange={handleChange} required />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Código</label>
+              <input type="text" name="code" value={formData.code} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label>Stock Mínimo (Alerta)</label>
+              <input type="number" name="minStock" value={formData.minStock} onChange={handleChange} required />
+            </div>
           </div>
           
           <div className="form-group">
