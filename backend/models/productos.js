@@ -1,92 +1,66 @@
 // DISEÑO DE MODELO: PRODUCTOS
+// Adaptado al formulario de productos del frontend
 
-// Importamos Mongoose para poder crear el esquema y el modelo.
 const mongoose = require("mongoose");
 
-// Creamos el esquema de Producto.
-// Aquí definimos los datos que tendrá cada producto
-// dentro de la colección.
 const productoSchema = new mongoose.Schema({
-
-    // Guarda el nombre del producto.
-    nombre_producto: {
-
-        // El dato será de tipo texto.
+    // Código del producto (único y obligatorio)
+    code: {
         type: String,
-
-        // Este campo es obligatorio.
-        required: true
-
+        required: true,
+        unique: true,
+        trim: true
     },
-
-    // Identifica la marca a la que pertenece el producto.
-    id_marca: {
-
-        // Utilizamos ObjectId para relacionar el producto
-        // con un documento de la colección de marcas.
-        type: mongoose.Schema.Types.ObjectId,
-
-        // "ref" indica que este campo se relaciona
-        // con el modelo Marca.
-        ref: "Marca",
-
-        // Este campo es obligatorio.
-        required: true
-
+    // Nombre del producto (obligatorio)
+    name: {
+        type: String,
+        required: true,
+        trim: true
     },
-
-    // Identifica la categoría a la que pertenece el producto.
-    id_categoria: {
-
-        // Utilizamos ObjectId para relacionar el producto
-        // con un documento de la colección de categorías.
-        type: mongoose.Schema.Types.ObjectId,
-
-        // "ref" indica que este campo se relaciona
-        // con el modelo Categoria.
-        ref: "Categoria",
-
-        // Este campo es obligatorio.
-        required: true
-
+    // Marca del producto (opcional)
+    brand: {
+        type: String,
+        trim: true
     },
-
-    // Guarda el valor que costó comprar el producto.
-    valor_compra: {
-
-        // El valor será de tipo numérico.
+    // Departamento del producto (obligatorio)
+    department: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    // Precio 1: General (obligatorio)
+    price1: {
         type: Number,
-
-        // Este campo es obligatorio.
-        required: true
-
+        required: true,
+        min: 0
     },
-
-    // Guarda el valor al que se venderá el producto al cliente.
-    valor_venta: {
-
-        // El valor será de tipo numérico.
+    // Precio 2: Mayoreo (opcional)
+    price2: {
         type: Number,
-
-        // Este campo es obligatorio.
-        required: true
-
+        min: 0
     },
-
-    // Indica la cantidad mínima de unidades que debe existir
-    // antes de considerar que es necesario reponer el producto.
-    stock_minimo: {
-
-        // La cantidad será de tipo numérico.
+    // Precio 3: Especial (opcional)
+    price3: {
         type: Number,
-
-        // Este campo es obligatorio.
-        required: true
-
+        min: 0
+    },
+    // Stock mínimo de alerta (obligatorio, por defecto 5)
+    minStock: {
+        type: Number,
+        required: true,
+        default: 5,
+        min: 0
+    },
+    // Stock actual (obligatorio, por defecto 0)
+    stock: {
+        type: Number,
+        required: true,
+        default: 0,
+        min: 0
     }
-
+}, {
+    timestamps: true // Añade campos createdAt y updatedAt automáticamente
 });
 
-// Exportamos el modelo "Producto" para poder utilizarlo
-// desde otros archivos de nuestro proyecto.
+// Exportamos el modelo "Producto"
 module.exports = mongoose.model("Producto", productoSchema);

@@ -7,28 +7,49 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Cargar productos del LocalStorage al montar
+  const API_URL = 'http://localhost:3000/api/products';
+
+  // Cargar productos del backend al montar
   useEffect(() => {
-    const savedProducts = localStorage.getItem('bakery_products');
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    }
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error('Error al cargar productos:', err));
   }, []);
 
-  // Guardar (crear o editar) producto
+  // Guardar (crear o editar) producto en el backend
   const handleSaveProduct = (productData) => {
-    let updatedProducts;
-    
     if (productData.id) {
-      // Es una edición: buscamos el producto por id y lo reemplazamos
-      updatedProducts = products.map(p => p.id === productData.id ? productData : p);
+      // Es una edición: PUT
+      fetch(`${API_URL}/${productData.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData)
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Error al actualizar el producto');
+          return res.json();
+        })
+        .then(updatedProd => {
+          setProducts(prev => prev.map(p => p.id === updatedProd.id ? updatedProd : p));
+        })
+        .catch(err => console.error('Error al editar producto:', err));
     } else {
-      // Es uno nuevo: le asignamos un id
-      updatedProducts = [...products, { ...productData, id: Date.now() }];
+      // Es uno nuevo: POST
+      fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData)
+      })
+        .then(res => {
+          if (!res.ok) throw new Error('Error al guardar el producto');
+          return res.json();
+        })
+        .then(newProd => {
+          setProducts(prev => [...prev, newProd]);
+        })
+        .catch(err => console.error('Error al crear producto:', err));
     }
-
-    setProducts(updatedProducts);
-    localStorage.setItem('bakery_products', JSON.stringify(updatedProducts));
   };
 
   const handleOpenEdit = (product) => {

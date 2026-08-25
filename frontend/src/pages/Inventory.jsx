@@ -6,26 +6,37 @@ const Inventory = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Cargar productos y stock del LocalStorage al montar
+  const API_URL = 'http://localhost:3000/api/products';
+
+  // Cargar productos y stock del backend al montar
   useEffect(() => {
-    const savedProducts = localStorage.getItem('bakery_products');
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    }
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error('Error al cargar productos para inventario:', err));
   }, []);
 
-  // Actualizar el inventario de un producto
+  // Actualizar el inventario de un producto en el backend
   const handleSaveInventory = (productId, quantityToAdd) => {
-    const updatedProducts = products.map(product => {
-      if (product.id.toString() === productId.toString()) {
-        const currentStock = product.stock ? parseInt(product.stock) : 0;
-        return { ...product, stock: currentStock + quantityToAdd };
-      }
-      return product;
-    });
+    const product = products.find(p => p.id.toString() === productId.toString());
+    if (!product) return;
 
-    setProducts(updatedProducts);
-    localStorage.setItem('bakery_products', JSON.stringify(updatedProducts));
+    const currentStock = product.stock ? parseInt(product.stock) : 0;
+    const newStock = currentStock + quantityToAdd;
+
+    fetch(`${API_URL}/${productId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stock: newStock })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Error al actualizar el stock en el backend');
+        return res.json();
+      })
+      .then(updatedProd => {
+        setProducts(prev => prev.map(p => p.id === updatedProd.id ? updatedProd : p));
+      })
+      .catch(err => console.error('Error al guardar inventario:', err));
   };
 
   // Filtrar productos basados en el término de búsqueda

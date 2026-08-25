@@ -12,10 +12,14 @@ const Sales = () => {
   const [tables, setTables] = useState([]);
   const [selectedTableId, setSelectedTableId] = useState(1);
 
-  // Cargar productos y mesas al montar
+  const API_URL = 'http://localhost:3000/api/products';
+
+  // Cargar productos del backend y mesas al montar
   useEffect(() => {
-    const savedProducts = localStorage.getItem('bakery_products');
-    if (savedProducts) setProducts(JSON.parse(savedProducts));
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(err => console.error('Error al cargar productos en ventas:', err));
 
     const savedTables = localStorage.getItem('bakery_tables');
     if (savedTables) {
@@ -103,19 +107,35 @@ const Sales = () => {
     const existingSales = JSON.parse(localStorage.getItem('bakery_sales_history') || '[]');
     localStorage.setItem('bakery_sales_history', JSON.stringify([...existingSales, newSaleRecord]));
 
-    // 2. Descontar inventario
-    let updatedProducts = [...products];
-    
-    selectedTable.order.forEach(orderItem => {
-      const prodIndex = updatedProducts.findIndex(p => p.id === orderItem.product.id);
-      if (prodIndex >= 0) {
-        const currentStock = updatedProducts[prodIndex].stock || 0;
-        updatedProducts[prodIndex].stock = currentStock - orderItem.quantity;
+    // 2. Descontar inventario en el backend
+    const updateStockPromises = selectedTable.order.map(orderItem => {
+      const product = products.find(p => p.id === orderItem.product.id);
+      if (product) {
+        const currentStock = product.stock || 0;
+        const newStock = Math.max(0, currentStock - orderItem.quantity);
+        return fetch(`${API_URL}/${product.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stock: newStock })
+        }).then(res => {
+          if (!res.ok) throw new Error('Error al actualizar stock de ' + product.name);
+          return res.json();
+        });
       }
+      return Promise.resolve(null);
     });
 
-    setProducts(updatedProducts);
-    localStorage.setItem('bakery_products', JSON.stringify(updatedProducts));
+    Promise.all(updateStockPromises)
+      .then(updatedFromBackend => {
+        const cleanProds = updatedFromBackend.filter(p => p !== null);
+        setProducts(prev => {
+          return prev.map(p => {
+            const match = cleanProds.find(cp => cp.id === p.id);
+            return match ? match : p;
+          });
+        });
+      })
+      .catch(err => console.error('Error al actualizar inventario en checkout:', err));
 
     // 3. Liberar mesa
     const updatedTables = tables.map(table => {
