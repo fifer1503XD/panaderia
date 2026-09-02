@@ -1,0 +1,558 @@
+.inventory-page-wrapper {
+  background-color: var(--bg-main);
+  padding: 2.5rem 3rem;
+  width: 100%;
+  max-width: 1400px;
+  min-height: calc(100vh - 90px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* -------------------------------------------------------------
+   Top Toolbar (Search & Filter Capsules)
+------------------------------------------------------------- */
+.inventory-top-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.8rem;
+  flex-wrap: wrap;
+}
+
+/* BUSCAR Capsule Input */
+.search-capsule-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-input);
+  border-radius: 9999px;
+  padding: 0 1.5rem;
+  width: 100%;
+  max-width: 440px;
+  height: 48px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.search-capsule-container:focus-within {
+  background-color: var(--bg-input-focus);
+  box-shadow: 0 0 0 2px rgba(14, 124, 134, 0.15);
+}
+
+.search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.8rem;
+  color: var(--text-muted);
+}
+
+.search-capsule-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #555555;
+  outline: none;
+}
+
+.search-capsule-input::placeholder {
+  color: #9E9E9E;
+  font-weight: 700;
+  letter-spacing: 3.5px;
+}
+
+.clear-search-btn {
+  background: #D5D5D5;
+  color: #555;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  transition: all 0.15s ease;
+}
+
+.clear-search-btn:hover {
+  background: #BBB;
+  color: #111;
+}
+
+/* Toolbar Actions on the right */
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* FILTRO Capsule Button */
+.filter-dropdown-wrapper {
+  position: relative;
+}
+
+.filter-capsule-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background-color: var(--bg-input);
+  border-radius: 9999px;
+  padding: 0 1.6rem;
+  height: 48px;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 2.5px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.filter-capsule-btn:hover,
+.filter-capsule-btn.active-filter {
+  background-color: #E2E2E2;
+  color: #333333;
+}
+
+.filter-capsule-btn.active-filter {
+  box-shadow: 0 0 0 2px var(--primary-teal);
+}
+
+.filter-text {
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: #8E8E8E;
+}
+
+/* Filter Popover */
+.filter-menu-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  background: #FFFFFF;
+  border: 1px solid var(--border-divider);
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  padding: 1.25rem;
+  width: 280px;
+  z-index: 150;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.filter-section {
+  margin-bottom: 1rem;
+}
+
+.filter-section-title {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #8E8E8E;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.filter-chip {
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: #F2F4F5;
+  color: #555555;
+  transition: all 0.15s ease;
+}
+
+.filter-chip:hover {
+  background: #E5E9EB;
+}
+
+.filter-chip.selected {
+  background: var(--pill-bg);
+  color: var(--pill-text);
+  border: 1px solid var(--pill-text);
+}
+
+.filter-reset-btn {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--status-alerta);
+  background: #FFF0F0;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  transition: background 0.15s;
+}
+
+.filter-reset-btn:hover {
+  background: #FDD8D8;
+}
+
+/* Add product quick button */
+.btn-add-product {
+  background-color: var(--primary-teal);
+  color: #FFFFFF;
+  padding: 0 1.5rem;
+  height: 48px;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(14, 124, 134, 0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-add-product:hover {
+  background-color: var(--primary-teal-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(14, 124, 134, 0.3);
+}
+
+/* -------------------------------------------------------------
+   Inventory Table with Pill Headers
+------------------------------------------------------------- */
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 2rem;
+  flex: 1;
+}
+
+.inventory-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 1.25rem; /* Generous vertical spacing between rows */
+  text-align: left;
+}
+
+/* Header Cells & Pill Headers */
+.th-cell {
+  padding: 0 0.75rem 0.5rem 0.75rem;
+  font-weight: normal;
+  border: none;
+}
+
+.pill-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pill-bg);
+  color: var(--pill-text);
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 1.2px;
+  padding: 0.45rem 1.2rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.th-imagen { width: 100px; text-align: center; }
+.th-nombre { min-width: 200px; text-align: left; }
+.th-categoria { width: 150px; text-align: center; }
+.th-precio { width: 140px; text-align: center; }
+.th-stock { width: 100px; text-align: center; }
+.th-estado { width: 120px; text-align: center; }
+.th-acciones { width: 130px; text-align: center; }
+
+/* Table Body Rows */
+.inventory-row {
+  background: transparent;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.inventory-row:hover {
+  background-color: #FAFCFC;
+}
+
+.td-cell {
+  padding: 0.75rem 0.75rem;
+  vertical-align: middle;
+  border: none;
+}
+
+/* Column 1: IMAGEN */
+.td-imagen {
+  text-align: center;
+}
+
+.product-image-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+}
+
+.product-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.12));
+  transition: transform 0.2s ease;
+}
+
+.inventory-row:hover .product-img {
+  transform: scale(1.08);
+}
+
+/* Column 2: NOMBRE */
+.td-nombre {
+  text-align: left;
+}
+
+.product-name-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.product-name-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #222222;
+  letter-spacing: 0.2px;
+}
+
+.product-code-subtitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #8E8E8E;
+  letter-spacing: 0.5px;
+}
+
+/* Column 3: CATEGORIA */
+.td-categoria {
+  text-align: center;
+}
+
+.category-tag {
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.category-tag.cat-panes {
+  color: var(--cat-panes);
+}
+
+.category-tag.cat-reposteria {
+  color: var(--cat-reposteria);
+}
+
+.category-tag.cat-bebidas {
+  color: var(--cat-bebidas);
+}
+
+.category-tag.cat-pasabocas {
+  color: var(--cat-pasabocas);
+}
+
+.category-tag.cat-default {
+  color: #707070;
+}
+
+/* Column 4: PRECIO VENTA */
+.td-precio {
+  text-align: center;
+}
+
+.price-tag {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #222222;
+}
+
+/* Column 5: STOCK */
+.td-stock {
+  text-align: center;
+}
+
+.stock-number {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #222222;
+}
+
+/* Column 6: ESTADO */
+.td-estado {
+  text-align: center;
+}
+
+.status-tag {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.status-tag.status-activo {
+  color: var(--status-activo);
+}
+
+.status-tag.status-alerta {
+  color: var(--status-alerta);
+}
+
+.status-tag.status-bajo {
+  color: var(--status-bajo);
+}
+
+.status-tag.status-agotado {
+  color: var(--status-agotado);
+}
+
+/* Column 7: ACCIONES */
+.td-acciones {
+  text-align: center;
+}
+
+.action-buttons-group {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.action-btn {
+  width: 38px;
+  height: 38px;
+  background-color: var(--action-btn-bg);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.action-btn:hover {
+  background-color: var(--action-btn-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.edit-action-btn:hover svg {
+  stroke: var(--primary-teal-hover);
+}
+
+.delete-action-btn:hover svg {
+  stroke: #B71C1C;
+}
+
+.table-empty-message {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------
+   Footer Toolbar & Pagination
+------------------------------------------------------------- */
+.inventory-footer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 2rem;
+  border-top: 1px solid #F0F0F0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.record-counter {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-btn {
+  min-width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #7A7A7A;
+  transition: all 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #F0F0F0;
+  color: #222222;
+}
+
+.page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Active page matching mockup (< 1 2 3 ... 5 > where 1 is in cyan pill) */
+.page-btn.active-page {
+  background-color: var(--pill-bg);
+  color: var(--pill-text);
+  font-weight: 800;
+}
+
+.page-arrow {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .inventory-page-wrapper {
+    padding: 1.8rem 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .inventory-page-wrapper {
+    padding: 1.2rem 1rem;
+  }
+  
+  .inventory-top-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-capsule-container {
+    max-width: 100%;
+  }
+  
+  .toolbar-actions {
+    justify-content: space-between;
+  }
+  
+  .inventory-footer-toolbar {
+    flex-direction: column;
+    align-items: center;
+  }
+}
