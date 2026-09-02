@@ -1,0 +1,103 @@
+.tuttis-header {
+  background-color: var(--header-bg);
+  height: 90px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.04);
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-main-title {
+  color: var(--header-title);
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin: 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.header-sub-title {
+  color: var(--header-subtitle);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 2px;
+  letter-spacing: 0.2px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.smart-bakery-badge {
+  background-color: var(--primary-teal);
+  color: #FFFFFF;
+  padding: 0.65rem 1.8rem;
+  border-radius: 9999px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  box-shadow: 0 4px 12px rgba(14, 124, 134, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.smart-bakery-badge:hover {
+  background-color: var(--primary-teal-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(14, 124, 134, 0.35);
+}
+
+@media (max-width: 768px) {
+  .tuttis-header {
+    padding: 0 1.25rem;
+    height: 75px;
+  }
+  
+  .header-main-title {
+    font-size: 1.25rem;
+  }
+  
+  .header-sub-title {
+    font-size: 0.8rem;
+  }
+  
+  .smart-bakery-badge {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}

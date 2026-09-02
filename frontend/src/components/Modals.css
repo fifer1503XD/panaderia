@@ -1,0 +1,214 @@
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(20, 20, 20, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 540px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScale {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.8rem;
+  border-bottom: 1px solid var(--border-divider);
+  background-color: #FAFAFA;
+}
+
+.modal-header h2 {
+  font-size: 1.35rem;
+  color: var(--header-title);
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.modal-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ECECEC;
+  color: #666;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: #E0E0E0;
+  color: var(--status-alerta);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 1.8rem;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #555555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-field input,
+.form-field select {
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border-divider);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  background-color: #FAFAFA;
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: var(--primary-teal);
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.12);
+}
+
+.product-preview-badge {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #F7FBFB;
+  border: 1px solid var(--pill-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
+
+.preview-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #FFF;
+  padding: 4px;
+  border: 1px solid #EFEFEF;
+}
+
+.modal-footer {
+  padding: 1.25rem 1.8rem;
+  border-top: 1px solid var(--border-divider);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  background-color: #FAFAFA;
+}
+
+.btn-pill-cancel {
+  padding: 0.65rem 1.4rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #666666;
+  background: #ECECEC;
+  transition: all 0.2s;
+}
+
+.btn-pill-cancel:hover {
+  background: #E0E0E0;
+  color: #333333;
+}
+
+.btn-pill-submit {
+  padding: 0.65rem 1.6rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #FFFFFF;
+  background: var(--primary-teal);
+  box-shadow: 0 4px 10px rgba(14, 124, 134, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-pill-submit:hover {
+  background: var(--primary-teal-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(14, 124, 134, 0.35);
+}
+
+.btn-pill-danger {
+  padding: 0.65rem 1.6rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #FFFFFF;
+  background: var(--status-alerta);
+  box-shadow: 0 4px 10px rgba(211, 47, 47, 0.25);
+  transition: all 0.2s;
+}
+
+.btn-pill-danger:hover {
+  background: #B71C1C;
+  transform: translateY(-1px);
+}
