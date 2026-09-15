@@ -1,39 +1,44 @@
-import React from 'react';
+import tuttisLogoImg from './logo.png';
+import iconInventarioImg from './icons/icon-inventario.png';
+import iconVentasImg from './icons/icon-ventas.png';
+import iconClientesImg from './icons/icon-clientes.png';
+import iconEmpleadosImg from './icons/icon-empleados.png';
+import iconReportesImg from './icons/icon-reportes.png';
 
 // Tuttis Brand Logo
 export const TuttisLogo = ({ size = 68, className = "" }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
-    {/* Outer Teal Circle with subtle glow */}
-    <circle cx="50" cy="50" r="46" fill="#2DA5A3" />
-    <circle cx="50" cy="50" r="43" stroke="#F1846A" strokeWidth="2.5" />
-    <circle cx="50" cy="50" r="40" stroke="#FFF" strokeWidth="1" strokeDasharray="3 3" opacity="0.6"/>
-    
-    {/* Wheat ear leaves in coral/gold at bottom left */}
-    <g transform="translate(14, 60) rotate(-40) scale(0.65)">
-      <path d="M10,25 C10,12 25,0 40,0 C30,15 20,25 10,25 Z" fill="#F49A70"/>
-      <path d="M22,18 C28,8 40,3 52,5 C42,16 32,22 22,18 Z" fill="#E87652"/>
-      <path d="M4,34 C12,24 24,20 36,24 C26,34 16,38 4,34 Z" fill="#F5B291"/>
-      <path d="M15,2 M25,12 M35,22" stroke="#FFFFFF" strokeWidth="1.5" opacity="0.6"/>
-    </g>
+  <img
+    src={tuttisLogoImg}
+    alt="Tuttis"
+    width={size}
+    height={size}
+    className={`tuttis-brand-logo ${className}`}
+    style={{ objectFit: 'contain', display: 'inline-block' }}
+  />
+);
 
-    {/* Tuttis cursive script text */}
-    <g transform="translate(18, 26)">
-      <text
-        x="32"
-        y="38"
-        textAnchor="middle"
-        fill="#FFFFFF"
-        fontFamily="'Playfair Display', 'Brush Script MT', cursive, Georgia, serif"
-        fontStyle="italic"
-        fontWeight="800"
-        fontSize="27"
-        letterSpacing="0.5"
-        style={{ filter: "drop-shadow(1px 2px 2px rgba(0,0,0,0.25))" }}
-      >
-        Tuttis
-      </text>
-    </g>
-  </svg>
+// Generic dynamic color mask icon component
+export const MaskIcon = ({ src, size = 26, color = "currentColor", className = "", alt = "" }) => (
+  <span
+    className={`area-icon-mask ${className}`}
+    style={{
+      width: `${size}px`,
+      height: `${size}px`,
+      display: 'inline-block',
+      backgroundColor: color === 'currentColor' ? 'currentColor' : color,
+      WebkitMaskImage: `url(${src})`,
+      maskImage: `url(${src})`,
+      WebkitMaskSize: 'contain',
+      maskSize: 'contain',
+      WebkitMaskRepeat: 'no-repeat',
+      maskRepeat: 'no-repeat',
+      WebkitMaskPosition: 'center',
+      maskPosition: 'center',
+      flexShrink: 0,
+      verticalAlign: 'middle',
+    }}
+    aria-label={alt}
+  />
 );
 
 // Admin Avatar
@@ -57,55 +62,28 @@ export const AdminAvatar = ({ size = 36 }) => (
 );
 
 // Sidebar: Croissant Icon (Inventario)
-export const IconCroissant = ({ size = 26, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19.5 13.5c1-1.5 1.5-3.5 1-5.5-1-3-4-4.5-8-4-4 .5-7 2.5-8.5 5.5-1 2-.5 4.5.5 6 1.5 2 4 3 7 3s5.5-1 8-5z" />
-    <path d="M8 8.5c1.5 2 2.5 5 2.5 7.5" />
-    <path d="M13.5 8c.5 2.5 0 5.5-1 8" />
-    <path d="M5.5 11c1 1.5 1.5 3 1.5 4.5" />
-  </svg>
+export const IconCroissant = ({ size = 26, color = "currentColor", className = "" }) => (
+  <MaskIcon src={iconInventarioImg} size={size} color={color} className={className} alt="Inventario" />
 );
 
-// Sidebar: Ventas / Coins Icon
-export const IconVentas = ({ size = 26, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <ellipse cx="9" cy="7" rx="6" ry="3"/>
-    <path d="M3 7v4c0 1.66 2.69 3 6 3s6-1.34 6-3V7"/>
-    <path d="M3 11v4c0 1.66 2.69 3 6 3s6-1.34 6-3v-4"/>
-    <path d="M14.5 10.5c2.3.4 4.5 1.4 4.5 2.5v4c0 1.66-2.69 3-6 3-1.2 0-2.3-.2-3.2-.6"/>
-    <circle cx="9" cy="7" r="1.5" fill={color} opacity="0.4"/>
-  </svg>
+// Sidebar: Ventas / Coins Icon (Ventas)
+export const IconVentas = ({ size = 26, color = "currentColor", className = "" }) => (
+  <MaskIcon src={iconVentasImg} size={size} color={color} className={className} alt="Ventas" />
 );
 
-// Sidebar: Clientes / Loyalty Icon (Hand with stars)
-export const IconClientes = ({ size = 26, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M19 14c1.5.5 2.5 1.5 2.5 2.5 0 2-3.5 3.5-7.5 3.5-3 0-5.5-.8-7-2l-3-1c-.5-.2-.7-.7-.5-1.2.2-.4.7-.6 1.2-.5l2.8.9c1 .3 2.5.8 4.5.8 3 0 5-1 5-2 0-.6-.5-1.2-1.5-1.5"/>
-    <path d="M5 8l1.5-2.5L9 6 7.5 8.5z" strokeWidth="1.2"/>
-    <path d="M12 4l1.5-2.5L16 2l-1.5 2.5z" strokeWidth="1.2"/>
-    <path d="M18 7l1.5-2.5L22 5l-1.5 2.5z" strokeWidth="1.2"/>
-  </svg>
+// Sidebar: Clientes / Stars Icon (Clientes)
+export const IconClientes = ({ size = 26, color = "currentColor", className = "" }) => (
+  <MaskIcon src={iconClientesImg} size={size} color={color} className={className} alt="Clientes" />
 );
 
-// Sidebar: Empleados / Team Icon
-export const IconEmpleados = ({ size = 26, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
+// Sidebar: Empleados / Team Icon (Empleados)
+export const IconEmpleados = ({ size = 26, color = "currentColor", className = "" }) => (
+  <MaskIcon src={iconEmpleadosImg} size={size} color={color} className={className} alt="Empleados" />
 );
 
-// Sidebar: Reportes / Analytics Icon
-export const IconReportes = ({ size = 26, color = "currentColor" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 3v18h18"/>
-    <path d="M7 16l4-6 4 3 5-7"/>
-    <rect x="6" y="14" width="2" height="4" rx="0.5" fill={color} opacity="0.3"/>
-    <rect x="11" y="11" width="2" height="7" rx="0.5" fill={color} opacity="0.3"/>
-    <rect x="16" y="7" width="2" height="11" rx="0.5" fill={color} opacity="0.3"/>
-  </svg>
+// Sidebar: Reportes / Analytics Bar Chart Icon (Reportes)
+export const IconReportes = ({ size = 26, color = "currentColor", className = "" }) => (
+  <MaskIcon src={iconReportesImg} size={size} color={color} className={className} alt="Reportes" />
 );
 
 // Sidebar: Configuración / Tools Icon
