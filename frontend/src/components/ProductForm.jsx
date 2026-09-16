@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { getProductImage } from '../assets/productImages';
 import './Modals.css';
 
-const CATEGORIES = [
+export const CATEGORIES = [
   'PANES',
   'REPOSTERIA',
   'PASABOCAS',
   'DESAYUNOS',
-  'BEBIDAS',
-  'OTROS'
+  'COMBOS',
+  'BEBIDAS CALIENTES',
+  'BEBIDAS FRÍAS',
+  'GASEOSAS',
+  'LÁCTEOS',
+  'VARIOS'
 ];
 
 const ProductForm = ({ initialData, onClose, onSave }) => {
@@ -63,7 +67,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
   };
 
   const isEditing = !!initialData;
-  const previewImg = formData.imageUrl || getProductImage(formData.name, formData.code);
+  const previewImg = formData.imageUrl || getProductImage(formData.name, formData.code, formData.department);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>

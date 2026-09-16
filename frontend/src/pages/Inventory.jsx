@@ -76,6 +76,78 @@ const INITIAL_PRODUCTS = [
     price1: 4500,
     stock: 8,
     minStock: 3
+  },
+  {
+    id: 'mock-8',
+    code: 'BC001',
+    name: 'Café Capuchino',
+    department: 'BEBIDAS CALIENTES',
+    price1: 4000,
+    stock: 15,
+    minStock: 5
+  },
+  {
+    id: 'mock-9',
+    code: 'BF001',
+    name: 'Jugo Natural de Naranja',
+    department: 'BEBIDAS FRÍAS',
+    price1: 4500,
+    stock: 7,
+    minStock: 3
+  },
+  {
+    id: 'mock-10',
+    code: 'PB001',
+    name: 'Empanada de Carne',
+    department: 'PASABOCAS',
+    price1: 2500,
+    stock: 20,
+    minStock: 6
+  },
+  {
+    id: 'mock-11',
+    code: 'GS001',
+    name: 'Coca-Cola 400ml',
+    department: 'GASEOSAS',
+    price1: 3500,
+    stock: 24,
+    minStock: 8
+  },
+  {
+    id: 'mock-12',
+    code: 'LC001',
+    name: 'Leche Entera 1L',
+    department: 'LÁCTEOS',
+    price1: 4200,
+    stock: 9,
+    minStock: 4
+  },
+  {
+    id: 'mock-13',
+    code: 'DS001',
+    name: 'Desayuno Americano',
+    department: 'DESAYUNOS',
+    price1: 12000,
+    stock: 10,
+    minStock: 2
+  },
+  {
+    id: 'mock-14',
+    code: 'CB001',
+    name: 'Combo Croissant + Café',
+    department: 'COMBOS',
+    price1: 6500,
+    stock: 12,
+    minStock: 3
+  },
+  {
+    id: 'mock-15',
+    code: 'VR001',
+    name: 'Bolsa Ecológica Tuttis',
+    department: 'VARIOS',
+    price1: 1500,
+    stock: 30,
+    minStock: 10
   }
 ];
 
@@ -162,11 +234,19 @@ const Inventory = () => {
 
   // Obtener clase de color para categoría
   const getCategoryColorClass = (dept = '') => {
-    const d = dept.toUpperCase();
+    const d = dept.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     if (d.includes('PAN')) return 'cat-panes';
     if (d.includes('REPOST')) return 'cat-reposteria';
-    if (d.includes('BEBID')) return 'cat-bebidas';
     if (d.includes('PASA') || d.includes('HORNEA')) return 'cat-pasabocas';
+    if (d.includes('DESAYUN')) return 'cat-desayunos';
+    if (d.includes('COMBO')) return 'cat-combos';
+    if (d.includes('BEBIDA') && d.includes('CALIENTE')) return 'cat-bebidas-calientes';
+    if (d.includes('BEBIDA') && d.includes('FRIA')) return 'cat-bebidas-frias';
+    if (d.includes('CALIENTE') || d.includes('CAFE') || d.includes('TINTO') || d.includes('CAPUCHINO')) return 'cat-bebidas-calientes';
+    if (d.includes('FRIA') || d.includes('JUGO') || d.includes('SMOOTHIE')) return 'cat-bebidas-frias';
+    if (d.includes('GASEOSA') || d.includes('SODA')) return 'cat-gaseosas';
+    if (d.includes('LACTEO') || d.includes('LECHE') || d.includes('YOGUR')) return 'cat-lacteos';
+    if (d.includes('VARIO')) return 'cat-varios';
     return 'cat-default';
   };
 
@@ -342,7 +422,19 @@ const Inventory = () => {
                 <div className="filter-section">
                   <span className="filter-section-title">Categoría</span>
                   <div className="filter-options">
-                    {['ALL', 'PANES', 'REPOSTERIA', 'PASABOCAS'].map((cat) => (
+                    {[
+                      'ALL',
+                      'PANES',
+                      'REPOSTERIA',
+                      'PASABOCAS',
+                      'DESAYUNOS',
+                      'COMBOS',
+                      'BEBIDAS CALIENTES',
+                      'BEBIDAS FRÍAS',
+                      'GASEOSAS',
+                      'LÁCTEOS',
+                      'VARIOS'
+                    ].map((cat) => (
                       <button
                         key={cat}
                         className={`filter-chip ${categoryFilter === cat ? 'selected' : ''}`}
@@ -447,7 +539,7 @@ const Inventory = () => {
               paginatedProducts.map((product) => {
                 const statusInfo = getProductStatus(product.stock, product.minStock);
                 const categoryClass = getCategoryColorClass(product.department);
-                const imageSrc = product.imageUrl || getProductImage(product.name, product.code);
+                const imageSrc = product.imageUrl || getProductImage(product.name, product.code, product.department);
 
                 return (
                   <tr key={product.id} className="inventory-row">
