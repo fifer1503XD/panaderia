@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ProductForm from '../components/ProductForm';
+import { PRODUCTS_API_URL } from '../config/api';
 
 const Products = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -7,7 +8,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const API_URL = 'http://localhost:3000/api/products';
+  const API_URL = PRODUCTS_API_URL;
 
   // Cargar productos del backend al montar
   useEffect(() => {

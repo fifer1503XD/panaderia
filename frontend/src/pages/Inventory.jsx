@@ -10,6 +10,7 @@ import { getProductImage } from '../assets/productImages';
 import InventoryForm from '../components/InventoryForm';
 import ProductForm, { DEFAULT_CATEGORIES } from '../components/ProductForm';
 import DeleteModal from '../components/DeleteModal';
+import { PRODUCTS_API_URL, CATEGORIES_API_URL } from '../config/api';
 import './Inventory.css';
 
 const ITEMS_PER_PAGE = 5;
@@ -35,8 +36,7 @@ const Inventory = () => {
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
 
-  const API_URL = 'http://localhost:3000/api/products';
-  const CATEGORIES_API_URL = 'http://localhost:3000/api/categories';
+  const API_URL = PRODUCTS_API_URL;
 
   // Cargar categorías desde MongoDB
   const loadCategories = () => {

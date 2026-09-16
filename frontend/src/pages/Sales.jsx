@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { PRODUCTS_API_URL } from '../config/api';
 import './Sales.css';
 
 const initialTables = Array.from({ length: 5 }, (_, i) => ({
@@ -12,7 +13,7 @@ const Sales = () => {
   const [tables, setTables] = useState([]);
   const [selectedTableId, setSelectedTableId] = useState(1);
 
-  const API_URL = 'http://localhost:3000/api/products';
+  const API_URL = PRODUCTS_API_URL;
 
   // Cargar productos del backend y mesas al montar
   useEffect(() => {
