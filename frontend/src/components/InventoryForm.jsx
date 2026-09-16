@@ -9,7 +9,9 @@ const InventoryForm = ({ product, categories = [], onClose, onSave }) => {
   const [formData, setFormData] = useState({
     code: '',
     name: '',
-    id_categoria: categoryList[0]?._id || ''
+    id_categoria: categoryList[0]?._id || '',
+    price1: '',
+    minStock: 5
   });
 
   const [adjustmentType, setAdjustmentType] = useState('add'); // 'add' | 'set'
@@ -25,7 +27,9 @@ const InventoryForm = ({ product, categories = [], onClose, onSave }) => {
       setFormData({
         code: product.code || '',
         name: product.name || '',
-        id_categoria: matchedCat?._id || categoryList[0]?._id || ''
+        id_categoria: matchedCat?._id || categoryList[0]?._id || '',
+        price1: product.price1 ?? '',
+        minStock: product.minStock ?? 5
       });
       setQuantity('');
     }
@@ -65,6 +69,8 @@ const InventoryForm = ({ product, categories = [], onClose, onSave }) => {
       name: formData.name.trim() || product.name,
       id_categoria: formData.id_categoria,
       department: selectedDepartment,
+      price1: formData.price1 !== '' ? Number(formData.price1) : (Number(product.price1) || 0),
+      minStock: formData.minStock !== '' ? Number(formData.minStock) : (Number(product.minStock) || 5),
       stock: finalStock
     };
 
@@ -76,7 +82,7 @@ const InventoryForm = ({ product, categories = [], onClose, onSave }) => {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Ajustar Producto e Inventario</h2>
+          <h2>Editar Producto e Inventario</h2>
           <button className="modal-close-btn" onClick={onClose} aria-label="Cerrar">&times;</button>
         </div>
 
@@ -96,6 +102,11 @@ const InventoryForm = ({ product, categories = [], onClose, onSave }) => {
                   <span style={{ fontSize: '0.8rem', color: 'var(--primary-teal)', fontWeight: '700' }}>
                     • {selectedDepartment}
                   </span>
+                  {formData.price1 !== '' && (
+                    <span style={{ fontSize: '0.8rem', color: '#1E1E1E', fontWeight: '700' }}>
+                      • ${Number(formData.price1).toLocaleString('es-CO')}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -142,6 +153,34 @@ const InventoryForm = ({ product, categories = [], onClose, onSave }) => {
                   onChange={handleChange}
                   required
                 />
+              </div>
+
+              {/* Row 3: Precio Venta & Stock Mínimo */}
+              <div className="form-row-2">
+                <div className="form-field">
+                  <label>Precio Venta ($) *</label>
+                  <input
+                    type="number"
+                    name="price1"
+                    placeholder="Ej: 3500"
+                    value={formData.price1}
+                    onChange={handleChange}
+                    required
+                    min="0"
+                  />
+                </div>
+                <div className="form-field">
+                  <label>Stock Mínimo *</label>
+                  <input
+                    type="number"
+                    name="minStock"
+                    placeholder="Ej: 5"
+                    value={formData.minStock}
+                    onChange={handleChange}
+                    required
+                    min="0"
+                  />
+                </div>
               </div>
 
               {/* Stock Actual display */}
