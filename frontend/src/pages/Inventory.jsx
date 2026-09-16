@@ -8,153 +8,15 @@ import {
 } from '../assets/icons';
 import { getProductImage } from '../assets/productImages';
 import InventoryForm from '../components/InventoryForm';
-import ProductForm from '../components/ProductForm';
+import ProductForm, { DEFAULT_CATEGORIES } from '../components/ProductForm';
 import DeleteModal from '../components/DeleteModal';
 import './Inventory.css';
-
-// Datos iniciales de demostración acordes al diseño de la imagen
-const INITIAL_PRODUCTS = [
-  {
-    id: 'mock-1',
-    code: 'CR001',
-    name: 'Croissant',
-    department: 'PANES',
-    price1: 3000,
-    stock: 10,
-    minStock: 4
-  },
-  {
-    id: 'mock-2',
-    code: 'CR002',
-    name: 'Rollo de canela',
-    department: 'PANES',
-    price1: 2000,
-    stock: 2,
-    minStock: 5
-  },
-  {
-    id: 'mock-3',
-    code: 'RP001',
-    name: 'Torta de chocolate',
-    department: 'REPOSTERIA',
-    price1: 5000,
-    stock: 5,
-    minStock: 6
-  },
-  {
-    id: 'mock-4',
-    code: 'BG001',
-    name: 'Baguette artesanal',
-    department: 'PANES',
-    price1: 3500,
-    stock: 18,
-    minStock: 5
-  },
-  {
-    id: 'mock-5',
-    code: 'RP002',
-    name: 'Muffin de arándanos',
-    department: 'REPOSTERIA',
-    price1: 4000,
-    stock: 1,
-    minStock: 4
-  },
-  {
-    id: 'mock-6',
-    code: 'RP003',
-    name: 'Dona glaseada',
-    department: 'REPOSTERIA',
-    price1: 2500,
-    stock: 12,
-    minStock: 5
-  },
-  {
-    id: 'mock-7',
-    code: 'PS001',
-    name: 'Croissant de Almendras',
-    department: 'PANES',
-    price1: 4500,
-    stock: 8,
-    minStock: 3
-  },
-  {
-    id: 'mock-8',
-    code: 'BC001',
-    name: 'Café Capuchino',
-    department: 'BEBIDAS CALIENTES',
-    price1: 4000,
-    stock: 15,
-    minStock: 5
-  },
-  {
-    id: 'mock-9',
-    code: 'BF001',
-    name: 'Jugo Natural de Naranja',
-    department: 'BEBIDAS FRÍAS',
-    price1: 4500,
-    stock: 7,
-    minStock: 3
-  },
-  {
-    id: 'mock-10',
-    code: 'PB001',
-    name: 'Empanada de Carne',
-    department: 'PASABOCAS',
-    price1: 2500,
-    stock: 20,
-    minStock: 6
-  },
-  {
-    id: 'mock-11',
-    code: 'GS001',
-    name: 'Coca-Cola 400ml',
-    department: 'GASEOSAS',
-    price1: 3500,
-    stock: 24,
-    minStock: 8
-  },
-  {
-    id: 'mock-12',
-    code: 'LC001',
-    name: 'Leche Entera 1L',
-    department: 'LÁCTEOS',
-    price1: 4200,
-    stock: 9,
-    minStock: 4
-  },
-  {
-    id: 'mock-13',
-    code: 'DS001',
-    name: 'Desayuno Americano',
-    department: 'DESAYUNOS',
-    price1: 12000,
-    stock: 10,
-    minStock: 2
-  },
-  {
-    id: 'mock-14',
-    code: 'CB001',
-    name: 'Combo Croissant + Café',
-    department: 'COMBOS',
-    price1: 6500,
-    stock: 12,
-    minStock: 3
-  },
-  {
-    id: 'mock-15',
-    code: 'VR001',
-    name: 'Bolsa Ecológica Tuttis',
-    department: 'VARIOS',
-    price1: 1500,
-    stock: 30,
-    minStock: 10
-  }
-];
 
 const ITEMS_PER_PAGE = 5;
 
 const Inventory = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -174,28 +36,52 @@ const Inventory = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const API_URL = 'http://localhost:3000/api/products';
+  const CATEGORIES_API_URL = 'http://localhost:3000/api/categories';
 
-  // Cargar productos del backend con fallback a los datos locales
-  useEffect(() => {
-    fetch(API_URL)
+  // Cargar categorías desde MongoDB
+  const loadCategories = () => {
+    fetch(CATEGORIES_API_URL)
       .then((res) => {
-        if (!res.ok) throw new Error('API offline');
+        if (!res.ok) throw new Error('Categories API error');
         return res.json();
       })
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          setProducts(data);
-        } else {
-          setProducts(INITIAL_PRODUCTS);
+          setCategories(data);
         }
       })
-      .catch(() => {
-        // En caso de que el backend no esté encendido o no tenga datos, usamos INITIAL_PRODUCTS
-        setProducts(INITIAL_PRODUCTS);
+      .catch((err) => {
+        console.error('Error cargando categorías desde MongoDB:', err);
+      });
+  };
+
+  // Cargar productos directamente desde MongoDB
+  const loadProducts = () => {
+    setLoading(true);
+    fetch(API_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error('Products API error');
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+        }
+      })
+      .catch((err) => {
+        console.error('Error cargando productos desde MongoDB:', err);
+        setProducts([]);
       })
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadCategories();
+    loadProducts();
   }, []);
 
   // Cerrar el dropdown de filtro al hacer clic fuera
@@ -250,90 +136,88 @@ const Inventory = () => {
     return 'cat-default';
   };
 
-  // Guardar Ajuste de Inventario / Producto
+  // Guardar Ajuste de Inventario / Producto en MongoDB
   const handleSaveInventory = (productId, updateData) => {
     const payload = typeof updateData === 'number' ? { stock: updateData } : updateData;
 
-    // Actualizar en el backend
     fetch(`${API_URL}/${productId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
       .then((res) => {
-        if (!res.ok) throw new Error('Error al actualizar backend');
+        if (!res.ok) throw new Error('Error al actualizar en MongoDB');
         return res.json();
       })
       .then((updated) => {
         setProducts((prev) =>
-          prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
+          prev.map((p) => (p.id === updated.id || p._id === updated.id ? { ...p, ...updated } : p))
         );
       })
-      .catch(() => {
-        // Si el backend no responde, actualizar de manera optimista en estado local
-        setProducts((prev) =>
-          prev.map((p) => (p.id === productId ? { ...p, ...payload } : p))
-        );
+      .catch((err) => {
+        console.error('Error al actualizar inventario en MongoDB:', err);
+        alert('Error al guardar en MongoDB: ' + err.message);
       });
   };
 
-  // Guardar o Crear Producto
+  // Guardar o Crear Producto en MongoDB
   const handleSaveProduct = (productData) => {
     if (productData.id) {
-      // Edición
+      // Edición de producto existente en MongoDB
       fetch(`${API_URL}/${productData.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData)
       })
         .then((res) => {
-          if (!res.ok) throw new Error('Error al actualizar');
+          if (!res.ok) throw new Error('Error al actualizar producto');
           return res.json();
         })
         .then((updated) => {
           setProducts((prev) =>
-            prev.map((p) => (p.id === updated.id ? updated : p))
+            prev.map((p) => (p.id === updated.id || p._id === updated.id ? updated : p))
           );
         })
-        .catch(() => {
-          setProducts((prev) =>
-            prev.map((p) => (p.id === productData.id ? { ...p, ...productData } : p))
-          );
+        .catch((err) => {
+          console.error('Error al actualizar producto en MongoDB:', err);
+          alert('Error al actualizar producto en MongoDB: ' + err.message);
         });
     } else {
-      // Nuevo
+      // Creación de nuevo producto en MongoDB
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData)
       })
         .then((res) => {
-          if (!res.ok) throw new Error('Error al crear');
+          if (!res.ok) throw new Error('Error al crear producto');
           return res.json();
         })
         .then((created) => {
           setProducts((prev) => [created, ...prev]);
         })
-        .catch(() => {
-          const newMock = {
-            ...productData,
-            id: 'mock-' + Date.now()
-          };
-          setProducts((prev) => [newMock, ...prev]);
+        .catch((err) => {
+          console.error('Error al registrar producto en MongoDB:', err);
+          alert('Error al registrar producto en MongoDB: ' + err.message);
         });
     }
   };
 
-  // Eliminar Producto
+  // Eliminar Producto en MongoDB
   const handleDeleteProduct = (productId) => {
     fetch(`${API_URL}/${productId}`, {
       method: 'DELETE'
     })
-      .then(() => {
-        setProducts((prev) => prev.filter((p) => p.id !== productId));
+      .then((res) => {
+        if (!res.ok) throw new Error('Error al eliminar producto');
+        return res.json();
       })
-      .catch(() => {
-        setProducts((prev) => prev.filter((p) => p.id !== productId));
+      .then(() => {
+        setProducts((prev) => prev.filter((p) => p.id !== productId && p._id !== productId));
+      })
+      .catch((err) => {
+        console.error('Error al eliminar producto en MongoDB:', err);
+        alert('Error al eliminar producto en MongoDB: ' + err.message);
       });
   };
 
@@ -348,11 +232,15 @@ const Inventory = () => {
         (product.code && product.code.toLowerCase().includes(term)) ||
         (product.department && product.department.toLowerCase().includes(term));
 
-      // Filtro por categoría
+      // Filtro por categoría (soporta tanto _id de Mongo como nombre de categoría)
+      const selectedCatObj = categories.find((c) => c._id === categoryFilter);
       const matchesCategory =
         categoryFilter === 'ALL' ||
+        product.id_categoria === categoryFilter ||
+        (product.id_categoria && product.id_categoria._id === categoryFilter) ||
         (product.department &&
-          product.department.toUpperCase() === categoryFilter.toUpperCase());
+          (product.department.toUpperCase() === categoryFilter.toUpperCase() ||
+           (selectedCatObj && selectedCatObj.nombre_categoria.toUpperCase() === product.department.toUpperCase())));
 
       // Filtro por estado
       const statusInfo = getProductStatus(product.stock, product.minStock);
@@ -424,28 +312,25 @@ const Inventory = () => {
                 <div className="filter-section">
                   <span className="filter-section-title">Categoría</span>
                   <div className="filter-options">
-                    {[
-                      'ALL',
-                      'PANES',
-                      'REPOSTERIA',
-                      'PASABOCAS',
-                      'DESAYUNOS',
-                      'COMBOS',
-                      'BEBIDAS CALIENTES',
-                      'BEBIDAS FRÍAS',
-                      'GASEOSAS',
-                      'LÁCTEOS',
-                      'VARIOS'
-                    ].map((cat) => (
+                    <button
+                      className={`filter-chip ${categoryFilter === 'ALL' ? 'selected' : ''}`}
+                      onClick={() => {
+                        setCategoryFilter('ALL');
+                        setCurrentPage(1);
+                      }}
+                    >
+                      Todas
+                    </button>
+                    {categories.map((cat) => (
                       <button
-                        key={cat}
-                        className={`filter-chip ${categoryFilter === cat ? 'selected' : ''}`}
+                        key={cat._id}
+                        className={`filter-chip ${categoryFilter === cat._id ? 'selected' : ''}`}
                         onClick={() => {
-                          setCategoryFilter(cat);
+                          setCategoryFilter(cat._id);
                           setCurrentPage(1);
                         }}
                       >
-                        {cat === 'ALL' ? 'Todas' : cat}
+                        {cat.nombre_categoria}
                       </button>
                     ))}
                   </div>
@@ -662,6 +547,7 @@ const Inventory = () => {
       {selectedForInventory && (
         <InventoryForm
           product={selectedForInventory}
+          categories={categories}
           onClose={() => setSelectedForInventory(null)}
           onSave={handleSaveInventory}
         />
@@ -671,6 +557,7 @@ const Inventory = () => {
       {isCreatingProduct && (
         <ProductForm
           initialData={null}
+          categories={categories}
           onClose={() => setIsCreatingProduct(false)}
           onSave={handleSaveProduct}
         />
@@ -680,6 +567,7 @@ const Inventory = () => {
       {selectedForEdit && (
         <ProductForm
           initialData={selectedForEdit}
+          categories={categories}
           onClose={() => setSelectedForEdit(null)}
           onSave={handleSaveProduct}
         />

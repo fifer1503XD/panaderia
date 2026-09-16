@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { getCategoryImage } from '../assets/productImages';
-import { CATEGORIES } from './ProductForm';
+import { DEFAULT_CATEGORIES } from './ProductForm';
 import './Modals.css';
 
-const InventoryForm = ({ product, onClose, onSave }) => {
+const InventoryForm = ({ product, categories = [], onClose, onSave }) => {
+  const categoryList = Array.isArray(categories) && categories.length > 0 ? categories : DEFAULT_CATEGORIES;
+
   const [formData, setFormData] = useState({
     code: '',
     name: '',
-    department: 'PANES'
+    id_categoria: categoryList[0]?._id || ''
   });
 
   const [adjustmentType, setAdjustmentType] = useState('add'); // 'add' | 'set'
@@ -15,19 +17,26 @@ const InventoryForm = ({ product, onClose, onSave }) => {
 
   useEffect(() => {
     if (product) {
+      const initialCatId = product.id_categoria?._id || product.id_categoria;
+      const matchedCat = categoryList.find(
+        (c) => c._id === initialCatId || c.nombre_categoria?.toUpperCase() === (product.department || '').toUpperCase()
+      );
+
       setFormData({
         code: product.code || '',
         name: product.name || '',
-        department: (product.department || 'PANES').toUpperCase()
+        id_categoria: matchedCat?._id || categoryList[0]?._id || ''
       });
       setQuantity('');
     }
-  }, [product]);
+  }, [product, categoryList]);
 
   if (!product) return null;
 
   const currentStock = Number(product.stock) || 0;
-  const previewImg = getCategoryImage(formData.department);
+  const selectedCategory = categoryList.find((c) => c._id === formData.id_categoria) || categoryList[0];
+  const selectedDepartment = selectedCategory ? selectedCategory.nombre_categoria : (product.department || 'PANES');
+  const previewImg = getCategoryImage(selectedDepartment);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,7 +63,8 @@ const InventoryForm = ({ product, onClose, onSave }) => {
     const updatedData = {
       code: formData.code.trim() || product.code,
       name: formData.name.trim() || product.name,
-      department: formData.department.toUpperCase(),
+      id_categoria: formData.id_categoria,
+      department: selectedDepartment,
       stock: finalStock
     };
 
@@ -74,7 +84,7 @@ const InventoryForm = ({ product, onClose, onSave }) => {
           <div className="modal-body">
             {/* Live Preview Card */}
             <div className="product-preview-badge">
-              <img src={previewImg} alt={formData.department} className="preview-img" />
+              <img src={previewImg} alt={selectedDepartment} className="preview-img" />
               <div>
                 <strong style={{ fontSize: '1rem', color: '#1E1E1E', display: 'block' }}>
                   {formData.name || product.name}
@@ -84,7 +94,7 @@ const InventoryForm = ({ product, onClose, onSave }) => {
                     {formData.code || product.code}
                   </span>
                   <span style={{ fontSize: '0.8rem', color: 'var(--primary-teal)', fontWeight: '700' }}>
-                    • {formData.department}
+                    • {selectedDepartment}
                   </span>
                 </div>
               </div>
@@ -107,14 +117,14 @@ const InventoryForm = ({ product, onClose, onSave }) => {
                 <div className="form-field">
                   <label>Categoría / Departamento *</label>
                   <select
-                    name="department"
-                    value={formData.department}
+                    name="id_categoria"
+                    value={formData.id_categoria}
                     onChange={handleChange}
                     required
                   >
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                    {categoryList.map((cat) => (
+                      <option key={cat._id} value={cat._id}>
+                        {cat.nombre_categoria}
                       </option>
                     ))}
                   </select>

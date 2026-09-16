@@ -40,10 +40,10 @@ async function syncCategoriaYMarca(department, brand) {
   }
 }
 
-// 1. Obtener todos los productos (con stock sincronizado de la colección Inventario)
+// 1. Obtener todos los productos (con stock sincronizado e id_categoria poblada)
 router.get('/', async (req, res) => {
   try {
-    const products = await Producto.find();
+    const products = await Producto.find().populate('id_categoria');
     
     // Obtenemos todos los registros de inventario para asegurar consistencia
     const inventarios = await Inventario.find();
@@ -57,6 +57,15 @@ router.get('/', async (req, res) => {
     const productsWithId = products.map(p => {
       const obj = p.toObject();
       obj.id = obj._id.toString();
+      
+      // Si id_categoria vino poblada como objeto, normalizamos
+      if (obj.id_categoria && typeof obj.id_categoria === 'object') {
+        if (!obj.department && obj.id_categoria.nombre_categoria) {
+          obj.department = obj.id_categoria.nombre_categoria;
+        }
+        obj.id_categoria = obj.id_categoria._id.toString();
+      }
+
       // Si existe un registro en la colección Inventario, lo usamos; si no, el del producto
       if (inventarioMap.has(obj.id)) {
         obj.stock = inventarioMap.get(obj.id);
@@ -72,15 +81,42 @@ router.get('/', async (req, res) => {
 
 // 2. Crear un producto y registrar en colecciones Productos, Inventario y Categorías
 router.post('/', async (req, res) => {
-  const { code, name, brand, department, price1, price2, price3, minStock, stock } = req.body;
+  const { code, name, brand, id_categoria, department, price1, price2, price3, minStock, stock } = req.body;
   
   const initialStock = stock !== undefined ? Number(stock) : 0;
+  let resolvedDepartment = department || 'PANES';
+  let resolvedIdCategoria = id_categoria;
+
+  // Si envían id_categoria, consultamos la colección Categorías para obtener su nombre oficial
+  if (id_categoria) {
+    try {
+      const catDoc = await Categoria.findById(id_categoria);
+      if (catDoc) {
+        resolvedDepartment = catDoc.nombre_categoria;
+        resolvedIdCategoria = catDoc._id;
+      }
+    } catch (e) {
+      console.warn('No se pudo encontrar categoría por id_categoria:', id_categoria);
+    }
+  } else if (department) {
+    // Si envían solo department, buscamos el id de la categoría en Mongo
+    try {
+      const catDoc = await Categoria.findOne({ nombre_categoria: new RegExp(`^${department.trim()}$`, 'i') });
+      if (catDoc) {
+        resolvedIdCategoria = catDoc._id;
+        resolvedDepartment = catDoc.nombre_categoria;
+      }
+    } catch (e) {
+      console.warn('No se pudo encontrar categoría por nombre:', department);
+    }
+  }
 
   const product = new Producto({
     code,
     name,
     brand,
-    department: department || 'PANES',
+    id_categoria: resolvedIdCategoria,
+    department: resolvedDepartment,
     price1: Number(price1) || 0,
     price2: price2 ? Number(price2) : undefined,
     price3: price3 ? Number(price3) : undefined,
@@ -92,12 +128,13 @@ router.post('/', async (req, res) => {
     const newProduct = await product.save();
     const obj = newProduct.toObject();
     obj.id = obj._id.toString();
+    if (obj.id_categoria) obj.id_categoria = obj.id_categoria.toString();
 
     // Sincronizar en la colección Inventario
     await syncInventario(newProduct._id, initialStock);
 
     // Sincronizar en colecciones Categoría y Marca
-    await syncCategoriaYMarca(department, brand);
+    await syncCategoriaYMarca(resolvedDepartment, brand);
 
     res.status(201).json(obj);
   } catch (error) {
@@ -108,7 +145,7 @@ router.post('/', async (req, res) => {
 // 3. Actualizar un producto o su stock (sincroniza Productos e Inventario)
 router.put('/:id', async (req, res) => {
   try {
-    const { code, name, brand, department, price1, price2, price3, minStock, stock } = req.body;
+    const { code, name, brand, id_categoria, department, price1, price2, price3, minStock, stock } = req.body;
     const product = await Producto.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
@@ -117,7 +154,30 @@ router.put('/:id', async (req, res) => {
     if (code !== undefined) product.code = code;
     if (name !== undefined) product.name = name;
     if (brand !== undefined) product.brand = brand;
-    if (department !== undefined) product.department = department;
+    
+    // Si se envía id_categoria, actualizamos id_categoria y department desde la colección Categorias
+    if (id_categoria !== undefined) {
+      product.id_categoria = id_categoria;
+      try {
+        const catDoc = await Categoria.findById(id_categoria);
+        if (catDoc) {
+          product.department = catDoc.nombre_categoria;
+        }
+      } catch (e) {
+        console.warn('Error resolviendo nombre_categoria por id:', id_categoria);
+      }
+    } else if (department !== undefined) {
+      product.department = department;
+      try {
+        const catDoc = await Categoria.findOne({ nombre_categoria: new RegExp(`^${department.trim()}$`, 'i') });
+        if (catDoc) {
+          product.id_categoria = catDoc._id;
+        }
+      } catch (e) {
+        console.warn('Error resolviendo id de categoria por nombre:', department);
+      }
+    }
+
     if (price1 !== undefined) product.price1 = Number(price1);
     if (price2 !== undefined) product.price2 = price2 ? Number(price2) : undefined;
     if (price3 !== undefined) product.price3 = price3 ? Number(price3) : undefined;
@@ -127,6 +187,7 @@ router.put('/:id', async (req, res) => {
     const updatedProduct = await product.save();
     const obj = updatedProduct.toObject();
     obj.id = obj._id.toString();
+    if (obj.id_categoria) obj.id_categoria = obj.id_categoria.toString();
 
     // Sincronizar en la colección Inventario
     if (stock !== undefined) {
@@ -134,8 +195,8 @@ router.put('/:id', async (req, res) => {
     }
 
     // Sincronizar categoría/marca si fueron modificadas
-    if (department || brand) {
-      await syncCategoriaYMarca(department, brand);
+    if (product.department || brand) {
+      await syncCategoriaYMarca(product.department, brand);
     }
 
     res.json(obj);
