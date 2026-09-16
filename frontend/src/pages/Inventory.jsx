@@ -250,13 +250,15 @@ const Inventory = () => {
     return 'cat-default';
   };
 
-  // Guardar Ajuste de Inventario (Stock)
-  const handleSaveInventory = (productId, newStock) => {
+  // Guardar Ajuste de Inventario / Producto
+  const handleSaveInventory = (productId, updateData) => {
+    const payload = typeof updateData === 'number' ? { stock: updateData } : updateData;
+
     // Actualizar en el backend
     fetch(`${API_URL}/${productId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stock: newStock })
+      body: JSON.stringify(payload)
     })
       .then((res) => {
         if (!res.ok) throw new Error('Error al actualizar backend');
@@ -264,13 +266,13 @@ const Inventory = () => {
       })
       .then((updated) => {
         setProducts((prev) =>
-          prev.map((p) => (p.id === updated.id ? updated : p))
+          prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p))
         );
       })
       .catch(() => {
         // Si el backend no responde, actualizar de manera optimista en estado local
         setProducts((prev) =>
-          prev.map((p) => (p.id === productId ? { ...p, stock: newStock } : p))
+          prev.map((p) => (p.id === productId ? { ...p, ...payload } : p))
         );
       });
   };
@@ -539,7 +541,7 @@ const Inventory = () => {
               paginatedProducts.map((product) => {
                 const statusInfo = getProductStatus(product.stock, product.minStock);
                 const categoryClass = getCategoryColorClass(product.department);
-                const imageSrc = product.imageUrl || getProductImage(product.name, product.code, product.department);
+                const imageSrc = getProductImage(product.name, product.code, product.department);
 
                 return (
                   <tr key={product.id} className="inventory-row">

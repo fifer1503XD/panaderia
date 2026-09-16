@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getProductImage } from '../assets/productImages';
+import { getCategoryImage } from '../assets/productImages';
 import './Modals.css';
 
 export const CATEGORIES = [
@@ -25,8 +25,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
     price2: '',
     price3: '',
     minStock: 5,
-    stock: 10,
-    imageUrl: ''
+    stock: 10
   });
 
   useEffect(() => {
@@ -41,8 +40,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
         price2: initialData.price2 ?? '',
         price3: initialData.price3 ?? '',
         minStock: initialData.minStock ?? 5,
-        stock: initialData.stock ?? 0,
-        imageUrl: initialData.imageUrl || ''
+        stock: initialData.stock ?? 0
       });
     }
   }, [initialData]);
@@ -67,7 +65,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
   };
 
   const isEditing = !!initialData;
-  const previewImg = formData.imageUrl || getProductImage(formData.name, formData.code, formData.department);
+  const previewImg = getCategoryImage(formData.department);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -80,7 +78,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             <div className="product-preview-badge">
-              <img src={previewImg} alt="Preview" className="preview-img" />
+              <img src={previewImg} alt={formData.department} className="preview-img" />
               <div>
                 <strong style={{ fontSize: '1rem', color: '#1E1E1E' }}>
                   {formData.name || 'Nombre del Producto'}
@@ -148,6 +146,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
                     value={formData.price1}
                     onChange={handleChange}
                     required
+                    min="0"
                   />
                 </div>
                 <div className="form-field">
@@ -158,29 +157,20 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
                     placeholder="Ej: 10"
                     value={formData.stock}
                     onChange={handleChange}
+                    min="0"
                   />
                 </div>
                 <div className="form-field">
-                  <label>Stock Mínimo (Alerta)</label>
+                  <label>Stock Mínimo</label>
                   <input
                     type="number"
                     name="minStock"
                     placeholder="Ej: 3"
                     value={formData.minStock}
                     onChange={handleChange}
+                    min="0"
                   />
                 </div>
-              </div>
-
-              <div className="form-field">
-                <label>URL de Imagen (Opcional)</label>
-                <input
-                  type="url"
-                  name="imageUrl"
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                  value={formData.imageUrl}
-                  onChange={handleChange}
-                />
               </div>
             </div>
           </div>

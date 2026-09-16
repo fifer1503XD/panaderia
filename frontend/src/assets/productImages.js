@@ -366,60 +366,41 @@ export const PRODUCT_IMAGES = {
   `)}`
 };
 
+export const CATEGORY_IMAGES = {
+  'PANES': PRODUCT_IMAGES.croissant,
+  'REPOSTERIA': PRODUCT_IMAGES.chocolateCake,
+  'PASABOCAS': PRODUCT_IMAGES.pasabocas,
+  'DESAYUNOS': PRODUCT_IMAGES.desayunos,
+  'COMBOS': PRODUCT_IMAGES.combos,
+  'BEBIDAS CALIENTES': PRODUCT_IMAGES.hotDrink,
+  'BEBIDAS FRÍAS': PRODUCT_IMAGES.coldDrink,
+  'GASEOSAS': PRODUCT_IMAGES.gaseosa,
+  'LÁCTEOS': PRODUCT_IMAGES.lacteos,
+  'VARIOS': PRODUCT_IMAGES.varios
+};
+
+export const getCategoryImage = (category = '') => {
+  const norm = (category || '')
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+
+  if (norm.includes('PAN')) return CATEGORY_IMAGES['PANES'];
+  if (norm.includes('REPOST')) return CATEGORY_IMAGES['REPOSTERIA'];
+  if (norm.includes('PASA') || norm.includes('HORNEA')) return CATEGORY_IMAGES['PASABOCAS'];
+  if (norm.includes('DESAYUN')) return CATEGORY_IMAGES['DESAYUNOS'];
+  if (norm.includes('COMBO')) return CATEGORY_IMAGES['COMBOS'];
+  if (norm.includes('CALIENTE') || norm.includes('CAFE') || norm.includes('TINTO')) return CATEGORY_IMAGES['BEBIDAS CALIENTES'];
+  if (norm.includes('FRIA') || norm.includes('JUGO') || norm.includes('SMOOTHIE')) return CATEGORY_IMAGES['BEBIDAS FRÍAS'];
+  if (norm.includes('GASEOSA') || norm.includes('SODA')) return CATEGORY_IMAGES['GASEOSAS'];
+  if (norm.includes('LACTEO') || norm.includes('LECHE') || norm.includes('YOGUR')) return CATEGORY_IMAGES['LÁCTEOS'];
+  if (norm.includes('VARIO') || norm.includes('OTRO')) return CATEGORY_IMAGES['VARIOS'];
+
+  return CATEGORY_IMAGES['PANES'];
+};
+
 export const getProductImage = (name = '', code = '', department = '') => {
-  const query = (name + ' ' + code + ' ' + department).toLowerCase();
-
-  // 1. Check specific bakery products
-  if (query.includes('croissant') || query.includes('cr001')) return PRODUCT_IMAGES.croissant;
-  if (query.includes('canela') || query.includes('rollo') || query.includes('cr002')) return PRODUCT_IMAGES.cinnamonRoll;
-  if (query.includes('torta') || query.includes('chocolate') || query.includes('pastel') || query.includes('rp001')) return PRODUCT_IMAGES.chocolateCake;
-  if (query.includes('baguette') || query.includes('pan ') || query.includes('frances')) return PRODUCT_IMAGES.baguette;
-  if (query.includes('muffin') || query.includes('ponque') || query.includes('cupcake')) return PRODUCT_IMAGES.muffin;
-  if (query.includes('dona') || query.includes('donut')) return PRODUCT_IMAGES.donut;
-
-  // 2. Check beverages & sodas
-  if (query.includes('caliente') || query.includes('cafe') || query.includes('tinto') || query.includes('capuchino') || query.includes('aromatica') || query.includes('te')) {
-    return PRODUCT_IMAGES.hotDrink;
-  }
-  if (query.includes('gaseosa') || query.includes('coca') || query.includes('pepsi') || query.includes('quatro') || query.includes('sprite') || query.includes('soda')) {
-    return PRODUCT_IMAGES.gaseosa;
-  }
-  if (query.includes('fria') || query.includes('fría') || query.includes('jugo') || query.includes('smoothie') || query.includes('granizado') || query.includes('agua')) {
-    return PRODUCT_IMAGES.coldDrink;
-  }
-
-  // 3. Check dairy (lácteos)
-  if (query.includes('lacteo') || query.includes('lácteo') || query.includes('leche') || query.includes('yogur') || query.includes('queso') || query.includes('kumis')) {
-    return PRODUCT_IMAGES.lacteos;
-  }
-
-  // 4. Check pasabocas
-  if (query.includes('pasaboca') || query.includes('empanada') || query.includes('pandebono') || query.includes('buñuelo') || query.includes('dedito') || query.includes('pastel gloria')) {
-    return PRODUCT_IMAGES.pasabocas;
-  }
-
-  // 5. Check breakfasts (desayunos)
-  if (query.includes('desayun') || query.includes('huevo') || query.includes('calentado') || query.includes('waffle')) {
-    return PRODUCT_IMAGES.desayunos;
-  }
-
-  // 6. Check combos
-  if (query.includes('combo') || query.includes('promocion') || query.includes('paquete')) {
-    return PRODUCT_IMAGES.combos;
-  }
-
-  // 7. Check by category name
-  const dept = (department || '').toUpperCase();
-  if (dept.includes('PAN')) return PRODUCT_IMAGES.croissant;
-  if (dept.includes('REPOST')) return PRODUCT_IMAGES.chocolateCake;
-  if (dept.includes('PASA')) return PRODUCT_IMAGES.pasabocas;
-  if (dept.includes('DESAYUN')) return PRODUCT_IMAGES.desayunos;
-  if (dept.includes('COMBO')) return PRODUCT_IMAGES.combos;
-  if (dept.includes('CALIENTE')) return PRODUCT_IMAGES.hotDrink;
-  if (dept.includes('FRIA') || dept.includes('FRÍA')) return PRODUCT_IMAGES.coldDrink;
-  if (dept.includes('GASEOSA')) return PRODUCT_IMAGES.gaseosa;
-  if (dept.includes('LACTEO') || dept.includes('LÁCTEO')) return PRODUCT_IMAGES.lacteos;
-  if (dept.includes('VARIO')) return PRODUCT_IMAGES.varios;
-
-  return PRODUCT_IMAGES.croissant;
+  // Retorna la imagen estandarizada de acuerdo a la categoría del producto
+  return getCategoryImage(department || name);
 };
