@@ -357,12 +357,36 @@
   color: var(--cat-reposteria);
 }
 
-.category-tag.cat-bebidas {
-  color: var(--cat-bebidas);
-}
-
 .category-tag.cat-pasabocas {
   color: var(--cat-pasabocas);
+}
+
+.category-tag.cat-desayunos {
+  color: var(--cat-desayunos);
+}
+
+.category-tag.cat-combos {
+  color: var(--cat-combos);
+}
+
+.category-tag.cat-bebidas-calientes {
+  color: var(--cat-bebidas-calientes);
+}
+
+.category-tag.cat-bebidas-frias {
+  color: var(--cat-bebidas-frias);
+}
+
+.category-tag.cat-gaseosas {
+  color: var(--cat-gaseosas);
+}
+
+.category-tag.cat-lacteos {
+  color: var(--cat-lacteos);
+}
+
+.category-tag.cat-varios {
+  color: var(--cat-varios);
 }
 
 .category-tag.cat-default {

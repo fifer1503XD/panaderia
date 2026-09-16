@@ -22,10 +22,14 @@ const productoSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    // Departamento del producto (obligatorio)
+    // Referencia a la categoría en la colección Categorías
+    id_categoria: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Categoria'
+    },
+    // Departamento / Nombre de la categoría
     department: {
         type: String,
-        required: true,
         trim: true
     },
     // Precio 1: General (obligatorio)

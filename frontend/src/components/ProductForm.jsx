@@ -1,69 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { getProductImage } from '../assets/productImages';
+import { getCategoryImage } from '../assets/productImages';
 import './Modals.css';
 
-const CATEGORIES = [
-  'PANES',
-  'REPOSTERIA',
-  'PASABOCAS',
-  'DESAYUNOS',
-  'BEBIDAS',
-  'OTROS'
+export const DEFAULT_CATEGORIES = [
+  { _id: 'cat-panes', nombre_categoria: 'PANES' },
+  { _id: 'cat-reposteria', nombre_categoria: 'REPOSTERIA' },
+  { _id: 'cat-pasabocas', nombre_categoria: 'PASABOCAS' },
+  { _id: 'cat-desayunos', nombre_categoria: 'DESAYUNOS' },
+  { _id: 'cat-combos', nombre_categoria: 'COMBOS' },
+  { _id: 'cat-bebidas-calientes', nombre_categoria: 'BEBIDAS CALIENTES' },
+  { _id: 'cat-bebidas-frias', nombre_categoria: 'BEBIDAS FRÍAS' },
+  { _id: 'cat-gaseosas', nombre_categoria: 'GASEOSAS' },
+  { _id: 'cat-lacteos', nombre_categoria: 'LÁCTEOS' },
+  { _id: 'cat-varios', nombre_categoria: 'VARIOS' }
 ];
 
-const ProductForm = ({ initialData, onClose, onSave }) => {
+export const CATEGORIES = DEFAULT_CATEGORIES.map(c => c.nombre_categoria);
+
+const ProductForm = ({ initialData, categories = [], onClose, onSave }) => {
+  const categoryList = Array.isArray(categories) && categories.length > 0 ? categories : DEFAULT_CATEGORIES;
+
   const [formData, setFormData] = useState({
     code: '',
     name: '',
     brand: '',
-    department: 'PANES',
+    id_categoria: categoryList[0]?._id || '',
     price1: '',
     price2: '',
     price3: '',
     minStock: 5,
-    stock: 10,
-    imageUrl: ''
+    stock: 10
   });
 
   useEffect(() => {
     if (initialData) {
+      const initialCatId = initialData.id_categoria?._id || initialData.id_categoria;
+      const matchedCat = categoryList.find(
+        (c) => c._id === initialCatId || c.nombre_categoria?.toUpperCase() === (initialData.department || initialData.category || '').toUpperCase()
+      );
+
       setFormData({
         id: initialData.id,
         code: initialData.code || '',
         name: initialData.name || '',
         brand: initialData.brand || '',
-        department: (initialData.department || initialData.category || 'PANES').toUpperCase(),
+        id_categoria: matchedCat?._id || categoryList[0]?._id || '',
         price1: initialData.price1 ?? '',
         price2: initialData.price2 ?? '',
         price3: initialData.price3 ?? '',
         minStock: initialData.minStock ?? 5,
-        stock: initialData.stock ?? 0,
-        imageUrl: initialData.imageUrl || ''
+        stock: initialData.stock ?? 0
       });
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        id_categoria: prev.id_categoria || categoryList[0]?._id || ''
+      }));
     }
-  }, [initialData]);
+  }, [initialData, categoryList]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const selectedCategory = categoryList.find((c) => c._id === formData.id_categoria) || categoryList[0];
+  const selectedDepartment = selectedCategory ? selectedCategory.nombre_categoria : 'PANES';
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onSave({
       ...formData,
+      id_categoria: formData.id_categoria,
+      department: selectedDepartment,
       price1: Number(formData.price1) || 0,
       price2: formData.price2 ? Number(formData.price2) : undefined,
       price3: formData.price3 ? Number(formData.price3) : undefined,
       minStock: Number(formData.minStock) || 5,
-      stock: Number(formData.stock) || 0,
-      department: formData.department.toUpperCase()
+      stock: Number(formData.stock) || 0
     });
     onClose();
   };
 
   const isEditing = !!initialData;
-  const previewImg = formData.imageUrl || getProductImage(formData.name, formData.code);
+  const previewImg = getCategoryImage(selectedDepartment);
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -76,7 +96,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
         <form onSubmit={handleSubmit}>
           <div className="modal-body">
             <div className="product-preview-badge">
-              <img src={previewImg} alt="Preview" className="preview-img" />
+              <img src={previewImg} alt={selectedDepartment} className="preview-img" />
               <div>
                 <strong style={{ fontSize: '1rem', color: '#1E1E1E' }}>
                   {formData.name || 'Nombre del Producto'}
@@ -86,7 +106,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
                     {formData.code || 'CÓDIGO'}
                   </span>
                   <span style={{ fontSize: '0.8rem', color: 'var(--primary-teal)', fontWeight: '700' }}>
-                    • {formData.department}
+                    • {selectedDepartment}
                   </span>
                 </div>
               </div>
@@ -108,14 +128,14 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
                 <div className="form-field">
                   <label>Categoría / Departamento *</label>
                   <select
-                    name="department"
-                    value={formData.department}
+                    name="id_categoria"
+                    value={formData.id_categoria}
                     onChange={handleChange}
                     required
                   >
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat}
+                    {categoryList.map((cat) => (
+                      <option key={cat._id} value={cat._id}>
+                        {cat.nombre_categoria}
                       </option>
                     ))}
                   </select>
@@ -144,6 +164,7 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
                     value={formData.price1}
                     onChange={handleChange}
                     required
+                    min="0"
                   />
                 </div>
                 <div className="form-field">
@@ -154,29 +175,20 @@ const ProductForm = ({ initialData, onClose, onSave }) => {
                     placeholder="Ej: 10"
                     value={formData.stock}
                     onChange={handleChange}
+                    min="0"
                   />
                 </div>
                 <div className="form-field">
-                  <label>Stock Mínimo (Alerta)</label>
+                  <label>Stock Mínimo</label>
                   <input
                     type="number"
                     name="minStock"
                     placeholder="Ej: 3"
                     value={formData.minStock}
                     onChange={handleChange}
+                    min="0"
                   />
                 </div>
-              </div>
-
-              <div className="form-field">
-                <label>URL de Imagen (Opcional)</label>
-                <input
-                  type="url"
-                  name="imageUrl"
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                  value={formData.imageUrl}
-                  onChange={handleChange}
-                />
               </div>
             </div>
           </div>

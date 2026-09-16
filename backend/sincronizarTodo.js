@@ -16,6 +16,27 @@ mongoose.connect(process.env.MONGODB_URI)
     const productos = await Producto.find();
     console.log(`Encontrados ${productos.length} productos en la colección 'productos'.`);
 
+    const categoriasBase = [
+      "PANES",
+      "REPOSTERIA",
+      "PASABOCAS",
+      "DESAYUNOS",
+      "COMBOS",
+      "BEBIDAS CALIENTES",
+      "BEBIDAS FRÍAS",
+      "GASEOSAS",
+      "LÁCTEOS",
+      "VARIOS"
+    ];
+
+    for (const cat of categoriasBase) {
+      await Categoria.findOneAndUpdate(
+        { nombre_categoria: new RegExp(`^${cat}$`, 'i') },
+        { nombre_categoria: cat },
+        { upsert: true }
+      );
+    }
+
     for (const prod of productos) {
       // 1. Sincronizar en colección Inventario
       await Inventario.findOneAndUpdate(
@@ -24,13 +45,19 @@ mongoose.connect(process.env.MONGODB_URI)
         { upsert: true, returnDocument: 'after' }
       );
 
-      // 2. Sincronizar en colección Categorías
+      // 2. Sincronizar en colección Categorías y asociar id_categoria en el producto
       if (prod.department && prod.department.trim()) {
-        await Categoria.findOneAndUpdate(
+        const catDoc = await Categoria.findOneAndUpdate(
           { nombre_categoria: new RegExp(`^${prod.department.trim()}$`, 'i') },
-          { nombre_categoria: prod.department.trim() },
-          { upsert: true }
+          { nombre_categoria: prod.department.trim().toUpperCase() },
+          { upsert: true, returnDocument: 'after' }
         );
+
+        if (catDoc && (!prod.id_categoria || prod.id_categoria.toString() !== catDoc._id.toString())) {
+          prod.id_categoria = catDoc._id;
+          prod.department = catDoc.nombre_categoria;
+          await prod.save();
+        }
       }
 
       // 3. Sincronizar en colección Marcas

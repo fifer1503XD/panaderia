@@ -8,81 +8,15 @@ import {
 } from '../assets/icons';
 import { getProductImage } from '../assets/productImages';
 import InventoryForm from '../components/InventoryForm';
-import ProductForm from '../components/ProductForm';
+import ProductForm, { DEFAULT_CATEGORIES } from '../components/ProductForm';
 import DeleteModal from '../components/DeleteModal';
 import './Inventory.css';
-
-// Datos iniciales de demostración acordes al diseño de la imagen
-const INITIAL_PRODUCTS = [
-  {
-    id: 'mock-1',
-    code: 'CR001',
-    name: 'Croissant',
-    department: 'PANES',
-    price1: 3000,
-    stock: 10,
-    minStock: 4
-  },
-  {
-    id: 'mock-2',
-    code: 'CR002',
-    name: 'Rollo de canela',
-    department: 'PANES',
-    price1: 2000,
-    stock: 2,
-    minStock: 5
-  },
-  {
-    id: 'mock-3',
-    code: 'RP001',
-    name: 'Torta de chocolate',
-    department: 'REPOSTERIA',
-    price1: 5000,
-    stock: 5,
-    minStock: 6
-  },
-  {
-    id: 'mock-4',
-    code: 'BG001',
-    name: 'Baguette artesanal',
-    department: 'PANES',
-    price1: 3500,
-    stock: 18,
-    minStock: 5
-  },
-  {
-    id: 'mock-5',
-    code: 'RP002',
-    name: 'Muffin de arándanos',
-    department: 'REPOSTERIA',
-    price1: 4000,
-    stock: 1,
-    minStock: 4
-  },
-  {
-    id: 'mock-6',
-    code: 'RP003',
-    name: 'Dona glaseada',
-    department: 'REPOSTERIA',
-    price1: 2500,
-    stock: 12,
-    minStock: 5
-  },
-  {
-    id: 'mock-7',
-    code: 'PS001',
-    name: 'Croissant de Almendras',
-    department: 'PANES',
-    price1: 4500,
-    stock: 8,
-    minStock: 3
-  }
-];
 
 const ITEMS_PER_PAGE = 5;
 
 const Inventory = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -102,28 +36,52 @@ const Inventory = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const API_URL = 'http://localhost:3000/api/products';
+  const CATEGORIES_API_URL = 'http://localhost:3000/api/categories';
 
-  // Cargar productos del backend con fallback a los datos locales
-  useEffect(() => {
-    fetch(API_URL)
+  // Cargar categorías desde MongoDB
+  const loadCategories = () => {
+    fetch(CATEGORIES_API_URL)
       .then((res) => {
-        if (!res.ok) throw new Error('API offline');
+        if (!res.ok) throw new Error('Categories API error');
         return res.json();
       })
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          setProducts(data);
-        } else {
-          setProducts(INITIAL_PRODUCTS);
+          setCategories(data);
         }
       })
-      .catch(() => {
-        // En caso de que el backend no esté encendido o no tenga datos, usamos INITIAL_PRODUCTS
-        setProducts(INITIAL_PRODUCTS);
+      .catch((err) => {
+        console.error('Error cargando categorías desde MongoDB:', err);
+      });
+  };
+
+  // Cargar productos directamente desde MongoDB
+  const loadProducts = () => {
+    setLoading(true);
+    fetch(API_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error('Products API error');
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        } else {
+          setProducts([]);
+        }
+      })
+      .catch((err) => {
+        console.error('Error cargando productos desde MongoDB:', err);
+        setProducts([]);
       })
       .finally(() => {
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadCategories();
+    loadProducts();
   }, []);
 
   // Cerrar el dropdown de filtro al hacer clic fuera
@@ -162,96 +120,104 @@ const Inventory = () => {
 
   // Obtener clase de color para categoría
   const getCategoryColorClass = (dept = '') => {
-    const d = dept.toUpperCase();
+    const d = dept.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     if (d.includes('PAN')) return 'cat-panes';
     if (d.includes('REPOST')) return 'cat-reposteria';
-    if (d.includes('BEBID')) return 'cat-bebidas';
     if (d.includes('PASA') || d.includes('HORNEA')) return 'cat-pasabocas';
+    if (d.includes('DESAYUN')) return 'cat-desayunos';
+    if (d.includes('COMBO')) return 'cat-combos';
+    if (d.includes('BEBIDA') && d.includes('CALIENTE')) return 'cat-bebidas-calientes';
+    if (d.includes('BEBIDA') && d.includes('FRIA')) return 'cat-bebidas-frias';
+    if (d.includes('CALIENTE') || d.includes('CAFE') || d.includes('TINTO') || d.includes('CAPUCHINO')) return 'cat-bebidas-calientes';
+    if (d.includes('FRIA') || d.includes('JUGO') || d.includes('SMOOTHIE')) return 'cat-bebidas-frias';
+    if (d.includes('GASEOSA') || d.includes('SODA')) return 'cat-gaseosas';
+    if (d.includes('LACTEO') || d.includes('LECHE') || d.includes('YOGUR')) return 'cat-lacteos';
+    if (d.includes('VARIO')) return 'cat-varios';
     return 'cat-default';
   };
 
-  // Guardar Ajuste de Inventario (Stock)
-  const handleSaveInventory = (productId, newStock) => {
-    // Actualizar en el backend
+  // Guardar Ajuste de Inventario / Producto en MongoDB
+  const handleSaveInventory = (productId, updateData) => {
+    const payload = typeof updateData === 'number' ? { stock: updateData } : updateData;
+
     fetch(`${API_URL}/${productId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stock: newStock })
+      body: JSON.stringify(payload)
     })
       .then((res) => {
-        if (!res.ok) throw new Error('Error al actualizar backend');
+        if (!res.ok) throw new Error('Error al actualizar en MongoDB');
         return res.json();
       })
       .then((updated) => {
         setProducts((prev) =>
-          prev.map((p) => (p.id === updated.id ? updated : p))
+          prev.map((p) => (p.id === updated.id || p._id === updated.id ? { ...p, ...updated } : p))
         );
       })
-      .catch(() => {
-        // Si el backend no responde, actualizar de manera optimista en estado local
-        setProducts((prev) =>
-          prev.map((p) => (p.id === productId ? { ...p, stock: newStock } : p))
-        );
+      .catch((err) => {
+        console.error('Error al actualizar inventario en MongoDB:', err);
+        alert('Error al guardar en MongoDB: ' + err.message);
       });
   };
 
-  // Guardar o Crear Producto
+  // Guardar o Crear Producto en MongoDB
   const handleSaveProduct = (productData) => {
     if (productData.id) {
-      // Edición
+      // Edición de producto existente en MongoDB
       fetch(`${API_URL}/${productData.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData)
       })
         .then((res) => {
-          if (!res.ok) throw new Error('Error al actualizar');
+          if (!res.ok) throw new Error('Error al actualizar producto');
           return res.json();
         })
         .then((updated) => {
           setProducts((prev) =>
-            prev.map((p) => (p.id === updated.id ? updated : p))
+            prev.map((p) => (p.id === updated.id || p._id === updated.id ? updated : p))
           );
         })
-        .catch(() => {
-          setProducts((prev) =>
-            prev.map((p) => (p.id === productData.id ? { ...p, ...productData } : p))
-          );
+        .catch((err) => {
+          console.error('Error al actualizar producto en MongoDB:', err);
+          alert('Error al actualizar producto en MongoDB: ' + err.message);
         });
     } else {
-      // Nuevo
+      // Creación de nuevo producto en MongoDB
       fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(productData)
       })
         .then((res) => {
-          if (!res.ok) throw new Error('Error al crear');
+          if (!res.ok) throw new Error('Error al crear producto');
           return res.json();
         })
         .then((created) => {
           setProducts((prev) => [created, ...prev]);
         })
-        .catch(() => {
-          const newMock = {
-            ...productData,
-            id: 'mock-' + Date.now()
-          };
-          setProducts((prev) => [newMock, ...prev]);
+        .catch((err) => {
+          console.error('Error al registrar producto en MongoDB:', err);
+          alert('Error al registrar producto en MongoDB: ' + err.message);
         });
     }
   };
 
-  // Eliminar Producto
+  // Eliminar Producto en MongoDB
   const handleDeleteProduct = (productId) => {
     fetch(`${API_URL}/${productId}`, {
       method: 'DELETE'
     })
-      .then(() => {
-        setProducts((prev) => prev.filter((p) => p.id !== productId));
+      .then((res) => {
+        if (!res.ok) throw new Error('Error al eliminar producto');
+        return res.json();
       })
-      .catch(() => {
-        setProducts((prev) => prev.filter((p) => p.id !== productId));
+      .then(() => {
+        setProducts((prev) => prev.filter((p) => p.id !== productId && p._id !== productId));
+      })
+      .catch((err) => {
+        console.error('Error al eliminar producto en MongoDB:', err);
+        alert('Error al eliminar producto en MongoDB: ' + err.message);
       });
   };
 
@@ -266,11 +232,15 @@ const Inventory = () => {
         (product.code && product.code.toLowerCase().includes(term)) ||
         (product.department && product.department.toLowerCase().includes(term));
 
-      // Filtro por categoría
+      // Filtro por categoría (soporta tanto _id de Mongo como nombre de categoría)
+      const selectedCatObj = categories.find((c) => c._id === categoryFilter);
       const matchesCategory =
         categoryFilter === 'ALL' ||
+        product.id_categoria === categoryFilter ||
+        (product.id_categoria && product.id_categoria._id === categoryFilter) ||
         (product.department &&
-          product.department.toUpperCase() === categoryFilter.toUpperCase());
+          (product.department.toUpperCase() === categoryFilter.toUpperCase() ||
+           (selectedCatObj && selectedCatObj.nombre_categoria.toUpperCase() === product.department.toUpperCase())));
 
       // Filtro por estado
       const statusInfo = getProductStatus(product.stock, product.minStock);
@@ -342,16 +312,25 @@ const Inventory = () => {
                 <div className="filter-section">
                   <span className="filter-section-title">Categoría</span>
                   <div className="filter-options">
-                    {['ALL', 'PANES', 'REPOSTERIA', 'PASABOCAS'].map((cat) => (
+                    <button
+                      className={`filter-chip ${categoryFilter === 'ALL' ? 'selected' : ''}`}
+                      onClick={() => {
+                        setCategoryFilter('ALL');
+                        setCurrentPage(1);
+                      }}
+                    >
+                      Todas
+                    </button>
+                    {categories.map((cat) => (
                       <button
-                        key={cat}
-                        className={`filter-chip ${categoryFilter === cat ? 'selected' : ''}`}
+                        key={cat._id}
+                        className={`filter-chip ${categoryFilter === cat._id ? 'selected' : ''}`}
                         onClick={() => {
-                          setCategoryFilter(cat);
+                          setCategoryFilter(cat._id);
                           setCurrentPage(1);
                         }}
                       >
-                        {cat === 'ALL' ? 'Todas' : cat}
+                        {cat.nombre_categoria}
                       </button>
                     ))}
                   </div>
@@ -447,7 +426,7 @@ const Inventory = () => {
               paginatedProducts.map((product) => {
                 const statusInfo = getProductStatus(product.stock, product.minStock);
                 const categoryClass = getCategoryColorClass(product.department);
-                const imageSrc = product.imageUrl || getProductImage(product.name, product.code);
+                const imageSrc = getProductImage(product.name, product.code, product.department);
 
                 return (
                   <tr key={product.id} className="inventory-row">
@@ -568,6 +547,7 @@ const Inventory = () => {
       {selectedForInventory && (
         <InventoryForm
           product={selectedForInventory}
+          categories={categories}
           onClose={() => setSelectedForInventory(null)}
           onSave={handleSaveInventory}
         />
@@ -577,6 +557,7 @@ const Inventory = () => {
       {isCreatingProduct && (
         <ProductForm
           initialData={null}
+          categories={categories}
           onClose={() => setIsCreatingProduct(false)}
           onSave={handleSaveProduct}
         />
@@ -586,6 +567,7 @@ const Inventory = () => {
       {selectedForEdit && (
         <ProductForm
           initialData={selectedForEdit}
+          categories={categories}
           onClose={() => setSelectedForEdit(null)}
           onSave={handleSaveProduct}
         />

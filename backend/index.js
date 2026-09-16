@@ -15,6 +15,8 @@ app.use(express.json());
 // Routes
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
+app.use('/api/categorias', require('./routes/categoryRoutes'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'SmartBakery Backend is running' });

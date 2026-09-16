@@ -28,8 +28,14 @@
   /* Category Colors */
   --cat-panes: #9E8000;
   --cat-reposteria: #B81B7C;
-  --cat-bebidas: #0284C7;
   --cat-pasabocas: #D97706;
+  --cat-desayunos: #EA580C;
+  --cat-combos: #7C3AED;
+  --cat-bebidas-calientes: #92400E;
+  --cat-bebidas-frias: #0284C7;
+  --cat-gaseosas: #DC2626;
+  --cat-lacteos: #2563EB;
+  --cat-varios: #4B5563;
   
   /* Status Colors */
   --status-activo: #168F83;

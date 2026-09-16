@@ -1,3 +1,6 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 // Importamos Mongoose para poder conectarnos a MongoDB.
 const mongoose = require("mongoose");
 
@@ -7,73 +10,37 @@ require("dotenv").config();
 // Importamos el modelo Categoria que creamos anteriormente.
 const Categoria = require("./models/categorias");
 
+const categoriasReales = [
+  "PANES",
+  "REPOSTERIA",
+  "PASABOCAS",
+  "DESAYUNOS",
+  "COMBOS",
+  "BEBIDAS CALIENTES",
+  "BEBIDAS FRÍAS",
+  "GASEOSAS",
+  "LÁCTEOS",
+  "VARIOS"
+];
+
 // Nos conectamos a MongoDB utilizando la dirección
 // almacenada en la variable MONGODB_URI del archivo .env.
 mongoose.connect(process.env.MONGODB_URI)
+  .then(async () => {
+    console.log("MongoDB conectado correctamente");
 
-    // Si la conexión es exitosa, ejecutamos este bloque.
-    .then(async () => {
+    for (const catName of categoriasReales) {
+      await Categoria.findOneAndUpdate(
+        { nombre_categoria: new RegExp(`^${catName}$`, "i") },
+        { nombre_categoria: catName },
+        { upsert: true, returnDocument: 'after' }
+      );
+    }
 
-        // Mostramos un mensaje para confirmar que MongoDB está conectado.
-        console.log("MongoDB conectado correctamente");
-
-        // Creamos un arreglo con las categorías
-        // que queremos guardar en la base de datos.
-        const categorias = [
-            {
-                // Primera categoría.
-                nombre_categoria: "Panes"
-            },
-            {
-                // Segunda categoría.
-                nombre_categoria: "Repostería y tortas"
-            },
-            {
-                // Tercera categoría.
-                nombre_categoria: "Pasabocas y horneados"
-            },
-            {
-                // Cuarta categoría.
-                nombre_categoria: "Desayunos"
-            },
-            {
-                // Quinta categoría.
-                nombre_categoria: "Combos"
-            },
-            {
-                // Sexta categoría.
-                nombre_categoria: "Bebidas calientes"
-            },
-            {
-                // Séptima categoría.
-                nombre_categoria: "Bebidas frías"
-            },
-            {
-                // Octava categoría.
-                nombre_categoria: "Gaseosas"
-            },
-            {
-                // Novena categoría.
-                nombre_categoria: "Lácteos"
-            }
-        ];
-
-        // Insertamos todas las categorías del arreglo
-        // en la colección correspondiente de MongoDB.
-        await Categoria.insertMany(categorias);
-
-        // Mostramos un mensaje para confirmar
-        // que las categorías fueron guardadas correctamente.
-        console.log("Categorías insertadas correctamente");
-
-        // Cerramos la conexión con MongoDB después de terminar
-        // la inserción de los datos.
-        await mongoose.connection.close();
-
-        // Mostramos un mensaje para confirmar
-        // que la conexión fue cerrada.
-        console.log("Conexión cerrada");
-    })
+    console.log("✅ 10 Categorías reales insertadas/actualizadas correctamente en MongoDB");
+    await mongoose.connection.close();
+    console.log("Conexión cerrada");
+  })
 
     // Si ocurre algún error durante la conexión o inserción,
     // lo mostramos en la consola.

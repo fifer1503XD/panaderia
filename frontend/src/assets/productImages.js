@@ -165,16 +165,242 @@ export const PRODUCT_IMAGES = {
       <rect x="68" y="52" width="8" height="3" rx="1.5" fill="#10B981" transform="rotate(45 68 52)"/>
       <rect x="30" y="55" width="8" height="3" rx="1.5" fill="#FFFFFF" transform="rotate(-15 30 55)"/>
     </svg>
+  `)}`,
+
+  hotDrink: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <linearGradient id="cup-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F8FAFC"/>
+          <stop offset="50%" stop-color="#E2E8F0"/>
+          <stop offset="100%" stop-color="#CBD5E1"/>
+        </linearGradient>
+        <radialGradient id="coffee-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#92400E"/>
+          <stop offset="70%" stop-color="#78350F"/>
+          <stop offset="100%" stop-color="#451A03"/>
+        </radialGradient>
+      </defs>
+      <!-- Steam -->
+      <path d="M40,22 Q36,14 42,8" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+      <path d="M50,20 Q46,10 52,5" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.7"/>
+      <path d="M60,22 Q56,14 62,8" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round" fill="none" opacity="0.6"/>
+      <!-- Saucer -->
+      <ellipse cx="50" cy="85" rx="38" ry="8" fill="#CBD5E1"/>
+      <ellipse cx="50" cy="83" rx="34" ry="6" fill="#F1F5F9"/>
+      <!-- Cup Handle -->
+      <path d="M68,42 C82,42 84,68 68,68" stroke="url(#cup-grad)" stroke-width="6" stroke-linecap="round" fill="none"/>
+      <!-- Cup Body -->
+      <path d="M22,35 L28,75 C30,82 70,82 72,75 L78,35 Z" fill="url(#cup-grad)"/>
+      <!-- Cup Rim & Coffee Surface -->
+      <ellipse cx="50" cy="35" rx="28" ry="9" fill="#E2E8F0"/>
+      <ellipse cx="50" cy="35" rx="25" ry="7" fill="url(#coffee-grad)"/>
+      <!-- Latte Art Heart -->
+      <path d="M50,38 C46,32 40,34 44,38 C47,40 50,42 50,42 C50,42 53,40 56,38 C60,34 54,32 50,38 Z" fill="#FEF3C7" opacity="0.9"/>
+    </svg>
+  `)}`,
+
+  coldDrink: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <linearGradient id="juice-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38BDF8"/>
+          <stop offset="50%" stop-color="#0284C7"/>
+          <stop offset="100%" stop-color="#0369A1"/>
+        </linearGradient>
+      </defs>
+      <!-- Straw -->
+      <path d="M55,10 L45,35 L42,75" stroke="#EC4899" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <!-- Glass Cup -->
+      <path d="M25,28 L32,85 C33,88 67,88 68,85 L75,28 Z" fill="#E0F2FE" opacity="0.5" stroke="#BAE6FD" stroke-width="2"/>
+      <!-- Liquid Fill -->
+      <path d="M28,40 L33,82 C34,85 66,85 67,82 L72,40 Z" fill="url(#juice-grad)" opacity="0.9"/>
+      <!-- Ice Cubes -->
+      <rect x="38" y="46" width="11" height="11" rx="2" fill="#FFFFFF" opacity="0.65"/>
+      <rect x="52" y="54" width="10" height="10" rx="2" fill="#FFFFFF" opacity="0.6"/>
+      <!-- Lemon Slice on Rim -->
+      <circle cx="30" cy="28" r="10" fill="#FBBF24"/>
+      <circle cx="30" cy="28" r="8" fill="#FDE68A"/>
+    </svg>
+  `)}`,
+
+  gaseosa: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <linearGradient id="can-body" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#991B1B"/>
+          <stop offset="25%" stop-color="#DC2626"/>
+          <stop offset="60%" stop-color="#EF4444"/>
+          <stop offset="100%" stop-color="#7F1D1D"/>
+        </linearGradient>
+        <linearGradient id="metal-top" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#94A3B8"/>
+          <stop offset="50%" stop-color="#F1F5F9"/>
+          <stop offset="100%" stop-color="#64748B"/>
+        </linearGradient>
+      </defs>
+      <!-- Can Shadow -->
+      <ellipse cx="50" cy="88" rx="22" ry="5" fill="#000" opacity="0.2"/>
+      <!-- Can Body -->
+      <rect x="32" y="25" width="36" height="58" rx="6" fill="url(#can-body)"/>
+      <!-- Top Metal Rim -->
+      <ellipse cx="50" cy="25" rx="18" ry="5" fill="url(#metal-top)"/>
+      <ellipse cx="50" cy="24" rx="14" ry="3.5" fill="#CBD5E1"/>
+      <circle cx="50" cy="24" r="2.5" fill="#475569"/>
+      <!-- Bottom Rim -->
+      <ellipse cx="50" cy="83" rx="18" ry="4" fill="url(#metal-top)"/>
+      <!-- Wave / Soda Label Wave -->
+      <path d="M32,48 Q42,60 50,48 T68,54 L68,64 Q58,54 50,64 T32,58 Z" fill="#FFFFFF" opacity="0.9"/>
+      <circle cx="42" cy="40" r="1.5" fill="#FFF" opacity="0.7"/>
+      <circle cx="58" cy="70" r="2" fill="#FFF" opacity="0.7"/>
+    </svg>
+  `)}`,
+
+  lacteos: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <linearGradient id="bottle-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#DBEAFE"/>
+          <stop offset="40%" stop-color="#FFFFFF"/>
+          <stop offset="80%" stop-color="#EFF6FF"/>
+          <stop offset="100%" stop-color="#BFDBFE"/>
+        </linearGradient>
+      </defs>
+      <!-- Bottle Shadow -->
+      <ellipse cx="50" cy="88" rx="20" ry="4" fill="#000" opacity="0.18"/>
+      <!-- Bottle Body -->
+      <path d="M42,24 L42,32 C34,38 32,45 32,54 L32,82 C32,86 68,86 68,82 L68,54 C68,45 66,38 58,32 L58,24 Z" fill="url(#bottle-grad)" stroke="#93C5FD" stroke-width="1.5"/>
+      <!-- Cap -->
+      <rect x="40" y="16" width="20" height="8" rx="3" fill="#2563EB"/>
+      <!-- Blue Dairy Label -->
+      <rect x="33" y="52" width="34" height="22" rx="4" fill="#3B82F6"/>
+      <!-- Cow / Drop icon on label -->
+      <ellipse cx="50" cy="63" rx="6" ry="6" fill="#FFFFFF"/>
+      <path d="M50,58 Q46,65 50,68 Q54,65 50,58 Z" fill="#2563EB"/>
+    </svg>
+  `)}`,
+
+  pasabocas: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <radialGradient id="empanada-grad" cx="40%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#FDE047"/>
+          <stop offset="50%" stop-color="#EAB308"/>
+          <stop offset="85%" stop-color="#CA8A04"/>
+          <stop offset="100%" stop-color="#854D0E"/>
+        </radialGradient>
+      </defs>
+      <!-- Empanada crescent -->
+      <path d="M18,65 C18,32 50,18 78,35 C88,43 90,60 80,70 C56,76 32,74 18,65 Z" fill="url(#empanada-grad)"/>
+      <!-- Crimped edge pattern (repulgue) -->
+      <path d="M18,65 Q25,58 26,67 Q34,60 36,69 Q44,62 46,71 Q54,64 56,72 Q64,65 67,72 Q74,66 80,70" stroke="#713F12" stroke-width="2.5" fill="none" opacity="0.5"/>
+      <!-- Golden bake dots -->
+      <circle cx="45" cy="42" r="1.5" fill="#713F12" opacity="0.4"/>
+      <circle cx="60" cy="46" r="2" fill="#713F12" opacity="0.4"/>
+      <circle cx="36" cy="52" r="1.5" fill="#713F12" opacity="0.4"/>
+    </svg>
+  `)}`,
+
+  desayunos: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <radialGradient id="plate-grad" cx="45%" cy="45%" r="55%">
+          <stop offset="0%" stop-color="#FFFFFF"/>
+          <stop offset="80%" stop-color="#F1F5F9"/>
+          <stop offset="100%" stop-color="#CBD5E1"/>
+        </radialGradient>
+      </defs>
+      <!-- Plate -->
+      <ellipse cx="50" cy="52" rx="42" ry="36" fill="url(#plate-grad)" stroke="#94A3B8" stroke-width="1.5"/>
+      <ellipse cx="50" cy="52" rx="32" ry="26" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <!-- Fried Egg White -->
+      <path d="M32,48 C30,40 40,32 50,34 C58,35 64,42 62,50 C60,58 50,62 40,60 C32,58 33,52 32,48 Z" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+      <!-- Egg Yolk -->
+      <circle cx="46" cy="46" r="8" fill="#F59E0B"/>
+      <circle cx="44" cy="44" r="2.5" fill="#FEF3C7"/>
+      <!-- Bacon / Sausage strips -->
+      <path d="M56,38 Q64,42 70,36" stroke="#991B1B" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <path d="M54,46 Q62,50 68,44" stroke="#B91C1C" stroke-width="3" stroke-linecap="round" fill="none"/>
+    </svg>
+  `)}`,
+
+  combos: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <linearGradient id="combo-box" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#A855F7"/>
+          <stop offset="100%" stop-color="#6B21A8"/>
+        </linearGradient>
+      </defs>
+      <!-- Combo Box -->
+      <rect x="22" y="38" width="56" height="46" rx="8" fill="url(#combo-box)"/>
+      <path d="M22,50 L78,50" stroke="#C084FC" stroke-width="2"/>
+      <!-- Croissant & Drink inside -->
+      <!-- Cup sticking out -->
+      <rect x="52" y="18" width="18" height="26" rx="3" fill="#0284C7"/>
+      <path d="M60,10 L60,20" stroke="#EC4899" stroke-width="3" stroke-linecap="round"/>
+      <!-- Croissant sticking out -->
+      <path d="M28,34 C26,24 38,18 46,24 C50,28 48,36 42,38 Z" fill="#F59E0B"/>
+      <!-- Star badge -->
+      <circle cx="50" cy="64" r="10" fill="#FBBF24"/>
+      <path d="M50,57 L52,62 L57,62 L53,65 L55,70 L50,67 L45,70 L47,65 L43,62 L48,62 Z" fill="#78350F"/>
+    </svg>
+  `)}`,
+
+  varios: `data:image/svg+xml;utf8,${encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <linearGradient id="bag-body" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#D4A373"/>
+          <stop offset="100%" stop-color="#A9714B"/>
+        </linearGradient>
+      </defs>
+      <!-- Bakery Paper Bag -->
+      <path d="M26,35 L30,84 C30,86 70,86 70,84 L74,35 Z" fill="url(#bag-body)"/>
+      <!-- Fold lines -->
+      <polygon points="26,35 34,42 66,42 74,35 68,32 32,32" fill="#BA8255"/>
+      <!-- Handles / wheat stamp -->
+      <circle cx="50" cy="58" r="12" fill="#EAD7C5" opacity="0.9"/>
+      <path d="M50,50 L50,66 M46,54 L50,58 L54,54 M46,60 L50,64 L54,60" stroke="#8A5832" stroke-width="2" stroke-linecap="round"/>
+    </svg>
   `)}`
 };
 
-export const getProductImage = (name = '', code = '') => {
-  const query = (name + ' ' + code).toLowerCase();
-  if (query.includes('croissant') || query.includes('cr001')) return PRODUCT_IMAGES.croissant;
-  if (query.includes('canela') || query.includes('rollo') || query.includes('cr002')) return PRODUCT_IMAGES.cinnamonRoll;
-  if (query.includes('torta') || query.includes('chocolate') || query.includes('pastel') || query.includes('rp001')) return PRODUCT_IMAGES.chocolateCake;
-  if (query.includes('baguette') || query.includes('pan') || query.includes('frances')) return PRODUCT_IMAGES.baguette;
-  if (query.includes('muffin') || query.includes('ponque') || query.includes('cupcake')) return PRODUCT_IMAGES.muffin;
-  if (query.includes('dona') || query.includes('donut')) return PRODUCT_IMAGES.donut;
-  return PRODUCT_IMAGES.croissant;
+export const CATEGORY_IMAGES = {
+  'PANES': PRODUCT_IMAGES.croissant,
+  'REPOSTERIA': PRODUCT_IMAGES.chocolateCake,
+  'PASABOCAS': PRODUCT_IMAGES.pasabocas,
+  'DESAYUNOS': PRODUCT_IMAGES.desayunos,
+  'COMBOS': PRODUCT_IMAGES.combos,
+  'BEBIDAS CALIENTES': PRODUCT_IMAGES.hotDrink,
+  'BEBIDAS FRÍAS': PRODUCT_IMAGES.coldDrink,
+  'GASEOSAS': PRODUCT_IMAGES.gaseosa,
+  'LÁCTEOS': PRODUCT_IMAGES.lacteos,
+  'VARIOS': PRODUCT_IMAGES.varios
+};
+
+export const getCategoryImage = (category = '') => {
+  const norm = (category || '')
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+
+  if (norm.includes('PAN')) return CATEGORY_IMAGES['PANES'];
+  if (norm.includes('REPOST')) return CATEGORY_IMAGES['REPOSTERIA'];
+  if (norm.includes('PASA') || norm.includes('HORNEA')) return CATEGORY_IMAGES['PASABOCAS'];
+  if (norm.includes('DESAYUN')) return CATEGORY_IMAGES['DESAYUNOS'];
+  if (norm.includes('COMBO')) return CATEGORY_IMAGES['COMBOS'];
+  if (norm.includes('CALIENTE') || norm.includes('CAFE') || norm.includes('TINTO')) return CATEGORY_IMAGES['BEBIDAS CALIENTES'];
+  if (norm.includes('FRIA') || norm.includes('JUGO') || norm.includes('SMOOTHIE')) return CATEGORY_IMAGES['BEBIDAS FRÍAS'];
+  if (norm.includes('GASEOSA') || norm.includes('SODA')) return CATEGORY_IMAGES['GASEOSAS'];
+  if (norm.includes('LACTEO') || norm.includes('LECHE') || norm.includes('YOGUR')) return CATEGORY_IMAGES['LÁCTEOS'];
+  if (norm.includes('VARIO') || norm.includes('OTRO')) return CATEGORY_IMAGES['VARIOS'];
+
+  return CATEGORY_IMAGES['PANES'];
+};
+
+export const getProductImage = (name = '', code = '', department = '') => {
+  // Retorna la imagen estandarizada de acuerdo a la categoría del producto
+  return getCategoryImage(department || name);
 };
