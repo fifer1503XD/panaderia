@@ -2,6 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { PRODUCTS_API_URL, PAYMENT_METHODS_API_URL, SALES_API_URL } from '../config/api';
 import './Sales.css';
 
+// Formato de moneda con punto de mil colombiano (ej: $15.000, $4.200)
+export const formatPrice = (val) => {
+  if (val === null || val === undefined || isNaN(Number(val))) return '$0';
+  const num = Number(val);
+  return '$' + num.toLocaleString('es-CO', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
+};
+
 const defaultTables = [
   { id: 'paso', name: 'Cliente de Paso', isPaso: true, status: 'libre', order: [] },
   { id: 1, name: 'Mesa 1', status: 'libre', order: [] },
@@ -26,7 +36,7 @@ const Sales = () => {
   const [isCashModalOpen, setIsCashModalOpen] = useState(false);
   const [cashAmountGiven, setCashAmountGiven] = useState('');
 
-  // Modal de Transferencia
+  // Modal de Transferencia / Bolsillo Virtual
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
   const [transferType, setTransferType] = useState('Nequi');
   const [transferVoucher, setTransferVoucher] = useState('');
@@ -47,7 +57,6 @@ const Sales = () => {
     if (savedTables) {
       try {
         let parsed = JSON.parse(savedTables);
-        // Asegurar que exista 'paso'
         const hasPaso = parsed.some(t => t.id === 'paso' || t.isPaso);
         if (!hasPaso) {
           parsed = [{ id: 'paso', name: 'Cliente de Paso', isPaso: true, status: 'libre', order: [] }, ...parsed];
@@ -232,7 +241,7 @@ const Sales = () => {
     }
   };
 
-  // Cálculos de ticket: SIN IMPUESTO (valor neto directo)
+  // Cálculos de ticket: SIN IMPUESTO (valor neto con punto de mil)
   const totalNeto = selectedTable?.order.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
   const totalItemsCount = selectedTable?.order.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
@@ -240,15 +249,21 @@ const Sales = () => {
   const handleCheckoutClick = () => {
     if (!selectedTable || selectedTable.order.length === 0) return;
 
-    if (selectedPaymentMethod.toLowerCase().includes('efectivo')) {
+    const methodLower = selectedPaymentMethod.toLowerCase();
+
+    // 1. Efectivo -> Modal de vueltas
+    if (methodLower.includes('efectivo')) {
       setCashAmountGiven(totalNeto.toString());
       setIsCashModalOpen(true);
-    } else if (selectedPaymentMethod.toLowerCase().includes('transferencia')) {
+    } 
+    // 2. Transferencia O Bolsillo Virtual -> Modal de Nequi / Daviplata
+    else if (methodLower.includes('transferencia') || methodLower.includes('bolsillo')) {
       setTransferType('Nequi');
       setTransferVoucher('');
       setIsTransferModalOpen(true);
-    } else {
-      // Otros medios (Tarjeta, Bolsillo, etc.)
+    } 
+    // 3. Otros medios (Tarjeta, etc.) -> Cobro directo
+    else {
       processSale({
         metodo_pago_nombre: selectedPaymentMethod,
         monto_recibido: totalNeto,
@@ -257,12 +272,32 @@ const Sales = () => {
     }
   };
 
-  // Ejecutar venta y persistir en MongoDB y Backend
+  // Ejecutar venta y persistir en MongoDB y Backend con fecha y hora real
   const processSale = async (paymentDetails) => {
     if (!selectedTable || selectedTable.order.length === 0) return;
 
+    const now = new Date();
+    const fechaTexto = now.toLocaleDateString('es-CO', {
+      timeZone: 'America/Bogota',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const horaTexto = now.toLocaleTimeString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    const fechaHoraLocal = `${fechaTexto} ${horaTexto}`;
+
     const mesaName = isPasoActive ? 'Cliente de Paso' : `Mesa ${selectedTableId}`;
     const salePayload = {
+      fecha_hora: now.toISOString(),
+      fecha_texto: fechaTexto,
+      hora_texto: horaTexto,
+      fecha_hora_local: fechaHoraLocal,
       tipo_venta: isPasoActive ? 'de_paso' : 'mesa',
       mesa: mesaName,
       metodo_pago_nombre: paymentDetails.metodo_pago_nombre || selectedPaymentMethod || 'Efectivo',
@@ -275,7 +310,7 @@ const Sales = () => {
     };
 
     try {
-      // 1. Enviar venta a MongoDB (colección ventas)
+      // 1. Enviar venta a MongoDB (colección ventas con hora y fecha real)
       const res = await fetch(SALES_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -290,7 +325,6 @@ const Sales = () => {
     // 2. Guardar en Historial local
     const localSaleRecord = {
       id: Date.now(),
-      date: new Date().toISOString(),
       ...salePayload
     };
     const existingSales = JSON.parse(localStorage.getItem('bakery_sales_history') || '[]');
@@ -323,14 +357,15 @@ const Sales = () => {
     setIsTransferModalOpen(false);
     setEditingPriceProductId(null);
 
-    // Notificación de éxito
+    // Notificación de éxito con hora y fecha real
     setSuccessReceipt({
       mesa: mesaName,
       total: totalNeto,
       metodo: salePayload.metodo_pago_nombre,
       tipo_transferencia: salePayload.tipo_transferencia,
       monto_recibido: salePayload.monto_recibido,
-      vueltas: salePayload.vueltas
+      vueltas: salePayload.vueltas,
+      fecha_hora_local: fechaHoraLocal
     });
   };
 
@@ -354,7 +389,7 @@ const Sales = () => {
   const cashChange = numericCashGiven - totalNeto;
   const isCashSufficient = cashChange >= 0;
 
-  // Sugerencias de montos de billetes colombianos
+  // Sugerencias de montos de billetes colombianos con punto de mil
   const getCashSuggestions = (total) => {
     const suggestions = [total];
     const denominations = [5000, 10000, 20000, 50000, 100000];
@@ -363,13 +398,14 @@ const Sales = () => {
         suggestions.push(den);
       }
     });
-    // Si total es mayor a 100k, sugerir múltiplo de 50k superior
     if (total > 100000) {
       const next50 = Math.ceil(total / 50000) * 50000;
       if (!suggestions.includes(next50)) suggestions.push(next50);
     }
     return suggestions.slice(0, 4);
   };
+
+  const isBolsilloActive = selectedPaymentMethod.toLowerCase().includes('bolsillo');
 
   return (
     <div className="page-container pos-layout">
@@ -420,7 +456,7 @@ const Sales = () => {
               onClick={() => addProductToOrder(product)}
             >
               <div className="p-name">{product.name}</div>
-              <div className="p-price">${product.price1}</div>
+              <div className="p-price">{formatPrice(product.price1)}</div>
               <div className="p-stock">Stock: {product.stock || 0}</div>
             </button>
           ))}
@@ -521,7 +557,7 @@ const Sales = () => {
                           title="Clic para editar precio de venta"
                           onClick={() => handleStartEditPrice(item)}
                         >
-                          <span>Unitario: ${parseFloat(item.price).toFixed(2)}</span>
+                          <span>Unitario: {formatPrice(item.price)}</span>
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="edit-icon">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -531,9 +567,9 @@ const Sales = () => {
                     </div>
                   </div>
 
-                  {/* Subtotal neto del producto y botón eliminar */}
+                  {/* Subtotal neto del producto con punto de mil y botón eliminar */}
                   <div className="item-subtotal-actions">
-                    <span className="item-row-total">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="item-row-total">{formatPrice(item.price * item.quantity)}</span>
                     <button 
                       className="remove-btn" 
                       title="Eliminar producto"
@@ -575,7 +611,7 @@ const Sales = () => {
           </div>
         </div>
 
-        {/* Resumen del Recibo: EXCLUSIVAMENTE VALOR NETO (Sin impuestos) */}
+        {/* Resumen del Recibo: EXCLUSIVAMENTE VALOR NETO con punto de mil */}
         <div className="ticket-summary receipt-summary-card">
           <div className="summary-row">
             <span>Total Artículos</span>
@@ -583,7 +619,7 @@ const Sales = () => {
           </div>
           <div className="summary-row total">
             <span>Total a Pagar (Neto)</span>
-            <span>${totalNeto.toFixed(2)}</span>
+            <span>{formatPrice(totalNeto)}</span>
           </div>
         </div>
 
@@ -623,7 +659,7 @@ const Sales = () => {
             <div className="modal-sales-body">
               <div className="cash-summary-banner">
                 <span className="cash-summary-label">Total a Pagar</span>
-                <span className="cash-summary-amount">${totalNeto.toFixed(2)}</span>
+                <span className="cash-summary-amount">{formatPrice(totalNeto)}</span>
               </div>
 
               <div className="cash-input-group">
@@ -642,7 +678,7 @@ const Sales = () => {
                 </div>
               </div>
 
-              {/* Sugerencias Rápidas de Billetes */}
+              {/* Sugerencias Rápidas de Billetes con punto de mil */}
               <div className="cash-suggestions-row">
                 <span className="suggestions-label">Sugerencias:</span>
                 <div className="suggestions-buttons">
@@ -653,23 +689,23 @@ const Sales = () => {
                       className="cash-sug-btn"
                       onClick={() => setCashAmountGiven(sug.toString())}
                     >
-                      {sug === totalNeto ? 'Exacto' : `$${sug.toLocaleString('es-CO')}`}
+                      {sug === totalNeto ? 'Exacto' : formatPrice(sug)}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Resultado de Vueltas / Faltante */}
+              {/* Resultado de Vueltas / Faltante con punto de mil */}
               <div className={`cash-change-box ${isCashSufficient ? 'success' : 'danger'}`}>
                 {isCashSufficient ? (
                   <>
                     <div className="change-title">Vueltas / Cambio a Entregar:</div>
-                    <div className="change-amount">${cashChange.toFixed(2)}</div>
+                    <div className="change-amount">{formatPrice(cashChange)}</div>
                   </>
                 ) : (
                   <>
                     <div className="change-title alert">Efectivo insuficiente:</div>
-                    <div className="change-amount alert">Faltan ${Math.abs(cashChange).toFixed(2)}</div>
+                    <div className="change-amount alert">Faltan {formatPrice(Math.abs(cashChange))}</div>
                   </>
                 )}
               </div>
@@ -691,7 +727,7 @@ const Sales = () => {
                   vueltas: cashChange
                 })}
               >
-                Confirmar Cobro ($${totalNeto.toFixed(2)})
+                Confirmar Cobro ({formatPrice(totalNeto)})
               </button>
             </div>
           </div>
@@ -699,27 +735,31 @@ const Sales = () => {
       )}
 
       {/* ===================================================
-          MODAL 2: TRANSFERENCIA (NEQUI / DAVIPLATA)
+          MODAL 2: TRANSFERENCIA / BOLSILLO VIRTUAL (NEQUI / DAVIPLATA)
           =================================================== */}
       {isTransferModalOpen && (
         <div className="modal-backdrop-sales" onClick={() => setIsTransferModalOpen(false)}>
           <div className="modal-content-sales transfer-modal" onClick={e => e.stopPropagation()}>
             <div className="modal-sales-header">
               <div className="modal-sales-title">
-                <span className="modal-sales-icon">📲</span>
-                <h3>Pago por Transferencia</h3>
+                <span className="modal-sales-icon">{isBolsilloActive ? '👛' : '📲'}</span>
+                <h3>{isBolsilloActive ? 'Pago con Bolsillo Virtual' : 'Pago por Transferencia'}</h3>
               </div>
               <button className="modal-close-btn" onClick={() => setIsTransferModalOpen(false)}>✕</button>
             </div>
 
             <div className="modal-sales-body">
               <div className="transfer-summary-banner">
-                <span className="transfer-summary-label">Total a Transferir</span>
-                <span className="transfer-summary-amount">${totalNeto.toFixed(2)}</span>
+                <span className="transfer-summary-label">Total a Pagar</span>
+                <span className="transfer-summary-amount">{formatPrice(totalNeto)}</span>
               </div>
 
               <div className="transfer-selector-group">
-                <label className="transfer-selector-label">Selecciona el tipo de transferencia:</label>
+                <label className="transfer-selector-label">
+                  {isBolsilloActive 
+                    ? 'Selecciona la billetera o bolsillo virtual:' 
+                    : 'Selecciona el tipo de transferencia:'}
+                </label>
                 <div className="transfer-options-container">
                   {/* Opción Nequi */}
                   <button 
@@ -728,7 +768,7 @@ const Sales = () => {
                     onClick={() => setTransferType('Nequi')}
                   >
                     <div className="transfer-card-badge">🟣 Nequi</div>
-                    <div className="transfer-card-desc">Transferencia a cuenta Nequi</div>
+                    <div className="transfer-card-desc">Transferencia / Billetera Nequi</div>
                   </button>
 
                   {/* Opción Daviplata */}
@@ -738,7 +778,7 @@ const Sales = () => {
                     onClick={() => setTransferType('Daviplata')}
                   >
                     <div className="transfer-card-badge">🔴 Daviplata</div>
-                    <div className="transfer-card-desc">Transferencia a cuenta Daviplata</div>
+                    <div className="transfer-card-desc">Transferencia / Billetera Daviplata</div>
                   </button>
                 </div>
               </div>
@@ -765,7 +805,7 @@ const Sales = () => {
               <button 
                 className="modal-btn-confirm transfer-confirm-btn"
                 onClick={() => processSale({
-                  metodo_pago_nombre: 'Transferencia',
+                  metodo_pago_nombre: selectedPaymentMethod,
                   tipo_transferencia: transferType,
                   comprobante_transferencia: transferVoucher
                 })}
@@ -778,7 +818,7 @@ const Sales = () => {
       )}
 
       {/* ===================================================
-          MODAL 3: RECIBO DE CONFIRMACIÓN / ÉXITO
+          MODAL 3: RECIBO DE CONFIRMACIÓN / ÉXITO CON FECHA Y HORA REAL
           =================================================== */}
       {successReceipt && (
         <div className="modal-backdrop-sales" onClick={() => setSuccessReceipt(null)}>
@@ -789,8 +829,12 @@ const Sales = () => {
 
             <div className="success-details-card">
               <div className="success-row">
+                <span>Fecha y Hora:</span>
+                <strong style={{ color: '#2D3142' }}>{successReceipt.fecha_hora_local}</strong>
+              </div>
+              <div className="success-row">
                 <span>Total Cobrado:</span>
-                <strong>${successReceipt.total.toFixed(2)}</strong>
+                <strong style={{ color: 'var(--primary-teal)', fontSize: '1.1rem' }}>{formatPrice(successReceipt.total)}</strong>
               </div>
               <div className="success-row">
                 <span>Medio de Pago:</span>
@@ -798,14 +842,14 @@ const Sales = () => {
               </div>
               {successReceipt.tipo_transferencia && (
                 <div className="success-row highlight">
-                  <span>Tipo Transferencia:</span>
+                  <span>Billetera / Tipo:</span>
                   <strong>{successReceipt.tipo_transferencia}</strong>
                 </div>
               )}
               {successReceipt.vueltas > 0 && (
                 <div className="success-row change-highlight">
                   <span>Vueltas Entregadas:</span>
-                  <strong>${successReceipt.vueltas.toFixed(2)}</strong>
+                  <strong>{formatPrice(successReceipt.vueltas)}</strong>
                 </div>
               )}
             </div>

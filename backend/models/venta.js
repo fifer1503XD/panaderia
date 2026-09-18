@@ -3,11 +3,29 @@ const mongoose = require("mongoose");
 
 // Creamos el esquema de Venta.
 const ventaSchema = new mongoose.Schema({
-    // Fecha y hora de la venta
+    // Fecha y hora de la venta (objeto Date)
     fecha_hora: {
         type: Date,
         default: Date.now,
         required: true
+    },
+
+    // Fecha legible de la venta (ej: 17/09/2026)
+    fecha_texto: {
+        type: String,
+        trim: true
+    },
+
+    // Hora exacta de la venta (ej: 07:54:24 PM)
+    hora_texto: {
+        type: String,
+        trim: true
+    },
+
+    // Fecha y hora local completa (ej: 17/09/2026, 7:54:24 p. m.)
+    fecha_hora_local: {
+        type: String,
+        trim: true
     },
 
     // Empleado que realizó la venta (opcional si no hay sesión activa)

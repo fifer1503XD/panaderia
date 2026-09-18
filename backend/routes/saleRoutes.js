@@ -56,9 +56,29 @@ router.post('/', async (req, res) => {
       valor_total: Number(item.price || item.valor_unitario || 0) * Number(item.quantity || item.cantidad || 1)
     }));
 
+    // Obtener la fecha y hora real de la venta
+    const fechaReal = req.body.fecha_hora ? new Date(req.body.fecha_hora) : new Date();
+    const fechaTexto = fechaReal.toLocaleDateString('es-CO', {
+      timeZone: 'America/Bogota',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const horaTexto = fechaReal.toLocaleTimeString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    const fechaHoraLocal = `${fechaTexto} ${horaTexto}`;
+
     // Crear y guardar la venta en MongoDB
     const nuevaVenta = new Venta({
-      fecha_hora: new Date(),
+      fecha_hora: fechaReal,
+      fecha_texto: fechaTexto,
+      hora_texto: horaTexto,
+      fecha_hora_local: fechaHoraLocal,
       id_empleado: id_empleado || null,
       id_metodopago: metodopagoId || null,
       metodo_pago_nombre: metodo_pago_nombre || 'Efectivo',
