@@ -17,6 +17,11 @@ app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/inventory', require('./routes/inventoryRoutes'));
 app.use('/api/categories', require('./routes/categoryRoutes'));
 app.use('/api/categorias', require('./routes/categoryRoutes'));
+app.use('/api/payment-methods', require('./routes/paymentMethodRoutes'));
+app.use('/api/metodopagos', require('./routes/paymentMethodRoutes'));
+app.use('/api/metodos-pago', require('./routes/paymentMethodRoutes'));
+app.use('/api/sales', require('./routes/saleRoutes'));
+app.use('/api/ventas', require('./routes/saleRoutes'));
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'SmartBakery Backend is running' });
