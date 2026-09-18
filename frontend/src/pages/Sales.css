@@ -8,21 +8,23 @@
 }
 
 .pos-left {
-  flex: 1.8;
+  flex: 1.7;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.pos-right {
-  flex: 1.2;
+/* Panel Derecho: Recibo de Venta */
+.pos-right.receipt-panel {
+  flex: 1.3;
   display: flex;
   flex-direction: column;
-  background: #FFFFFF;
-  border: 1px solid var(--border-divider);
-  border-radius: 16px;
+  background: linear-gradient(180deg, #FFFCFA 0%, #FFF8F3 100%);
+  border: 1.5px solid #F0DCD3;
+  border-radius: 18px;
   padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 30px rgba(139, 58, 66, 0.06), 0 2px 8px rgba(0, 0, 0, 0.02);
+  position: relative;
 }
 
 .tables-header, .products-header {
@@ -86,6 +88,42 @@
   box-shadow: 0 6px 14px rgba(14, 124, 134, 0.15);
 }
 
+/* Botón Especial: Cliente de Paso */
+.table-btn.paso-btn {
+  min-width: 125px;
+  background: #FFFDF7;
+  border: 2px dashed #EAD8B0;
+  color: #7A5B00;
+}
+
+.paso-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.paso-emoji {
+  font-size: 1.1rem;
+}
+
+.paso-badge {
+  font-size: 0.72rem !important;
+  color: #8C6D00 !important;
+  background: #FFF3C4;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 800;
+}
+
+.table-btn.paso-btn.selected {
+  border: 2px solid #D97706;
+  background-color: #FFFBEB;
+  color: #92400E;
+  box-shadow: 0 6px 14px rgba(217, 119, 6, 0.2);
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -138,75 +176,290 @@
   color: #8E8E8E;
 }
 
-/* Ticket Styles */
-.ticket-header {
-  padding-bottom: 0.85rem;
-  border-bottom: 1.5px dashed var(--border-divider);
-  text-align: center;
+/* ===================================================
+   RECEIPT / RECIBO DE VENTA STYLES
+   =================================================== */
+
+.receipt-header {
+  padding-bottom: 1rem;
+  border-bottom: 2px dashed #EAD3C8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.ticket-header h3 {
+.receipt-title-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--header-title);
+}
+
+.receipt-title-badge h3 {
   margin: 0;
   color: var(--header-title);
   font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.3px;
 }
 
-.ticket-header p {
-  margin: 2px 0 0 0;
-  color: #8E8E8E;
+.receipt-title-badge svg {
+  color: var(--header-title);
+}
+
+.table-badge-indicator {
+  display: inline-block;
+  background: #FCEBE2;
+  color: #8B3A42;
+  border: 1px solid #F5D3C4;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.3px;
 }
 
+.table-badge-indicator.paso-indicator {
+  background: #FEF3C7;
+  color: #92400E;
+  border-color: #FDE68A;
+}
+
+/* Items List */
 .ticket-items {
   flex: 1;
   overflow-y: auto;
-  padding: 0.85rem 0;
+  padding: 1rem 0.2rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  max-height: 320px;
+}
+
+.empty-cart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.empty-cart-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
 }
 
 .empty-cart {
-  text-align: center;
-  color: #999;
-  font-style: italic;
-  margin: 3rem 0;
-  font-size: 0.9rem;
+  color: #9A8A82;
+  font-size: 0.92rem;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.4;
 }
 
-.ticket-item {
+.receipt-item-card {
+  background: #FFFFFF;
+  border: 1px solid #EFE4DC;
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+  transition: all 0.15s ease;
+}
+
+.receipt-item-card:hover {
+  border-color: #E2CFBF;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+}
+
+.item-main-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding: 0.6rem 0.4rem;
-  border-bottom: 1px solid var(--border-subtle);
+  gap: 0.75rem;
 }
 
-.item-info {
+/* Controles de Cantidad (+ / -) */
+.qty-controls {
   display: flex;
-  gap: 0.5rem;
   align-items: center;
+  background: #F6F3F0;
+  border: 1px solid #E8DDD5;
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
 }
 
-.item-qty {
+.qty-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
   font-weight: 800;
+  font-size: 0.95rem;
+  color: #4A3E39;
+  background: transparent;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.qty-btn:hover {
+  background: #FFFFFF;
   color: var(--primary-teal);
-  min-width: 25px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.qty-btn.inc-btn:hover {
+  background: var(--pill-bg);
+  color: var(--primary-teal);
+}
+
+.qty-btn.dec-btn:hover {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.item-qty-badge {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--primary-teal);
+  min-width: 22px;
+  text-align: center;
+}
+
+/* Detalles del Producto y Edición de Precio */
+.item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
 .item-name {
-  color: #222;
+  color: #2D2724;
   font-weight: 700;
   font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.item-price {
-  font-weight: 800;
+.item-unit-price-container {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #333;
+}
+
+.unit-price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #FAF3EE;
+  border: 1px dashed #DDC4B7;
+  color: #7A5B4F;
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.unit-price-badge:hover {
+  background: #F3E4DC;
+  border-color: var(--primary-teal);
+  color: var(--primary-teal);
+}
+
+.edit-icon {
+  opacity: 0.7;
+}
+
+.unit-price-badge:hover .edit-icon {
+  opacity: 1;
+}
+
+/* Formulario inline de edición de precio */
+.price-edit-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--primary-teal);
+  border-radius: 6px;
+  padding: 1px 4px;
+  box-shadow: 0 2px 6px rgba(14, 124, 134, 0.15);
+}
+
+.price-prefix {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-teal);
+}
+
+.price-edit-input {
+  width: 70px;
+  border: none;
+  outline: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #222;
+  padding: 2px;
+  background: transparent;
+}
+
+.price-save-btn {
+  background: var(--status-activo);
+  color: #FFFFFF;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.price-save-btn:hover {
+  background: #117369;
+}
+
+.price-cancel-btn {
+  background: #FEE2E2;
+  color: #DC2626;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.price-cancel-btn:hover {
+  background: #DC2626;
+  color: #FFFFFF;
+}
+
+/* Subtotal por Item y Remover */
+.item-subtotal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.item-row-total {
+  font-weight: 800;
+  color: #2D2724;
+  font-size: 0.95rem;
 }
 
 .remove-btn {
@@ -216,7 +469,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -228,48 +481,650 @@
 .remove-btn:hover {
   background: var(--status-alerta);
   color: #FFF;
+  transform: scale(1.08);
 }
 
-.ticket-summary {
+/* ===================================================
+   MEDIOS DE PAGO (MONGODB)
+   =================================================== */
+
+.payment-method-section {
+  padding: 0.85rem 0;
+  border-top: 1.5px dashed #EAD3C8;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.payment-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #6D4C41;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.payment-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.payment-method-pill {
+  background: #FFFFFF;
+  border: 1.5px solid #E2D7D0;
+  color: #5C463C;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-method-pill:hover {
+  border-color: var(--primary-teal);
+  background-color: #F0FAFA;
+  color: var(--primary-teal);
+}
+
+.payment-method-pill.selected {
+  background: linear-gradient(135deg, #0E7C86 0%, #169E99 100%);
+  border-color: #0E7C86;
+  color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(14, 124, 134, 0.28);
+  transform: translateY(-1px);
+}
+
+/* ===================================================
+   TOTALES / SUMMARY (SIN IMPUESTOS)
+   =================================================== */
+
+.receipt-summary-card {
   padding-top: 0.85rem;
-  border-top: 1.5px dashed var(--border-divider);
+  border-top: 2px dashed #EAD3C8;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.4rem;
-  color: #666;
-  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+  color: #7D6B63;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
 .summary-row.total {
   font-weight: 800;
-  font-size: 1.25rem;
-  color: #222;
-  margin-top: 0.8rem;
+  font-size: 1.35rem;
+  color: #2D2724;
+  margin-top: 0.6rem;
   margin-bottom: 0;
+  padding-top: 0.4rem;
+  border-top: 1px solid #EFE4DC;
 }
 
-.ticket-actions {
+/* ===================================================
+   ACTION BUTTONS (CANCELAR Y COBRAR RECIBO)
+   =================================================== */
+
+.receipt-actions {
   display: flex;
   gap: 0.85rem;
-  margin-top: 1.2rem;
+  margin-top: 1rem;
 }
 
-.ticket-actions button {
+/* Botón Cancelar */
+.btn-cancel-receipt {
   flex: 1;
-  padding: 0.75rem;
-  border-radius: 9999px;
+  padding: 0.85rem 1rem;
+  background-color: #FFF1F1;
+  border: 1.5px solid #FCA5A5;
+  color: #DC2626;
+  border-radius: 12px;
   font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cancel-receipt:hover:not(:disabled) {
+  background-color: #FEE2E2;
+  border-color: #EF4444;
+  color: #B91C1C;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Botón Cobrar Recibo */
+.btn-checkout-receipt {
+  flex: 1.3;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(135deg, #0E7C86 0%, #169E99 100%);
+  border: none;
+  color: #FFFFFF;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(14, 124, 134, 0.32);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-checkout-receipt:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0a636c 0%, #0e7c86 100%);
+  box-shadow: 0 6px 18px rgba(14, 124, 134, 0.42);
+  transform: translateY(-2px);
+}
+
+.receipt-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ===================================================
+   MODALES DE COBRO (EFECTIVO, TRANSFERENCIA, ÉXITO)
+   =================================================== */
+
+.modal-backdrop-sales {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeInModal 0.2s ease-out;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content-sales {
+  background: #FFFFFF;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  border: 1px solid #EFE4DC;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: scaleInModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes scaleInModal {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-sales-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1.5px solid #F4EBE4;
+  background: #FFFDFB;
+}
+
+.modal-sales-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.modal-sales-icon {
+  font-size: 1.4rem;
+}
+
+.modal-sales-title h3 {
+  margin: 0;
+  color: var(--header-title);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.modal-close-btn {
+  background: #F3F4F6;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.modal-close-btn:hover {
+  background: #E5E7EB;
+  color: #111827;
+}
+
+.modal-sales-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Banner de total a pagar */
+.cash-summary-banner, .transfer-summary-banner {
+  background: linear-gradient(135deg, #FAF3EE 0%, #F5ECE5 100%);
+  border: 1.5px solid #EBDDD4;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cash-summary-label, .transfer-summary-label {
+  font-weight: 800;
+  color: #7A5B4F;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cash-summary-amount, .transfer-summary-amount {
+  font-weight: 900;
+  color: #2D2724;
+  font-size: 1.6rem;
+}
+
+/* Input de efectivo */
+.cash-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cash-input-group label {
+  font-weight: 700;
   font-size: 0.9rem;
+  color: #4A3E39;
+}
+
+.cash-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: #FFFFFF;
+  border: 2px solid var(--primary-teal);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+  box-shadow: 0 4px 12px rgba(14, 124, 134, 0.1);
+}
+
+.cash-currency-symbol {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--primary-teal);
+  margin-right: 0.4rem;
+}
+
+.cash-input-field {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1E1E1E;
+}
+
+/* Sugerencias de billetes */
+.cash-suggestions-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.suggestions-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #8E8E8E;
+}
+
+.suggestions-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cash-sug-btn {
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  color: #374151;
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cash-sug-btn:hover {
+  background: #E8F7F6;
+  border-color: var(--primary-teal);
+  color: var(--primary-teal);
+  transform: translateY(-1px);
+}
+
+/* Caja de vueltas / cambio */
+.cash-change-box {
+  border-radius: 14px;
+  padding: 1.1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  transition: all 0.2s ease;
+}
+
+.cash-change-box.success {
+  background: #ECFDF5;
+  border: 2px solid #6EE7B7;
+}
+
+.cash-change-box.success .change-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #065F46;
+  text-transform: uppercase;
+}
+
+.cash-change-box.success .change-amount {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #047857;
+}
+
+.cash-change-box.danger {
+  background: #FEF2F2;
+  border: 2px solid #FCA5A5;
+}
+
+.cash-change-box.danger .change-title.alert {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #991B1B;
+}
+
+.cash-change-box.danger .change-amount.alert {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #DC2626;
+}
+
+/* Modal de Transferencias */
+.transfer-selector-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.transfer-selector-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #4A3E39;
+}
+
+.transfer-options-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.transfer-card-option {
+  border: 2px solid #E5E7EB;
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.transfer-card-badge {
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.transfer-card-desc {
+  font-size: 0.75rem;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.transfer-card-option.nequi:hover {
+  border-color: #9333EA;
+  background: #FAF5FF;
+}
+
+.transfer-card-option.nequi.selected {
+  border-color: #7E22CE;
+  background: #F3E8FF;
+  box-shadow: 0 4px 14px rgba(126, 34, 206, 0.25);
+  transform: translateY(-2px);
+}
+
+.transfer-card-option.nequi.selected .transfer-card-badge {
+  color: #581C87;
+}
+
+.transfer-card-option.daviplata:hover {
+  border-color: #EF4444;
+  background: #FEF2F2;
+}
+
+.transfer-card-option.daviplata.selected {
+  border-color: #DC2626;
+  background: #FEE2E2;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+  transform: translateY(-2px);
+}
+
+.transfer-card-option.daviplata.selected .transfer-card-badge {
+  color: #991B1B;
+}
+
+.transfer-voucher-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.transfer-voucher-input-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #4A3E39;
+}
+
+.transfer-voucher-field {
+  border: 1.5px solid #D1D5DB;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+}
+
+.transfer-voucher-field:focus {
+  border-color: var(--primary-teal);
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.15);
+}
+
+/* Footer de los modales */
+.modal-sales-footer {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1.5px solid #F4EBE4;
+  background: #FFFDFB;
+}
+
+.modal-btn-cancel {
+  flex: 1;
+  padding: 0.85rem;
+  background: #F3F4F6;
+  border: 1.5px solid #E5E7EB;
+  color: #4B5563;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.modal-btn-cancel:hover {
+  background: #E5E7EB;
+  color: #111827;
+}
+
+.modal-btn-confirm {
+  flex: 1.6;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cash-confirm-btn {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.cash-confirm-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+.transfer-confirm-btn {
+  background: linear-gradient(135deg, #0E7C86 0%, #169E99 100%);
+  box-shadow: 0 4px 14px rgba(14, 124, 134, 0.35);
+}
+
+.transfer-confirm-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0a636c 0%, #0e7c86 100%);
+  transform: translateY(-1px);
+}
+
+.modal-btn-confirm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Modal de Éxito */
+.success-modal {
+  padding: 2.2rem 1.8rem;
+  align-items: center;
+  text-align: center;
+  max-width: 420px;
+}
+
+.success-icon-badge {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.success-modal h3 {
+  margin: 0;
+  color: #065F46;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.success-subtitle {
+  color: #6B7280;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0.25rem 0 1.25rem 0;
+}
+
+.success-details-card {
+  width: 100%;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+
+.success-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.success-row.highlight {
+  color: #7E22CE;
+}
+
+.success-row.change-highlight {
+  color: #047857;
+  font-size: 1rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed #CBD5E1;
+}
+
+.success-close-btn {
+  width: 100%;
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #0E7C86 0%, #169E99 100%);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(14, 124, 134, 0.35);
   transition: all 0.2s;
 }
 
-.ticket-actions button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.success-close-btn:hover {
+  background: linear-gradient(135deg, #0a636c 0%, #0e7c86 100%);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 960px) {

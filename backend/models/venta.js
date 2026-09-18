@@ -1,72 +1,114 @@
 // DISEÑO DE MODELOS: VENTA
-
-// Importamos Mongoose para poder crear el esquema y el modelo.
 const mongoose = require("mongoose");
 
 // Creamos el esquema de Venta.
-// Aquí definimos los datos que tendrá cada registro de venta.
 const ventaSchema = new mongoose.Schema({
-
-    // Guarda la fecha y hora en la que se realizó la venta.
+    // Fecha y hora de la venta
     fecha_hora: {
-
-        // El dato será de tipo fecha.
         type: Date,
-
-        // Este campo es obligatorio.
+        default: Date.now,
         required: true
-
     },
 
-    // Identifica al empleado que realizó la venta.
+    // Empleado que realizó la venta (opcional si no hay sesión activa)
     id_empleado: {
-
-        // Utilizamos ObjectId para relacionar la venta
-        // con un documento de la colección de empleados.
         type: mongoose.Schema.Types.ObjectId,
-
-        // "ref" indica que este campo se relaciona
-        // con el modelo Empleado.
         ref: "Empleado",
-
-        // Este campo es obligatorio.
-        required: true
-
+        required: false
     },
 
-    // Identifica el método de pago utilizado en la venta.
+    // Método de pago (ObjectId referenciado)
     id_metodopago: {
-
-        // Utilizamos ObjectId para relacionar la venta
-        // con un documento de la colección de métodos de pago.
         type: mongoose.Schema.Types.ObjectId,
-
-        // "ref" indica que este campo se relaciona
-        // con el modelo MetodoPago.
         ref: "MetodoPago",
-
-        // Este campo es obligatorio.
-        required: true
-
+        required: false
     },
 
-    // Guarda el valor total de la venta.
-    total_venta: {
+    // Nombre del método de pago utilizado (Efectivo, Transferencia, Tarjeta, etc.)
+    metodo_pago_nombre: {
+        type: String,
+        trim: true,
+        required: true
+    },
 
-        // El valor será de tipo numérico.
+    // Tipo de transferencia embebido en la colección (Nequi o Daviplata)
+    tipo_transferencia: {
+        type: String,
+        trim: true,
+        default: null
+    },
+
+    // Comprobante o referencia opcional para transferencias
+    comprobante_transferencia: {
+        type: String,
+        trim: true,
+        default: null
+    },
+
+    // Tipo de venta: 'mesa' o 'de_paso'
+    tipo_venta: {
+        type: String,
+        enum: ['mesa', 'de_paso'],
+        default: 'mesa'
+    },
+
+    // Identificador de la mesa o 'Cliente de Paso'
+    mesa: {
+        type: String,
+        trim: true,
+        default: 'Cliente de Paso'
+    },
+
+    // Efectivo entregado por el cliente (para pagos en efectivo)
+    monto_recibido: {
         type: Number,
+        default: 0
+    },
 
-        // Este campo es obligatorio.
+    // Vueltas / Cambio entregado al cliente (para pagos en efectivo)
+    vueltas: {
+        type: Number,
+        default: 0
+    },
+
+    // Lista de productos vendidos embebidos en el documento
+    items: [
+        {
+            id_producto: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Producto"
+            },
+            nombre: {
+                type: String,
+                required: true
+            },
+            cantidad: {
+                type: Number,
+                required: true,
+                min: 1
+            },
+            valor_unitario: {
+                type: Number,
+                required: true,
+                min: 0
+            },
+            valor_total: {
+                type: Number,
+                required: true,
+                min: 0
+            }
+        }
+    ],
+
+    // Valor total neto de la venta (sin impuestos agregados)
+    total_venta: {
+        type: Number,
         required: true,
-
-        // El valor mínimo permitido es 0.
-        // No permite registrar una venta con un valor negativo.
         min: 0
-
     }
-
+}, {
+    timestamps: true,
+    collection: 'ventas'
 });
 
-// Exportamos el modelo "Venta" para poder utilizarlo
-// desde otros archivos de nuestro proyecto.
-module.exports = mongoose.model("Venta", ventaSchema);
+module.exports = mongoose.model("Venta", ventaSchema, "ventas");

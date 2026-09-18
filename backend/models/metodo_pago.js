@@ -23,6 +23,5 @@ const metodoPagoSchema = new mongoose.Schema({
 
 });
 
-// Exportamos el modelo "MetodoPago" para poder utilizarlo
-// desde otros archivos de nuestro proyecto.
-module.exports = mongoose.model("MetodoPago", metodoPagoSchema);
+// Exportamos el modelo "MetodoPago" especificando la colección "metodopagos"
+module.exports = mongoose.model("MetodoPago", metodoPagoSchema, "metodopagos");
