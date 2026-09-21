@@ -1,14 +1,19 @@
-const dns = require("dns");
-try {
-  dns.setServers(["8.8.8.8", "1.1.1.1"]);
-} catch (e) {
-  // Ignored in serverless/restricted environments
+const path = require('path');
+require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME && !process.env.NETLIFY) {
+  try {
+    const dns = require("dns");
+    dns.setServers(["8.8.8.8", "1.1.1.1"]);
+  } catch (e) {
+    // Ignored in serverless/restricted environments
+  }
 }
 
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
 
@@ -23,7 +28,12 @@ async function connectDB() {
     return;
   }
   const MONGO_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/panaderia';
-  await mongoose.connect(MONGO_URI);
+  if (!process.env.MONGODB_URI) {
+    console.warn('ADVERTENCIA: No se encontró MONGODB_URI en las variables de entorno.');
+  }
+  await mongoose.connect(MONGO_URI, {
+    serverSelectionTimeoutMS: 10000,
+  });
   isConnected = true;
 }
 
@@ -34,7 +44,11 @@ app.use(async (req, res, next) => {
     next();
   } catch (error) {
     console.error('Error al conectar con MongoDB:', error.message);
-    res.status(500).json({ error: 'Error de conexión con la base de datos', message: error.message });
+    return res.status(500).json({
+      error: 'Error de conexión con la base de datos MongoDB',
+      details: error.message,
+      hint: 'Verifica que MONGODB_URI esté configurada en Netlify y que MongoDB Atlas tenga acceso de IP 0.0.0.0/0 habilitado.'
+    });
   }
 });
 
@@ -52,10 +66,16 @@ apiRouter.use('/sales', require('./routes/saleRoutes'));
 apiRouter.use('/ventas', require('./routes/saleRoutes'));
 
 apiRouter.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'SmartBakery Backend is running' });
+  res.json({
+    status: 'ok',
+    message: 'SmartBakery Backend is running',
+    environment: process.env.NODE_ENV || 'development',
+    dbState: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
 });
 
-// Mount router on both /api and root /
+// Mount router on all potential Netlify path variations
+app.use('/.netlify/functions/api', apiRouter);
 app.use('/api', apiRouter);
 app.use('/', apiRouter);
 
