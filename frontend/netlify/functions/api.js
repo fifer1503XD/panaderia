@@ -1,4 +1,6 @@
-const serverless = require('serverless-http');
+import serverless from 'serverless-http';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const { app } = require('../../../backend/app');
 
-module.exports.handler = serverless(app);
+export const handler = serverless(app);
