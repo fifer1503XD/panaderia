@@ -976,40 +976,29 @@ const Sales = () => {
       )}
 
       {/* ===================================================
-          MODAL 3: RECIBO DE CONFIRMACIÓN / ÉXITO CON FECHA Y HORA REAL
+          MODAL 3: POPUP DE CONFIRMACIÓN: PREGUNTA SI DESEA IMPRIMIR RECIBO
           =================================================== */}
       {successReceipt && (
         <div className="modal-backdrop-sales" onClick={() => setSuccessReceipt(null)}>
-          <div className="modal-content-sales success-modal" onClick={e => e.stopPropagation()}>
-            <div className="success-icon-badge">✅</div>
+          <div className="modal-content-sales success-modal print-prompt-modal" onClick={e => e.stopPropagation()}>
+            <div className="success-icon-badge">🧾</div>
             <h3>¡Venta Registrada Exitosamente!</h3>
-            <p className="success-subtitle">{successReceipt.mesa}</p>
+            <p className="success-subtitle">{successReceipt.mesa} • Recibo N° {String(successReceipt.numero_recibo || '0001').padStart(4, '0')}</p>
+
+            <div className="print-prompt-question-card">
+              <span className="print-prompt-icon">❓</span>
+              <span className="print-prompt-text">¿Deseas imprimir el recibo de venta para el cliente?</span>
+            </div>
 
             <div className="success-details-card">
               <div className="success-row">
-                <span>Recibo N°:</span>
-                <strong style={{ color: 'var(--primary-teal)', fontWeight: '800' }}>
-                  #{String(successReceipt.numero_recibo || '0001').padStart(4, '0')}
-                </strong>
-              </div>
-              <div className="success-row">
-                <span>Fecha y Hora:</span>
-                <strong style={{ color: '#2D3142' }}>{successReceipt.fecha_hora_local}</strong>
-              </div>
-              <div className="success-row">
                 <span>Total Cobrado:</span>
-                <strong style={{ color: 'var(--primary-teal)', fontSize: '1.1rem' }}>{formatPrice(successReceipt.total)}</strong>
+                <strong style={{ color: 'var(--primary-teal)', fontSize: '1.15rem' }}>{formatPrice(successReceipt.total)}</strong>
               </div>
               <div className="success-row">
                 <span>Medio de Pago:</span>
-                <span>{successReceipt.metodo}</span>
+                <span>{successReceipt.metodo} {successReceipt.tipo_transferencia ? `(${successReceipt.tipo_transferencia})` : ''}</span>
               </div>
-              {successReceipt.tipo_transferencia && (
-                <div className="success-row highlight">
-                  <span>Billetera / Tipo:</span>
-                  <strong>{successReceipt.tipo_transferencia}</strong>
-                </div>
-              )}
               {successReceipt.vueltas > 0 && (
                 <div className="success-row change-highlight">
                   <span>Vueltas Entregadas:</span>
@@ -1018,18 +1007,24 @@ const Sales = () => {
               )}
             </div>
 
-            <div className="success-modal-actions">
+            <div className="print-prompt-actions">
               <button 
-                className="success-print-btn"
-                onClick={() => handleOpenPrintModal(successReceipt)}
+                className="btn-print-yes"
+                onClick={() => {
+                  const saleData = successReceipt;
+                  setSuccessReceipt(null);
+                  handleOpenPrintModal(saleData);
+                }}
               >
-                🖨️ Imprimir Recibo de Venta
+                <span className="btn-icon">🖨️</span>
+                <span>Sí, Imprimir Recibo</span>
               </button>
+
               <button 
-                className="success-close-btn"
+                className="btn-print-no"
                 onClick={() => setSuccessReceipt(null)}
               >
-                Aceptar y Continuar
+                <span>✕ No, Finalizar Venta</span>
               </button>
             </div>
           </div>

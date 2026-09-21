@@ -1081,31 +1081,57 @@
   transform: none !important;
 }
 
-/* Modal de Éxito */
-.success-modal {
-  padding: 2.2rem 1.8rem;
+/* Modal de Éxito / Pop-up de Pregunta de Impresión */
+.success-modal.print-prompt-modal {
+  padding: 2rem 1.8rem;
   align-items: center;
   text-align: center;
-  max-width: 420px;
+  max-width: 440px;
 }
 
 .success-icon-badge {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.8rem;
+  margin-bottom: 0.35rem;
 }
 
 .success-modal h3 {
   margin: 0;
   color: #065F46;
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 800;
 }
 
 .success-subtitle {
   color: #6B7280;
   font-weight: 700;
-  font-size: 0.95rem;
-  margin: 0.25rem 0 1.25rem 0;
+  font-size: 0.9rem;
+  margin: 0.2rem 0 0.85rem 0;
+}
+
+/* Tarjeta destacada con la pregunta de impresión */
+.print-prompt-question-card {
+  width: 100%;
+  background: #ECFDF5;
+  border: 1.5px solid #A7F3D0;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  box-sizing: border-box;
+}
+
+.print-prompt-icon {
+  font-size: 1.2rem;
+}
+
+.print-prompt-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #065F46;
+  text-align: left;
+  line-height: 1.3;
 }
 
 .success-details-card {
@@ -1113,78 +1139,85 @@
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 14px;
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+  box-sizing: border-box;
 }
 
 .success-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #475569;
-}
-
-.success-row.highlight {
-  color: #7E22CE;
+  font-weight: 600;
 }
 
 .success-row.change-highlight {
   color: #047857;
-  font-size: 1rem;
-  padding-top: 0.4rem;
+  font-size: 0.95rem;
+  padding-top: 0.35rem;
   border-top: 1px dashed #CBD5E1;
 }
 
-.success-modal-actions {
+/* Botones de acción del Pop-up (Sí / No) */
+.print-prompt-actions {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
 }
 
-.success-print-btn {
+.btn-print-yes {
   width: 100%;
-  padding: 0.85rem;
-  background: linear-gradient(135deg, #4A5568 0%, #2D3748 100%);
+  padding: 0.9rem 1rem;
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
   color: #FFFFFF;
   border: none;
   border-radius: 12px;
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(45, 55, 72, 0.28);
-  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
 }
 
-.success-print-btn:hover {
-  background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+.btn-print-yes:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(45, 55, 72, 0.38);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
 }
 
-.success-close-btn {
+.btn-print-yes .btn-icon {
+  font-size: 1.15rem;
+}
+
+.btn-print-no {
   width: 100%;
-  padding: 0.8rem;
+  padding: 0.75rem 1rem;
   background: #F1F5F9;
   color: #475569;
-  border: 1.5px solid #E2E8F0;
+  border: 1.5px solid #CBD5E1;
   border-radius: 12px;
   font-weight: 800;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.success-close-btn:hover {
+.btn-print-no:hover {
   background: #E2E8F0;
   color: #1E293B;
+  border-color: #94A3B8;
 }
 
 /* ===================================================
