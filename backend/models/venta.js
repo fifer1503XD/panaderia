@@ -1,72 +1,95 @@
 // DISEÑO DE MODELOS: VENTA
-
-// Importamos Mongoose para poder crear el esquema y el modelo.
 const mongoose = require("mongoose");
 
-// Creamos el esquema de Venta.
-// Aquí definimos los datos que tendrá cada registro de venta.
-const ventaSchema = new mongoose.Schema({
+const itemVentaSchema = new mongoose.Schema({
+    id_producto: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Producto"
+    },
+    nombre: {
+        type: String,
+        required: true
+    },
+    cantidad: {
+        type: Number,
+        required: true,
+        min: 1
+    },
+    valor_unitario: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    valor_total: {
+        type: Number,
+        required: true,
+        min: 0
+    }
+}, { _id: false });
 
+const ventaSchema = new mongoose.Schema({
     // Guarda la fecha y hora en la que se realizó la venta.
     fecha_hora: {
-
-        // El dato será de tipo fecha.
         type: Date,
-
-        // Este campo es obligatorio.
-        required: true
-
+        required: true,
+        default: Date.now
     },
-
-    // Identifica al empleado que realizó la venta.
+    fecha_texto: {
+        type: String
+    },
+    hora_texto: {
+        type: String
+    },
+    fecha_hora_local: {
+        type: String
+    },
+    // Identifica al empleado que realizó la venta (opcional).
     id_empleado: {
-
-        // Utilizamos ObjectId para relacionar la venta
-        // con un documento de la colección de empleados.
         type: mongoose.Schema.Types.ObjectId,
-
-        // "ref" indica que este campo se relaciona
-        // con el modelo Empleado.
         ref: "Empleado",
-
-        // Este campo es obligatorio.
-        required: true
-
+        required: false
     },
-
-    // Identifica el método de pago utilizado en la venta.
+    // Identifica el método de pago utilizado en la venta (opcional).
     id_metodopago: {
-
-        // Utilizamos ObjectId para relacionar la venta
-        // con un documento de la colección de métodos de pago.
         type: mongoose.Schema.Types.ObjectId,
-
-        // "ref" indica que este campo se relaciona
-        // con el modelo MetodoPago.
         ref: "MetodoPago",
-
-        // Este campo es obligatorio.
-        required: true
-
+        required: false
     },
-
+    metodo_pago_nombre: {
+        type: String,
+        default: "Efectivo"
+    },
+    tipo_transferencia: {
+        type: String
+    },
+    comprobante_transferencia: {
+        type: String
+    },
+    tipo_venta: {
+        type: String,
+        default: "mesa"
+    },
+    mesa: {
+        type: String,
+        default: "Cliente de Paso"
+    },
+    monto_recibido: {
+        type: Number,
+        default: 0
+    },
+    vueltas: {
+        type: Number,
+        default: 0
+    },
+    items: [itemVentaSchema],
     // Guarda el valor total de la venta.
     total_venta: {
-
-        // El valor será de tipo numérico.
         type: Number,
-
-        // Este campo es obligatorio.
         required: true,
-
-        // El valor mínimo permitido es 0.
-        // No permite registrar una venta con un valor negativo.
         min: 0
-
     }
-
+}, {
+    timestamps: true
 });
 
-// Exportamos el modelo "Venta" para poder utilizarlo
-// desde otros archivos de nuestro proyecto.
 module.exports = mongoose.model("Venta", ventaSchema);
