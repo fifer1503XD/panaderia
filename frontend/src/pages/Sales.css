@@ -577,20 +577,20 @@
 
 .receipt-actions {
   display: flex;
-  gap: 0.85rem;
+  gap: 0.65rem;
   margin-top: 1rem;
 }
 
 /* Botón Cancelar */
 .btn-cancel-receipt {
-  flex: 1;
-  padding: 0.85rem 1rem;
+  flex: 0.9;
+  padding: 0.85rem 0.75rem;
   background-color: #FFF1F1;
   border: 1.5px solid #FCA5A5;
   color: #DC2626;
   border-radius: 12px;
   font-weight: 800;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -606,16 +606,46 @@
   transform: translateY(-1px);
 }
 
+/* Botón Imprimir Recibo */
+.btn-print-receipt {
+  flex: 1.1;
+  padding: 0.85rem 0.75rem;
+  background: linear-gradient(135deg, #4A5568 0%, #2D3748 100%);
+  border: 1.5px solid #4A5568;
+  color: #FFFFFF;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  box-shadow: 0 4px 12px rgba(45, 55, 72, 0.25);
+}
+
+.btn-print-receipt:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2D3748 0%, #1A202C 100%);
+  border-color: #2D3748;
+  box-shadow: 0 6px 16px rgba(45, 55, 72, 0.35);
+  transform: translateY(-1px);
+}
+
+.print-btn-icon {
+  font-size: 1.05rem;
+}
+
 /* Botón Cobrar Recibo */
 .btn-checkout-receipt {
-  flex: 1.3;
-  padding: 0.85rem 1rem;
+  flex: 1.2;
+  padding: 0.85rem 0.75rem;
   background: linear-gradient(135deg, #0E7C86 0%, #169E99 100%);
   border: none;
   color: #FFFFFF;
   border-radius: 12px;
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(14, 124, 134, 0.32);
   transition: all 0.2s ease;
@@ -1051,31 +1081,57 @@
   transform: none !important;
 }
 
-/* Modal de Éxito */
-.success-modal {
-  padding: 2.2rem 1.8rem;
+/* Modal de Éxito / Pop-up de Pregunta de Impresión */
+.success-modal.print-prompt-modal {
+  padding: 2rem 1.8rem;
   align-items: center;
   text-align: center;
-  max-width: 420px;
+  max-width: 440px;
 }
 
 .success-icon-badge {
-  font-size: 3rem;
-  margin-bottom: 0.5rem;
+  font-size: 2.8rem;
+  margin-bottom: 0.35rem;
 }
 
 .success-modal h3 {
   margin: 0;
   color: #065F46;
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 800;
 }
 
 .success-subtitle {
   color: #6B7280;
   font-weight: 700;
-  font-size: 0.95rem;
-  margin: 0.25rem 0 1.25rem 0;
+  font-size: 0.9rem;
+  margin: 0.2rem 0 0.85rem 0;
+}
+
+/* Tarjeta destacada con la pregunta de impresión */
+.print-prompt-question-card {
+  width: 100%;
+  background: #ECFDF5;
+  border: 1.5px solid #A7F3D0;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+  box-sizing: border-box;
+}
+
+.print-prompt-icon {
+  font-size: 1.2rem;
+}
+
+.print-prompt-text {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #065F46;
+  text-align: left;
+  line-height: 1.3;
 }
 
 .success-details-card {
@@ -1083,53 +1139,504 @@
   background: #F8FAFC;
   border: 1px solid #E2E8F0;
   border-radius: 14px;
-  padding: 1rem 1.25rem;
+  padding: 0.85rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+  box-sizing: border-box;
 }
 
 .success-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: #475569;
-}
-
-.success-row.highlight {
-  color: #7E22CE;
+  font-weight: 600;
 }
 
 .success-row.change-highlight {
   color: #047857;
-  font-size: 1rem;
-  padding-top: 0.4rem;
+  font-size: 0.95rem;
+  padding-top: 0.35rem;
   border-top: 1px dashed #CBD5E1;
 }
 
-.success-close-btn {
+/* Botones de acción del Pop-up (Sí / No) */
+.print-prompt-actions {
   width: 100%;
-  padding: 0.85rem;
-  background: linear-gradient(135deg, #0E7C86 0%, #169E99 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.btn-print-yes {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
   color: #FFFFFF;
   border: none;
   border-radius: 12px;
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.98rem;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(14, 124, 134, 0.35);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-print-yes:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+}
+
+.btn-print-yes .btn-icon {
+  font-size: 1.15rem;
+}
+
+.btn-print-no {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #F1F5F9;
+  color: #475569;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-print-no:hover {
+  background: #E2E8F0;
+  color: #1E293B;
+  border-color: #94A3B8;
+}
+
+/* ===================================================
+   MODAL DE IMPRESIÓN Y VISTA PREVIA DEL RECIBO (80mm)
+   =================================================== */
+
+.print-modal-dialog {
+  max-width: 820px !important;
+  width: 92%;
+  padding: 1.6rem 1.8rem;
+}
+
+.print-modal-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1.2fr;
+  gap: 1.5rem;
+  margin: 1rem 0 1.2rem 0;
+  align-items: start;
+}
+
+/* Formulario de Cliente */
+.print-client-form-card {
+  background: #F8FAFC;
+  border: 1.5px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.print-form-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.25rem;
+}
+
+.print-form-title h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1E293B;
+}
+
+.print-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.print-input-group label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.print-input-field {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.9rem;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #1E293B;
+  background: #FFFFFF;
   transition: all 0.2s;
 }
 
-.success-close-btn:hover {
-  background: linear-gradient(135deg, #0a636c 0%, #0e7c86 100%);
-  transform: translateY(-2px);
+.print-input-field:focus {
+  outline: none;
+  border-color: var(--primary-teal);
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.15);
+}
+
+.print-quick-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
+}
+
+.quick-tags-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748B;
+}
+
+.quick-tags-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.quick-tag-btn {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0E7C86;
+  background: #E6F6F7;
+  border: 1px solid #BCE5E8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.quick-tag-btn:hover {
+  background: #0E7C86;
+  color: #FFFFFF;
+}
+
+.print-serial-badge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #92400E;
+  margin-top: 0.4rem;
+}
+
+.print-serial-badge strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #B45309;
+}
+
+/* Vista Previa de la Tirilla Térmica (80mm) */
+.print-ticket-preview-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 440px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.print-preview-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #64748B;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.thermal-ticket-paper {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 1.2rem 1.1rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  font-family: 'Courier New', Courier, monospace;
+  color: #111827;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  box-sizing: border-box;
+}
+
+.ticket-center-header {
+  text-align: center;
+  margin-bottom: 0.4rem;
+}
+
+.ticket-business-name {
+  font-size: 1.12rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #000000;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
+}
+
+.ticket-business-info {
+  font-size: 0.78rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.ticket-dashed-separator {
+  border-top: 1.5px dashed #6B7280;
+  margin: 0.6rem 0;
+}
+
+.ticket-dashed-separator.thin {
+  border-top: 1px dashed #9CA3AF;
+  margin: 0.35rem 0;
+}
+
+.ticket-meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.8rem;
+}
+
+.ticket-meta-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ticket-meta-row .meta-k {
+  font-weight: 700;
+  color: #374151;
+}
+
+.ticket-meta-row .meta-v {
+  font-weight: 700;
+  color: #111827;
+  text-align: right;
+}
+
+.ticket-meta-row .serial-highlight {
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #000000;
+}
+
+/* Tabla de Productos del Recibo */
+.ticket-products-table {
+  width: 100%;
+}
+
+.ticket-table-head {
+  display: grid;
+  grid-template-columns: 32px 1fr 65px 70px;
+  font-weight: 800;
+  font-size: 0.76rem;
+  color: #111827;
+  text-transform: uppercase;
+}
+
+.ticket-table-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ticket-table-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 65px 70px;
+  font-size: 0.78rem;
+  align-items: center;
+}
+
+.th-qty, .td-qty {
+  text-align: left;
+  font-weight: 700;
+}
+
+.th-desc, .td-desc {
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 4px;
+}
+
+.th-unit, .td-unit {
+  text-align: right;
+  color: #4B5563;
+}
+
+.th-total, .td-total {
+  text-align: right;
+  font-weight: 800;
+  color: #000000;
+}
+
+/* Sección de Totales */
+.ticket-totals-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.ticket-total-main-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #000000;
+}
+
+.ticket-total-value {
+  font-size: 1.1rem;
+}
+
+.ticket-payment-method-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+.ticket-footer-text {
+  text-align: center;
+  font-size: 0.76rem;
+  color: #4B5563;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Botón Confirmar Impresión */
+.print-confirm-btn {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.print-confirm-btn:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+.print-confirm-icon {
+  font-size: 1.1rem;
+}
+
+/* ===================================================
+   ÁREA EXCLUSIVA DE IMPRESIÓN FISICA / TICKET (@media print)
+   =================================================== */
+
+.printable-receipt-area {
+  display: none;
+}
+
+@media print {
+  /* Ocultar toda la interfaz visual de la aplicación */
+  body * {
+    visibility: hidden !important;
+  }
+
+  body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Mostrar exclusivamente el recibo imprimible */
+  #printable-receipt,
+  #printable-receipt * {
+    visibility: visible !important;
+  }
+
+  #printable-receipt.printable-receipt-area {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 0 auto !important;
+    padding: 3mm 4mm !important;
+    background: #FFFFFF !important;
+    box-sizing: border-box !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 11.5px !important;
+    line-height: 1.35 !important;
+    color: #000000 !important;
+  }
+
+  .printable-ticket-content {
+    width: 100% !important;
+  }
+
+  .ticket-business-name {
+    font-size: 15px !important;
+    font-weight: 900 !important;
+  }
+
+  .ticket-total-main-row {
+    font-size: 14px !important;
+    font-weight: 900 !important;
+  }
+
+  .ticket-dashed-separator {
+    border-top: 1.5px dashed #000000 !important;
+    margin: 4px 0 !important;
+  }
+
+  .ticket-dashed-separator.thin {
+    border-top: 1px dashed #000000 !important;
+    margin: 2px 0 !important;
+  }
+
+  .th-total, .td-total, .ticket-total-value {
+    color: #000000 !important;
+    font-weight: 900 !important;
+  }
+
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
 }
 
 @media (max-width: 960px) {
   .pos-layout {
     flex-direction: column;
     padding: 1.2rem;
+  }
+  .print-modal-layout {
+    grid-template-columns: 1fr;
   }
 }

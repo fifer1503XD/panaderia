@@ -5,7 +5,30 @@ const Producto = require('../models/productos');
 const Inventario = require('../models/inventario');
 const MetodoPago = require('../models/metodo_pago');
 
-// 1. Obtener todas las ventas registradas
+// 1. Obtener siguiente número consecutivo de recibo
+router.get('/next-receipt-number', async (req, res) => {
+  try {
+    const lastSale = await Venta.findOne({ numero_recibo: { $exists: true, $ne: null } })
+      .sort({ numero_recibo: -1 });
+
+    let nextNum = 1;
+    if (lastSale && typeof lastSale.numero_recibo === 'number' && !isNaN(lastSale.numero_recibo)) {
+      nextNum = lastSale.numero_recibo + 1;
+    } else {
+      const count = await Venta.countDocuments();
+      nextNum = count + 1;
+    }
+
+    res.json({
+      nextReceiptNumber: nextNum,
+      formatted: String(nextNum).padStart(4, '0')
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message, nextReceiptNumber: 1, formatted: '0001' });
+  }
+});
+
+// 2. Obtener todas las ventas registradas
 router.get('/', async (req, res) => {
   try {
     const ventas = await Venta.find().sort({ fecha_hora: -1 }).limit(100);
@@ -15,10 +38,13 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 2. Registrar una nueva venta
+// 3. Registrar una nueva venta
 router.post('/', async (req, res) => {
   try {
     const {
+      numero_recibo,
+      cliente_nombre,
+      cliente_nit,
       metodo_pago_nombre,
       tipo_transferencia,
       comprobante_transferencia,
@@ -36,14 +62,31 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'La venta debe contener al menos un producto' });
     }
 
+    // Calcular consecutivo si no fue enviado
+    let finalReciboNum = numero_recibo ? Number(numero_recibo) : null;
+    if (!finalReciboNum) {
+      const lastSale = await Venta.findOne({ numero_recibo: { $exists: true, $ne: null } })
+        .sort({ numero_recibo: -1 });
+      if (lastSale && typeof lastSale.numero_recibo === 'number' && !isNaN(lastSale.numero_recibo)) {
+        finalReciboNum = lastSale.numero_recibo + 1;
+      } else {
+        const count = await Venta.countDocuments();
+        finalReciboNum = count + 1;
+      }
+    }
+
     // Buscar método de pago por nombre si no viene id_metodopago
     let metodopagoId = id_metodopago;
     if (!metodopagoId && metodo_pago_nombre) {
-      const mpDoc = await MetodoPago.findOne({
-        metodo_pago: new RegExp(`^${metodo_pago_nombre.trim()}$`, 'i')
-      });
-      if (mpDoc) {
-        metodopagoId = mpDoc._id;
+      try {
+        const mpDoc = await MetodoPago.findOne({
+          metodo_pago: new RegExp(`^${metodo_pago_nombre.trim()}$`, 'i')
+        });
+        if (mpDoc) {
+          metodopagoId = mpDoc._id;
+        }
+      } catch (e) {
+        // Ignored
       }
     }
 
@@ -75,6 +118,9 @@ router.post('/', async (req, res) => {
 
     // Crear y guardar la venta en MongoDB
     const nuevaVenta = new Venta({
+      numero_recibo: finalReciboNum,
+      cliente_nombre: cliente_nombre ? cliente_nombre.trim() : 'Cliente General',
+      cliente_nit: cliente_nit ? cliente_nit.trim() : 'Consumidor Final',
       fecha_hora: fechaReal,
       fecha_texto: fechaTexto,
       hora_texto: horaTexto,
@@ -119,6 +165,7 @@ router.post('/', async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Venta registrada exitosamente',
+      numero_recibo: finalReciboNum,
       venta: ventaGuardada
     });
   } catch (error) {

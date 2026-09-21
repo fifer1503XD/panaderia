@@ -3,6 +3,25 @@ const mongoose = require("mongoose");
 
 // Creamos el esquema de Venta.
 const ventaSchema = new mongoose.Schema({
+    // Número consecutivo de recibo de venta
+    numero_recibo: {
+        type: Number,
+        default: null
+    },
+
+    // Datos del cliente para el recibo
+    cliente_nombre: {
+        type: String,
+        trim: true,
+        default: 'Cliente General'
+    },
+
+    cliente_nit: {
+        type: String,
+        trim: true,
+        default: 'Consumidor Final'
+    },
+
     // Fecha y hora de la venta (objeto Date)
     fecha_hora: {
         type: Date,
