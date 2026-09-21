@@ -1,12 +1,6 @@
-import serverless from 'serverless-http';
-import { createRequire } from 'module';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const serverless = require('serverless-http');
+const { app } = require('../../../backend/app');
 
-const require = createRequire(import.meta.url);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const handler = serverless(app);
 
-const { app } = require(path.resolve(__dirname, '../../../backend/app'));
-
-export const handler = serverless(app);
+exports.handler = handler;

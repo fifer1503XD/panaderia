@@ -15,6 +15,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
+const productRoutes = require('./routes/productRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
+const paymentMethodRoutes = require('./routes/paymentMethodRoutes');
+const saleRoutes = require('./routes/saleRoutes');
+
 const app = express();
 
 // Middlewares
@@ -55,15 +61,15 @@ app.use(async (req, res, next) => {
 // Create router for all API endpoints
 const apiRouter = express.Router();
 
-apiRouter.use('/products', require('./routes/productRoutes'));
-apiRouter.use('/inventory', require('./routes/inventoryRoutes'));
-apiRouter.use('/categories', require('./routes/categoryRoutes'));
-apiRouter.use('/categorias', require('./routes/categoryRoutes'));
-apiRouter.use('/payment-methods', require('./routes/paymentMethodRoutes'));
-apiRouter.use('/metodopagos', require('./routes/paymentMethodRoutes'));
-apiRouter.use('/metodos-pago', require('./routes/paymentMethodRoutes'));
-apiRouter.use('/sales', require('./routes/saleRoutes'));
-apiRouter.use('/ventas', require('./routes/saleRoutes'));
+apiRouter.use('/products', productRoutes);
+apiRouter.use('/inventory', inventoryRoutes);
+apiRouter.use('/categories', categoryRoutes);
+apiRouter.use('/categorias', categoryRoutes);
+apiRouter.use('/payment-methods', paymentMethodRoutes);
+apiRouter.use('/metodopagos', paymentMethodRoutes);
+apiRouter.use('/metodos-pago', paymentMethodRoutes);
+apiRouter.use('/sales', saleRoutes);
+apiRouter.use('/ventas', saleRoutes);
 
 apiRouter.get('/health', (req, res) => {
   res.json({
