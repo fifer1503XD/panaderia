@@ -1,37 +1,8 @@
-const dns = require("dns");
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
+const { app, connectDB } = require('./app');
 
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-require('dotenv').config();
-
-const app = express();
-
-// Middlewares
-app.use(cors());
-app.use(express.json());
-
-// Routes
-app.use('/api/products', require('./routes/productRoutes'));
-app.use('/api/inventory', require('./routes/inventoryRoutes'));
-app.use('/api/categories', require('./routes/categoryRoutes'));
-app.use('/api/categorias', require('./routes/categoryRoutes'));
-app.use('/api/payment-methods', require('./routes/paymentMethodRoutes'));
-app.use('/api/metodopagos', require('./routes/paymentMethodRoutes'));
-app.use('/api/metodos-pago', require('./routes/paymentMethodRoutes'));
-app.use('/api/sales', require('./routes/saleRoutes'));
-app.use('/api/ventas', require('./routes/saleRoutes'));
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'SmartBakery Backend is running' });
-});
-
-// Database connection
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/panaderia';
 
-mongoose.connect(MONGO_URI)
+connectDB()
   .then(() => {
     console.log('MongoDB conectado exitosamente');
     app.listen(PORT, () => {
