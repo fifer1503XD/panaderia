@@ -44,12 +44,23 @@ const Sales = () => {
   // Notificación de éxito
   const [successReceipt, setSuccessReceipt] = useState(null);
 
+  // Modal y Datos de Impresión de Recibo
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [printClientName, setPrintClientName] = useState('Cliente General');
+  const [printClientNit, setPrintClientNit] = useState('Consumidor Final');
+  const [printReceiptNumber, setPrintReceiptNumber] = useState('0001');
+  const [printReceiptData, setPrintReceiptData] = useState(null);
+
   // Cargar productos, mesas y medios de pago al montar
   useEffect(() => {
     // 1. Cargar productos
     fetch(PRODUCTS_API_URL)
       .then(res => res.json())
-      .then(data => setProducts(data))
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProducts(data);
+        }
+      })
       .catch(err => console.error('Error al cargar productos en ventas:', err));
 
     // 2. Cargar mesas desde localStorage asegurando cliente de paso
@@ -245,6 +256,116 @@ const Sales = () => {
   const totalNeto = selectedTable?.order.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
   const totalItemsCount = selectedTable?.order.reduce((sum, item) => sum + item.quantity, 0) || 0;
 
+  // Obtener número consecutivo de recibo (independiente del ID de venta)
+  const fetchNextReceiptNumber = async () => {
+    let nextNum = 1;
+    try {
+      const res = await fetch(`${SALES_API_URL}/next-receipt-number`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data.nextReceiptNumber === 'number') {
+          nextNum = data.nextReceiptNumber;
+        }
+      }
+    } catch (e) {
+      console.warn('Fallback al contador local:', e);
+    }
+    const localCounter = parseInt(localStorage.getItem('bakery_receipt_counter') || '0', 10);
+    const finalNum = Math.max(nextNum, localCounter + 1);
+    return finalNum;
+  };
+
+  // Formato de fecha y hora actual en tiempo real para impresión
+  const getFormattedCurrentDateTime = () => {
+    const now = new Date();
+    const fechaTexto = now.toLocaleDateString('es-CO', {
+      timeZone: 'America/Bogota',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    const horaTexto = now.toLocaleTimeString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+    return `${fechaTexto}, ${horaTexto}`;
+  };
+
+  // Abrir Modal de Impresión
+  const handleOpenPrintModal = async (customSaleData = null) => {
+    // Si viene desde una venta ya finalizada
+    if (customSaleData) {
+      setPrintReceiptData(customSaleData);
+      setPrintReceiptNumber(String(customSaleData.numero_recibo || 1).padStart(4, '0'));
+      setPrintClientName(customSaleData.cliente_nombre || 'Cliente General');
+      setPrintClientNit(customSaleData.cliente_nit || 'Consumidor Final');
+      setIsPrintModalOpen(true);
+      return;
+    }
+
+    // Si viene desde el recibo activo actual
+    if (!selectedTable || selectedTable.order.length === 0) {
+      alert('No hay productos en el recibo para imprimir.');
+      return;
+    }
+
+    const nextNum = await fetchNextReceiptNumber();
+    const formattedNum = String(nextNum).padStart(4, '0');
+    setPrintReceiptNumber(formattedNum);
+    setPrintClientName('Cliente General');
+    setPrintClientNit('Consumidor Final');
+
+    const currentDateTime = getFormattedCurrentDateTime();
+    const mesaName = isPasoActive ? 'Cliente de Paso' : `Mesa ${selectedTableId}`;
+
+    setPrintReceiptData({
+      numero_recibo: nextNum,
+      numero_recibo_formato: formattedNum,
+      fecha_hora_impresion: currentDateTime,
+      mesa: mesaName,
+      items: selectedTable.order,
+      total: totalNeto,
+      metodo: selectedPaymentMethod,
+      cliente_nombre: 'Cliente General',
+      cliente_nit: 'Consumidor Final'
+    });
+
+    setIsPrintModalOpen(true);
+  };
+
+  // Confirmar y Ejecutar Impresión (window.print)
+  const handleConfirmPrint = () => {
+    const currentDateTime = getFormattedCurrentDateTime();
+    const currentNumInt = parseInt(printReceiptNumber, 10) || 1;
+
+    // Actualizar datos del recibo listos para imprimir
+    const finalReceipt = {
+      ...(printReceiptData || {}),
+      numero_recibo: currentNumInt,
+      numero_recibo_formato: String(currentNumInt).padStart(4, '0'),
+      fecha_hora_impresion: currentDateTime,
+      cliente_nombre: printClientName.trim() || 'Cliente General',
+      cliente_nit: printClientNit.trim() || 'Consumidor Final',
+      items: printReceiptData?.items || selectedTable.order,
+      total: printReceiptData?.total !== undefined ? printReceiptData.total : totalNeto,
+      metodo: printReceiptData?.metodo || selectedPaymentMethod,
+      mesa: printReceiptData?.mesa || (isPasoActive ? 'Cliente de Paso' : `Mesa ${selectedTableId}`)
+    };
+
+    setPrintReceiptData(finalReceipt);
+
+    // Incrementar y guardar en localStorage para mantener el serial consecutivo
+    localStorage.setItem('bakery_receipt_counter', currentNumInt.toString());
+
+    // Ejecutar impresión
+    setTimeout(() => {
+      window.print();
+    }, 150);
+  };
+
   // Manejo del clic en "Cobrar Recibo"
   const handleCheckoutClick = () => {
     if (!selectedTable || selectedTable.order.length === 0) return;
@@ -276,6 +397,9 @@ const Sales = () => {
   const processSale = async (paymentDetails) => {
     if (!selectedTable || selectedTable.order.length === 0) return;
 
+    const nextReciboNum = await fetchNextReceiptNumber();
+    const formattedRecibo = String(nextReciboNum).padStart(4, '0');
+
     const now = new Date();
     const fechaTexto = now.toLocaleDateString('es-CO', {
       timeZone: 'America/Bogota',
@@ -294,6 +418,9 @@ const Sales = () => {
 
     const mesaName = isPasoActive ? 'Cliente de Paso' : `Mesa ${selectedTableId}`;
     const salePayload = {
+      numero_recibo: nextReciboNum,
+      cliente_nombre: printClientName.trim() || 'Cliente General',
+      cliente_nit: printClientNit.trim() || 'Consumidor Final',
       fecha_hora: now.toISOString(),
       fecha_texto: fechaTexto,
       hora_texto: horaTexto,
@@ -318,8 +445,12 @@ const Sales = () => {
       });
       const data = await res.json();
       console.log('Venta guardada en Mongo:', data);
+      if (data && data.numero_recibo) {
+        localStorage.setItem('bakery_receipt_counter', data.numero_recibo.toString());
+      }
     } catch (err) {
       console.error('Error al guardar venta en Mongo:', err);
+      localStorage.setItem('bakery_receipt_counter', nextReciboNum.toString());
     }
 
     // 2. Guardar en Historial local
@@ -357,16 +488,25 @@ const Sales = () => {
     setIsTransferModalOpen(false);
     setEditingPriceProductId(null);
 
-    // Notificación de éxito con hora y fecha real
-    setSuccessReceipt({
+    // Guardar recibo generado para poder imprimirlo inmediatamente
+    const successData = {
+      numero_recibo: nextReciboNum,
+      numero_recibo_formato: formattedRecibo,
       mesa: mesaName,
       total: totalNeto,
       metodo: salePayload.metodo_pago_nombre,
       tipo_transferencia: salePayload.tipo_transferencia,
       monto_recibido: salePayload.monto_recibido,
       vueltas: salePayload.vueltas,
-      fecha_hora_local: fechaHoraLocal
-    });
+      fecha_hora_local: fechaHoraLocal,
+      fecha_hora_impresion: fechaHoraLocal,
+      cliente_nombre: salePayload.cliente_nombre,
+      cliente_nit: salePayload.cliente_nit,
+      items: salePayload.items
+    };
+
+    setPrintReceiptData(successData);
+    setSuccessReceipt(successData);
   };
 
   const cancelOrder = () => {
@@ -406,6 +546,13 @@ const Sales = () => {
   };
 
   const isBolsilloActive = selectedPaymentMethod.toLowerCase().includes('bolsillo');
+
+  // Datos para renderizar el recibo activo (preview e impresión)
+  const activeReceiptItems = printReceiptData?.items || selectedTable?.order || [];
+  const activeReceiptTotal = printReceiptData?.total !== undefined ? printReceiptData.total : totalNeto;
+  const activeReceiptMesa = printReceiptData?.mesa || (isPasoActive ? 'Cliente de Paso' : `Mesa ${selectedTableId}`);
+  const activeReceiptMethod = printReceiptData?.metodo || selectedPaymentMethod;
+  const activeReceiptDate = printReceiptData?.fecha_hora_impresion || getFormattedCurrentDateTime();
 
   return (
     <div className="page-container pos-layout">
@@ -451,7 +598,7 @@ const Sales = () => {
         <div className="products-grid">
           {products.filter(p => p.price1).map(product => (
             <button 
-              key={product.id} 
+              key={product.id || product._id} 
               className="product-card"
               onClick={() => addProductToOrder(product)}
             >
@@ -502,7 +649,7 @@ const Sales = () => {
                     <button 
                       className="qty-btn dec-btn" 
                       title="Disminuir cantidad"
-                      onClick={() => updateItemQuantity(item.product.id, -1)}
+                      onClick={() => updateItemQuantity(item.product.id || item.product._id, -1)}
                     >
                       −
                     </button>
@@ -510,7 +657,7 @@ const Sales = () => {
                     <button 
                       className="qty-btn inc-btn" 
                       title="Aumentar cantidad"
-                      onClick={() => updateItemQuantity(item.product.id, 1)}
+                      onClick={() => updateItemQuantity(item.product.id || item.product._id, 1)}
                     >
                       +
                     </button>
@@ -520,7 +667,7 @@ const Sales = () => {
                   <div className="item-details">
                     <div className="item-name">{item.product.name}</div>
                     <div className="item-unit-price-container">
-                      {editingPriceProductId === item.product.id ? (
+                      {editingPriceProductId === (item.product.id || item.product._id) ? (
                         <div className="price-edit-form">
                           <span className="price-prefix">$</span>
                           <input 
@@ -531,7 +678,7 @@ const Sales = () => {
                             value={tempPriceValue}
                             onChange={(e) => setTempPriceValue(e.target.value)}
                             onKeyDown={(e) => {
-                              if (e.key === 'Enter') handleSavePrice(item.product.id);
+                              if (e.key === 'Enter') handleSavePrice(item.product.id || item.product._id);
                               if (e.key === 'Escape') handleCancelEditPrice();
                             }}
                             autoFocus
@@ -539,7 +686,7 @@ const Sales = () => {
                           <button 
                             className="price-save-btn" 
                             title="Guardar precio"
-                            onClick={() => handleSavePrice(item.product.id)}
+                            onClick={() => handleSavePrice(item.product.id || item.product._id)}
                           >
                             ✓
                           </button>
@@ -573,7 +720,7 @@ const Sales = () => {
                     <button 
                       className="remove-btn" 
                       title="Eliminar producto"
-                      onClick={() => removeItem(item.product.id)}
+                      onClick={() => removeItem(item.product.id || item.product._id)}
                     >
                       ×
                     </button>
@@ -623,19 +770,30 @@ const Sales = () => {
           </div>
         </div>
 
-        {/* Botones de Acción */}
+        {/* Botones de Acción: Cancelar, Imprimir Recibo y Cobrar Recibo */}
         <div className="ticket-actions receipt-actions">
           <button 
             className="btn-cancel-receipt" 
             disabled={selectedTable?.order.length === 0}
             onClick={cancelOrder}
+            title="Cancelar y vaciar la orden actual"
           >
             Cancelar
+          </button>
+          <button 
+            className="btn-print-receipt"
+            disabled={selectedTable?.order.length === 0}
+            onClick={() => handleOpenPrintModal()}
+            title="Ingresar cliente y dar orden de imprimir recibo"
+          >
+            <span className="print-btn-icon">🖨️</span>
+            <span>Imprimir Recibo</span>
           </button>
           <button 
             className="btn-checkout-receipt" 
             disabled={selectedTable?.order.length === 0}
             onClick={handleCheckoutClick}
+            title="Proceder al cobro del pedido"
           >
             Cobrar Recibo
           </button>
@@ -829,6 +987,12 @@ const Sales = () => {
 
             <div className="success-details-card">
               <div className="success-row">
+                <span>Recibo N°:</span>
+                <strong style={{ color: 'var(--primary-teal)', fontWeight: '800' }}>
+                  #{String(successReceipt.numero_recibo || '0001').padStart(4, '0')}
+                </strong>
+              </div>
+              <div className="success-row">
                 <span>Fecha y Hora:</span>
                 <strong style={{ color: '#2D3142' }}>{successReceipt.fecha_hora_local}</strong>
               </div>
@@ -854,15 +1018,304 @@ const Sales = () => {
               )}
             </div>
 
-            <button 
-              className="success-close-btn"
-              onClick={() => setSuccessReceipt(null)}
-            >
-              Aceptar y Continuar
-            </button>
+            <div className="success-modal-actions">
+              <button 
+                className="success-print-btn"
+                onClick={() => handleOpenPrintModal(successReceipt)}
+              >
+                🖨️ Imprimir Recibo de Venta
+              </button>
+              <button 
+                className="success-close-btn"
+                onClick={() => setSuccessReceipt(null)}
+              >
+                Aceptar y Continuar
+              </button>
+            </div>
           </div>
         </div>
       )}
+
+      {/* ===================================================
+          MODAL 4: INGRESO DE CLIENTE & ORDEN DE IMPRESIÓN DEL RECIBO
+          =================================================== */}
+      {isPrintModalOpen && (
+        <div className="modal-backdrop-sales" onClick={() => setIsPrintModalOpen(false)}>
+          <div className="modal-content-sales print-modal-dialog" onClick={e => e.stopPropagation()}>
+            <div className="modal-sales-header">
+              <div className="modal-sales-title">
+                <span className="modal-sales-icon">🖨️</span>
+                <h3>Imprimir Recibo de Venta</h3>
+              </div>
+              <button className="modal-close-btn" onClick={() => setIsPrintModalOpen(false)}>✕</button>
+            </div>
+
+            <div className="modal-sales-body print-modal-layout">
+              {/* Formulario de Datos del Cliente */}
+              <div className="print-client-form-card">
+                <div className="print-form-title">
+                  <span className="title-icon">👤</span>
+                  <h4>Datos para el Recibo</h4>
+                </div>
+                
+                <div className="print-input-group">
+                  <label htmlFor="client-name-input">Nombre del Cliente:</label>
+                  <input 
+                    id="client-name-input"
+                    type="text"
+                    className="print-input-field"
+                    placeholder="Ej: Juan Pérez o Cliente General"
+                    value={printClientName}
+                    onChange={(e) => setPrintClientName(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+
+                <div className="print-input-group">
+                  <label htmlFor="client-nit-input">NIT / C.C. del Cliente:</label>
+                  <input 
+                    id="client-nit-input"
+                    type="text"
+                    className="print-input-field"
+                    placeholder="Ej: 1013110341 o 222222222222"
+                    value={printClientNit}
+                    onChange={(e) => setPrintClientNit(e.target.value)}
+                  />
+                </div>
+
+                <div className="print-quick-tags">
+                  <span className="quick-tags-label">Opciones rápidas:</span>
+                  <div className="quick-tags-buttons">
+                    <button 
+                      type="button" 
+                      className="quick-tag-btn"
+                      onClick={() => { setPrintClientName('Cliente General'); setPrintClientNit('Consumidor Final'); }}
+                    >
+                      Consumidor Final
+                    </button>
+                    <button 
+                      type="button" 
+                      className="quick-tag-btn"
+                      onClick={() => { setPrintClientName(''); setPrintClientNit(''); }}
+                    >
+                      Limpiar Campos
+                    </button>
+                  </div>
+                </div>
+
+                <div className="print-serial-badge">
+                  <span>Serial Consecutivo:</span>
+                  <strong>Recibo N° {printReceiptNumber}</strong>
+                </div>
+              </div>
+
+              {/* Vista Previa Realista de la Tirilla de Venta */}
+              <div className="print-ticket-preview-wrapper">
+                <div className="print-preview-label">Vista Previa de Tirilla (80mm):</div>
+                <div className="thermal-ticket-paper">
+                  {/* Encabezado requerido */}
+                  <div className="ticket-center-header">
+                    <div className="ticket-business-name">Tuttis Bakery Cofee</div>
+                    <div className="ticket-business-info">NIT: 1013110341-7</div>
+                    <div className="ticket-business-info">Calle 75a #64-74</div>
+                    <div className="ticket-business-info">Contacto: 3025682859</div>
+                  </div>
+
+                  <div className="ticket-dashed-separator"></div>
+
+                  {/* Metadatos del Recibo */}
+                  <div className="ticket-meta-info">
+                    <div className="ticket-meta-row">
+                      <span className="meta-k">Fecha:</span>
+                      <span className="meta-v">{activeReceiptDate}</span>
+                    </div>
+                    <div className="ticket-meta-row">
+                      <span className="meta-k">Recibo N°:</span>
+                      <span className="meta-v serial-highlight">{printReceiptNumber}</span>
+                    </div>
+                    <div className="ticket-meta-row">
+                      <span className="meta-k">Atención:</span>
+                      <span className="meta-v">{activeReceiptMesa}</span>
+                    </div>
+                    <div className="ticket-meta-row">
+                      <span className="meta-k">Cliente:</span>
+                      <span className="meta-v">{printClientName.trim() || 'Cliente General'}</span>
+                    </div>
+                    <div className="ticket-meta-row">
+                      <span className="meta-k">NIT:</span>
+                      <span className="meta-v">{printClientNit.trim() || 'Consumidor Final'}</span>
+                    </div>
+                  </div>
+
+                  <div className="ticket-dashed-separator"></div>
+
+                  {/* Listado de Productos: Cantidad, Descripción, Valor Unitario y Total */}
+                  <div className="ticket-products-table">
+                    <div className="ticket-table-head">
+                      <span className="th-qty">Cant.</span>
+                      <span className="th-desc">Descripción Producto</span>
+                      <span className="th-unit">P.Unit</span>
+                      <span className="th-total">Total</span>
+                    </div>
+                    <div className="ticket-dashed-separator thin"></div>
+                    <div className="ticket-table-body">
+                      {activeReceiptItems.map((item, idx) => {
+                        const unitVal = item.price || item.valor_unitario || 0;
+                        const lineTotal = unitVal * item.quantity;
+                        const pName = item.product?.name || item.nombre || 'Producto';
+                        return (
+                          <div key={idx} className="ticket-table-row">
+                            <span className="td-qty">{item.quantity}</span>
+                            <span className="td-desc">{pName}</span>
+                            <span className="td-unit">{formatPrice(unitVal)}</span>
+                            <span className="td-total">{formatPrice(lineTotal)}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="ticket-dashed-separator"></div>
+
+                  {/* Total Venta */}
+                  <div className="ticket-totals-section">
+                    <div className="ticket-total-main-row">
+                      <span>Total venta:</span>
+                      <span className="ticket-total-value">{formatPrice(activeReceiptTotal)}</span>
+                    </div>
+                    <div className="ticket-payment-method-row">
+                      <span>Medio de Pago:</span>
+                      <span>{activeReceiptMethod}</span>
+                    </div>
+                    {printReceiptData?.vueltas > 0 && (
+                      <div className="ticket-payment-method-row">
+                        <span>Vueltas:</span>
+                        <span>{formatPrice(printReceiptData.vueltas)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="ticket-dashed-separator"></div>
+
+                  {/* Pie de página del recibo */}
+                  <div className="ticket-footer-text">
+                    <div>*** ¡Gracias por su compra! ***</div>
+                    <div>Esperamos verle pronto de nuevo</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-sales-footer">
+              <button 
+                className="modal-btn-cancel" 
+                onClick={() => setIsPrintModalOpen(false)}
+              >
+                Cerrar
+              </button>
+              <button 
+                className="modal-btn-confirm print-confirm-btn"
+                onClick={handleConfirmPrint}
+              >
+                <span className="print-confirm-icon">🖨️</span>
+                Confirmar e Imprimir Recibo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================
+          CONTENEDOR EXCLUSIVO PARA IMPRESIÓN (@media print)
+          =================================================== */}
+      <div id="printable-receipt" className="printable-receipt-area">
+        <div className="printable-ticket-content">
+          <div className="ticket-center-header">
+            <div className="ticket-business-name">Tuttis Bakery Cofee</div>
+            <div className="ticket-business-info">NIT: 1013110341-7</div>
+            <div className="ticket-business-info">Calle 75a #64-74</div>
+            <div className="ticket-business-info">Contacto: 3025682859</div>
+          </div>
+
+          <div className="ticket-dashed-separator"></div>
+
+          <div className="ticket-meta-info">
+            <div className="ticket-meta-row">
+              <span className="meta-k">Fecha:</span>
+              <span className="meta-v">{activeReceiptDate}</span>
+            </div>
+            <div className="ticket-meta-row">
+              <span className="meta-k">Recibo N°:</span>
+              <span className="meta-v serial-highlight">{printReceiptNumber}</span>
+            </div>
+            <div className="ticket-meta-row">
+              <span className="meta-k">Atención:</span>
+              <span className="meta-v">{activeReceiptMesa}</span>
+            </div>
+            <div className="ticket-meta-row">
+              <span className="meta-k">Cliente:</span>
+              <span className="meta-v">{printClientName.trim() || 'Cliente General'}</span>
+            </div>
+            <div className="ticket-meta-row">
+              <span className="meta-k">NIT:</span>
+              <span className="meta-v">{printClientNit.trim() || 'Consumidor Final'}</span>
+            </div>
+          </div>
+
+          <div className="ticket-dashed-separator"></div>
+
+          <div className="ticket-products-table">
+            <div className="ticket-table-head">
+              <span className="th-qty">Cant.</span>
+              <span className="th-desc">Descripción Producto</span>
+              <span className="th-unit">P.Unit</span>
+              <span className="th-total">Total</span>
+            </div>
+            <div className="ticket-dashed-separator thin"></div>
+            <div className="ticket-table-body">
+              {activeReceiptItems.map((item, idx) => {
+                const unitVal = item.price || item.valor_unitario || 0;
+                const lineTotal = unitVal * item.quantity;
+                const pName = item.product?.name || item.nombre || 'Producto';
+                return (
+                  <div key={idx} className="ticket-table-row">
+                    <span className="td-qty">{item.quantity}</span>
+                    <span className="td-desc">{pName}</span>
+                    <span className="td-unit">{formatPrice(unitVal)}</span>
+                    <span className="td-total">{formatPrice(lineTotal)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="ticket-dashed-separator"></div>
+
+          <div className="ticket-totals-section">
+            <div className="ticket-total-main-row">
+              <span>Total venta:</span>
+              <span className="ticket-total-value">{formatPrice(activeReceiptTotal)}</span>
+            </div>
+            <div className="ticket-payment-method-row">
+              <span>Medio de Pago:</span>
+              <span>{activeReceiptMethod}</span>
+            </div>
+            {printReceiptData?.vueltas > 0 && (
+              <div className="ticket-payment-method-row">
+                <span>Vueltas:</span>
+                <span>{formatPrice(printReceiptData.vueltas)}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="ticket-dashed-separator"></div>
+
+          <div className="ticket-footer-text">
+            <div>*** ¡Gracias por su compra! ***</div>
+            <div>Esperamos verle pronto de nuevo</div>
+          </div>
+        </div>
+      </div>
 
     </div>
   );
