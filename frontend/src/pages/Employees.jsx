@@ -15,11 +15,10 @@ const ROLES_PREDEFINIDOS = [
 ];
 
 const TURNOS_PREDEFINIDOS = [
-  'Mañana (05:00 - 13:00)',
+  'Mañana (06:00 - 14:00)',
   'Tarde (13:00 - 21:00)',
-  'Noche (21:00 - 05:00)',
-  'Rotativo',
-  'Fin de Semana (06:00 - 18:00)'
+  'Completa',
+  'Media (09:00 - 17:00)'
 ];
 
 const ESTADOS_DISPONIBLES = ['ACTIVO', 'INACTIVO', 'VACACIONES', 'SUSPENDIDO'];
@@ -50,7 +49,7 @@ const Employees = () => {
     usuario: '',
     passwordHash: '',
     fecha_ingreso: new Date().toISOString().split('T')[0],
-    turno: 'Mañana (05:00 - 13:00)',
+    turno: 'Mañana (06:00 - 14:00)',
     estado: 'ACTIVO',
     telefono_emergencia: ''
   });
@@ -103,7 +102,7 @@ const Employees = () => {
       usuario: '',
       passwordHash: '',
       fecha_ingreso: new Date().toISOString().split('T')[0],
-      turno: 'Mañana (05:00 - 13:00)',
+      turno: 'Mañana (06:00 - 14:00)',
       estado: 'ACTIVO',
       telefono_emergencia: ''
     });
@@ -130,7 +129,7 @@ const Employees = () => {
       usuario: emp.usuario || '',
       passwordHash: '', // Opcional al editar
       fecha_ingreso: fechaFormateada,
-      turno: emp.turno || emp.TURNO || 'Mañana (05:00 - 13:00)',
+      turno: emp.turno || emp.TURNO || 'Mañana (06:00 - 14:00)',
       estado: emp.estado || emp.ESTADO || 'ACTIVO',
       telefono_emergencia: emp.telefono_emergencia || emp.contacto_emergencia || emp.telefono || ''
     });

@@ -82,7 +82,7 @@ router.post('/', async (req, res) => {
       usuario: cedulaLimpia,
       passwordHash: passwordHash ? String(passwordHash).trim() : '',
       fecha_ingreso: fecha_ingreso || FECHA_INGRESO || new Date(),
-      turno: (turno || TURNO || 'Mañana (05:00 - 13:00)').trim(),
+      turno: (turno || TURNO || 'Mañana (06:00 - 14:00)').trim(),
       estado: (estado || ESTADO || 'ACTIVO').trim().toUpperCase(),
       telefono_emergencia: String(telefono_emergencia || contacto_emergencia || telefono || '').trim()
     });

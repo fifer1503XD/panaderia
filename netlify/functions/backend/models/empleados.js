@@ -37,12 +37,12 @@ const empleadoSchema = new mongoose.Schema(
       default: Date.now
     },
 
-    // Turno asignado (Mañana, Tarde, Noche, Rotativo, Fin de Semana)
+    // Turno asignado (Mañana (06:00 - 14:00), Tarde (13:00 - 21:00), Completa, Media (09:00 - 17:00))
     turno: {
       type: String,
       required: [true, 'El turno es obligatorio'],
       trim: true,
-      default: 'Mañana (05:00 - 13:00)'
+      default: 'Mañana (06:00 - 14:00)'
     },
 
     // Estado laboral del empleado
