@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import {
   IconCroissant,
   IconVentas,
-  IconClientes,
   IconEmpleados,
   IconReportes,
   IconConfiguracion,
@@ -18,7 +17,6 @@ const Sidebar = () => {
   const menuItems = [
     { path: '/inventory', label: 'INVENTARIO', icon: IconCroissant },
     { path: '/sales', label: 'VENTAS', icon: IconVentas },
-    { path: '/clients', label: 'CLIENTES', icon: IconClientes },
     { path: '/employees', label: 'EMPLEADOS', icon: IconEmpleados },
     { path: '/reports', label: 'REPORTES', icon: IconReportes },
     { path: '/settings', label: 'CONFIGURACIÓN', icon: IconConfiguracion },

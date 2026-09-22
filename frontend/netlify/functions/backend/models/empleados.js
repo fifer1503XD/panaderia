@@ -1,102 +1,80 @@
-// DISEÑO DE MODELOS: EMPLEADOS
+// MODELO DE MONGOOSE: EMPLEADOS (SmartBakery)
+const mongoose = require('mongoose');
 
-// Importamos Mongoose para poder crear el esquema y el modelo.
-const mongoose = require("mongoose");
-
-// Creamos el esquema de Empleado.
-// Aquí definimos los datos que tendrá cada empleado
-// dentro de la colección.
-const empleadoSchema = new mongoose.Schema({
-
-    // Guarda el nombre completo del empleado.
+const empleadoSchema = new mongoose.Schema(
+  {
+    // Nombre completo del empleado
     nombre_empleado: {
-
-        // El dato será de tipo texto.
-        type: String,
-
-        // Este campo es obligatorio.
-        required: true,
-
-        // Elimina espacios innecesarios al inicio y al final del texto.
-        trim: true
-
+      type: String,
+      required: [true, 'El nombre del empleado es obligatorio'],
+      trim: true
     },
 
-    // Guarda el nombre de usuario que utilizará el empleado
-    // para ingresar al sistema.
+    // Cargo o rol del empleado (Maestro Panadero, Pastelera, Cajero / Barista, Auxiliar de Cocina, etc.)
+    cargo: {
+      type: String,
+      required: [true, 'El cargo del empleado es obligatorio'],
+      trim: true
+    },
+
+    // Identificación / Cédula del empleado (usado como usuario único)
     usuario: {
-
-        // El dato será de tipo texto.
-        type: String,
-
-        // Este campo es obligatorio.
-        required: true,
-
-        // No permite que existan dos empleados
-        // con el mismo nombre de usuario.
-        unique: true,
-
-        // Elimina espacios innecesarios al inicio y al final del texto.
-        trim: true
-
+      type: String,
+      required: [true, 'El usuario (cédula) es obligatorio'],
+      unique: true,
+      trim: true
     },
 
-    // Guarda la contraseña del empleado de forma segura,
-    // utilizando un valor cifrado o hash en lugar de guardar
-    // la contraseña directamente.
+    // Contraseña cifrada o hash de autenticación
     passwordHash: {
-
-        // El dato será de tipo texto.
-        type: String,
-
-        // Este campo es obligatorio.
-        required: true
-
+      type: String,
+      default: ''
     },
 
-    // Guarda la fecha en la que el empleado ingresó
-    // a trabajar en la empresa.
+    // Fecha en la que el empleado ingresó a la empresa
     fecha_ingreso: {
-
-        // El dato será de tipo fecha.
-        type: Date,
-
-        // Este campo es obligatorio.
-        required: true
-
+      type: Date,
+      default: Date.now
     },
 
-    // Guarda el número de teléfono del empleado.
-    telefono: {
-
-        // Se utiliza String porque los teléfonos pueden
-        // contener ceros iniciales, espacios o símbolos.
-        type: String,
-
-        // Este campo es obligatorio.
-        required: true,
-
-        // Elimina espacios innecesarios al inicio y al final del texto.
-        trim: true
-
+    // Turno asignado (Mañana (06:00 - 14:00), Tarde (13:00 - 21:00), Completa, Media (09:00 - 17:00))
+    turno: {
+      type: String,
+      required: [true, 'El turno es obligatorio'],
+      trim: true,
+      default: 'Mañana (06:00 - 14:00)'
     },
 
-    // Guarda la dirección del empleado.
-    direccion: {
+    // Estado laboral del empleado
+    estado: {
+      type: String,
+      required: [true, 'El estado es obligatorio'],
+      trim: true,
+      enum: ['ACTIVO', 'INACTIVO', 'VACACIONES', 'SUSPENDIDO'],
+      default: 'ACTIVO'
+    },
 
-        // El dato será de tipo texto.
-        type: String,
-
-        // Este campo es obligatorio.
-        required: true,
-
-        // Elimina espacios innecesarios al inicio y al final del texto.
-        trim: true
-
+    // Número de teléfono de contacto de emergencia
+    telefono_emergencia: {
+      type: String,
+      required: [true, 'El número de contacto de emergencia es obligatorio'],
+      trim: true
     }
+  },
+  {
+    timestamps: true
+  }
+);
 
+// Formateador para serializar a JSON con id como string
+empleadoSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    // Alias para compatibilidad con mayúsculas si se requiere
+    returnedObject.FECHA_INGRESO = returnedObject.fecha_ingreso;
+    returnedObject.TURNO = returnedObject.turno;
+    returnedObject.ESTADO = returnedObject.estado;
+  }
 });
 
-// Exportamos el modelo "Empleado" para poder utilizarlo
-// desde otros archivos de nuestro proyecto.
-module.exports = mongoose.model("Empleado", empleadoSchema);
+module.exports = mongoose.model('Empleado', empleadoSchema);

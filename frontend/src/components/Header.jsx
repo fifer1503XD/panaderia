@@ -13,8 +13,6 @@ const Header = () => {
         return { title: 'INVENTARIO', subtitle: 'Control de productos' };
       case '/sales':
         return { title: 'VENTAS', subtitle: 'Punto de Venta (POS)' };
-      case '/clients':
-        return { title: 'CLIENTES', subtitle: 'Gestión y fidelización' };
       case '/employees':
         return { title: 'EMPLEADOS', subtitle: 'Control de personal' };
       case '/reports':

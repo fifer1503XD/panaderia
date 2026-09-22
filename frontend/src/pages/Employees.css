@@ -1,0 +1,707 @@
+/* =============================================================
+   SmartBakery - Módulo de Empleados (Estilos Modernos Tuttis)
+============================================================= */
+
+.employees-page-wrapper {
+  background-color: var(--bg-main, #F4F6F8);
+  padding: 2.5rem 3rem;
+  width: 100%;
+  max-width: 1400px;
+  min-height: calc(100vh - 90px);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Toolbar superior */
+.employees-top-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.employees-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex: 1;
+  max-width: 700px;
+  flex-wrap: wrap;
+}
+
+.search-capsule-container {
+  display: flex;
+  align-items: center;
+  background-color: #E8ECEF;
+  border-radius: 9999px;
+  padding: 0 1.4rem;
+  width: 100%;
+  max-width: 380px;
+  height: 48px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.search-capsule-container:focus-within {
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 2px rgba(14, 124, 134, 0.25);
+}
+
+.search-capsule-input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #333333;
+  outline: none;
+}
+
+.search-capsule-input::placeholder {
+  color: #9E9E9E;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.search-clear-btn {
+  background: #D0D5DD;
+  color: #475467;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.search-clear-btn:hover {
+  background: #98A2B3;
+  color: #FFFFFF;
+}
+
+/* Filtro por estado rápido */
+.filter-tabs-group {
+  display: flex;
+  align-items: center;
+  background: #E8ECEF;
+  padding: 4px;
+  border-radius: 9999px;
+  gap: 4px;
+}
+
+.filter-tab-btn {
+  border: none;
+  background: transparent;
+  padding: 0.45rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #667085;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-tab-btn.active {
+  background: #FFFFFF;
+  color: #0E7C86;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Botón Nuevo Empleado */
+.btn-add-employee {
+  background-color: #0E7C86;
+  color: #FFFFFF;
+  border: none;
+  padding: 0 1.6rem;
+  height: 48px;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(14, 124, 134, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-add-employee:hover {
+  background-color: #0A636B;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(14, 124, 134, 0.35);
+}
+
+/* Toast / Alerta */
+.employees-alert-toast {
+  padding: 0.9rem 1.4rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: slideDown 0.3s ease;
+}
+
+.employees-alert-toast.success {
+  background-color: #ECFDF3;
+  color: #027A48;
+  border: 1px solid #A6F4C5;
+}
+
+.employees-alert-toast.error {
+  background-color: #FEF3F2;
+  color: #B42318;
+  border: 1px solid #FECDCA;
+}
+
+.toast-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.toast-close-btn:hover {
+  opacity: 1;
+}
+
+/* -------------------------------------------------------------
+   Tabla de Empleados
+------------------------------------------------------------- */
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 2rem;
+  flex: 1;
+}
+
+.employees-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 1rem;
+  text-align: left;
+}
+
+.th-cell {
+  padding: 0 0.75rem 0.5rem 0.75rem;
+  font-weight: normal;
+  border: none;
+}
+
+.pill-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #79D6D9;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 1.2px;
+  padding: 0.45rem 1.2rem;
+  border-radius: 12px;
+  text-transform: uppercase;
+  width: 100%;
+  box-sizing: border-box;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+.employees-row {
+  background: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.employees-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.td-cell {
+  padding: 1rem 1rem;
+  vertical-align: middle;
+  border: none;
+}
+
+.td-cell:first-child {
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
+.td-cell:last-child {
+  border-top-right-radius: 14px;
+  border-bottom-right-radius: 14px;
+}
+
+/* Nombre y avatar de empleado */
+.employee-profile-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.employee-avatar-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0E7C86, #79D6D9);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(14, 124, 134, 0.25);
+}
+
+.employee-name-title {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #1D2939;
+  line-height: 1.2;
+}
+
+.employee-cedula-sub {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #667085;
+  margin-top: 2px;
+}
+
+.employee-cedula-sub strong {
+  color: #0E7C86;
+}
+
+/* Cargo tag */
+.employee-role-tag {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #8C4A15;
+  background: #FFF4ED;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #FFE4D5;
+}
+
+/* Turno tag */
+.employee-shift-tag {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #344054;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Fecha y Contacto */
+.employee-date-text {
+  font-size: 0.86rem;
+  color: #475467;
+  font-weight: 600;
+}
+
+.employee-phone-text {
+  font-size: 0.88rem;
+  color: #1D2939;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.phone-icon-pill {
+  color: #E63946;
+  font-size: 0.95rem;
+}
+
+/* Estado Pills */
+.status-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.status-pill-badge.ACTIVO {
+  background-color: #ECFDF3;
+  color: #027A48;
+  border: 1px solid #A6F4C5;
+}
+
+.status-pill-badge.INACTIVO {
+  background-color: #F2F4F7;
+  color: #667085;
+  border: 1px solid #D0D5DD;
+}
+
+.status-pill-badge.VACACIONES {
+  background-color: #FEF6EE;
+  color: #B54708;
+  border: 1px solid #F9DBAF;
+}
+
+.status-pill-badge.SUSPENDIDO {
+  background-color: #FEF3F2;
+  color: #B42318;
+  border: 1px solid #FECDCA;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Grupo de botones de acción */
+.employee-actions-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.emp-action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background-color: #F2F4F7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.emp-action-btn.edit:hover {
+  background-color: #E0F2FE;
+  color: #0284C7;
+  transform: translateY(-1px);
+}
+
+.emp-action-btn.delete:hover {
+  background-color: #FEE2E2;
+  color: #DC2626;
+  transform: translateY(-1px);
+}
+
+/* Loading y estados vacíos */
+.employees-loading-state,
+.employees-empty-state {
+  text-align: center;
+  padding: 4rem 1rem;
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #E4E7EC;
+  border-top-color: #0E7C86;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem auto;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* -------------------------------------------------------------
+   Modales (Creación y Edición)
+------------------------------------------------------------- */
+.employee-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.employee-modal-card {
+  background: #FFFFFF;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  padding: 2rem 2.2rem;
+  position: relative;
+  animation: scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.6rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #EAECF0;
+}
+
+.modal-header-titles {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.modal-header-icon-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #E0F2FE;
+  color: #0284C7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #101828;
+  margin: 0;
+}
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: #667085;
+  margin: 2px 0 0 0;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #98A2B3;
+  cursor: pointer;
+  padding: 0.3rem;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.modal-close-btn:hover {
+  color: #101828;
+}
+
+/* Grid del Formulario */
+.employee-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin-bottom: 1.8rem;
+}
+
+.form-group-full {
+  grid-column: 1 / -1;
+}
+
+.form-field-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #344054;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-field-label .required-star {
+  color: #E63946;
+  margin-left: 2px;
+}
+
+.form-field-input,
+.form-field-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #D0D5DD;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #1D2939;
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.form-field-input:focus,
+.form-field-select:focus {
+  border-color: #0E7C86;
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.15);
+}
+
+.form-field-hint {
+  font-size: 0.76rem;
+  color: #667085;
+  margin-top: 2px;
+}
+
+/* Botones de acción del Modal */
+.modal-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid #EAECF0;
+}
+
+.modal-btn-cancel {
+  padding: 0.75rem 1.4rem;
+  border: 1px solid #D0D5DD;
+  background: #FFFFFF;
+  color: #344054;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modal-btn-cancel:hover {
+  background: #F8FAFC;
+  border-color: #98A2B3;
+}
+
+.modal-btn-submit {
+  padding: 0.75rem 1.8rem;
+  border: none;
+  background: #0E7C86;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(14, 124, 134, 0.25);
+}
+
+.modal-btn-submit:hover {
+  background: #0A636B;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(14, 124, 134, 0.35);
+}
+
+.modal-btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Modal de confirmación de eliminación */
+.delete-confirm-box {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.delete-confirm-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #FEE2E2;
+  color: #DC2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin: 0 auto 1.2rem auto;
+}
+
+.delete-confirm-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #101828;
+  margin-bottom: 0.5rem;
+}
+
+.delete-confirm-text {
+  font-size: 0.95rem;
+  color: #667085;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.modal-btn-danger {
+  padding: 0.75rem 1.6rem;
+  border: none;
+  background: #DC2626;
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 0.9rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+}
+
+.modal-btn-danger:hover {
+  background: #B91C1C;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .employees-page-wrapper {
+    padding: 1.5rem 1rem;
+  }
+
+  .employees-toolbar-left {
+    max-width: 100%;
+  }
+
+  .employee-form-grid {
+    grid-template-columns: 1fr;
+  }
+}

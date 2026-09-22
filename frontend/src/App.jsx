@@ -4,7 +4,6 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Inventory from './pages/Inventory';
 import Sales from './pages/Sales';
-import Clients from './pages/Clients';
 import Employees from './pages/Employees';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
@@ -26,7 +25,6 @@ function App() {
               <Route path="/" element={<Navigate to="/inventory" replace />} />
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/sales" element={<Sales />} />
-              <Route path="/clients" element={<Clients />} />
               <Route path="/employees" element={<Employees />} />
               <Route path="/reports" element={<Reports />} />
               <Route path="/settings" element={<Settings />} />
