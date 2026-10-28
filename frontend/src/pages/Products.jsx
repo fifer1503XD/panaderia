@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProductForm from '../components/ProductForm';
 import { PRODUCTS_API_URL } from '../config/api';
+import './Inventory.css';
 
 const Products = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -14,7 +15,7 @@ const Products = () => {
   useEffect(() => {
     fetch(API_URL)
       .then(res => res.json())
-      .then(data => setProducts(data))
+      .then(data => setProducts(Array.isArray(data) ? data : []))
       .catch(err => console.error('Error al cargar productos:', err));
   }, []);
 
@@ -67,80 +68,83 @@ const Products = () => {
   const filteredProducts = products.filter(product => {
     const term = searchTerm.toLowerCase();
     return (
-      product.name.toLowerCase().includes(term) ||
-      product.code.toLowerCase().includes(term) ||
-      product.department.toLowerCase().includes(term)
+      (product.name || '').toLowerCase().includes(term) ||
+      (product.code || '').toLowerCase().includes(term) ||
+      (product.department || '').toLowerCase().includes(term)
     );
   });
 
   return (
-    <div className="page-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Products Management</h1>
-        <button className="btn-primary" onClick={handleOpenCreate}>
+    <div className="inventory-page-wrapper">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h2 style={{ color: 'var(--header-title)', margin: 0, fontWeight: 800 }}>Catálogo de Panadería</h2>
+        <button className="btn-add-product" onClick={handleOpenCreate}>
           + Agregar Producto
         </button>
       </div>
 
-      <div className="glass-panel" style={{ padding: '2rem', marginTop: '2rem', overflowX: 'auto' }}>
-        
+      <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border-divider)', boxShadow: 'var(--shadow-sm)' }}>
         {/* Buscador */}
         <div style={{ marginBottom: '1.5rem' }}>
-          <input 
-            type="text" 
-            placeholder="🔍 Buscar por nombre, código o departamento..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{ 
-              width: '100%', 
-              padding: '0.8rem 1rem', 
-              borderRadius: '8px', 
-              border: '1px solid rgba(124, 96, 70, 0.2)',
-              fontSize: '1rem',
-              color: 'var(--text-primary)'
-            }}
-          />
+          <div className="search-capsule-container" style={{ maxWidth: '100%' }}>
+            <span className="search-icon">🔍</span>
+            <input 
+              type="text" 
+              className="search-capsule-input"
+              placeholder="BUSCAR POR NOMBRE, CÓDIGO O DEPARTAMENTO..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
 
         {products.length === 0 ? (
-          <p>No hay productos registrados. Haz clic en "Agregar Producto" para comenzar.</p>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>
+            No hay productos registrados. Haz clic en "+ Agregar Producto" para comenzar.
+          </p>
         ) : filteredProducts.length === 0 ? (
-          <p>No se encontraron productos que coincidan con "{searchTerm}".</p>
+          <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem 0' }}>
+            No se encontraron productos que coincidan con "{searchTerm}".
+          </p>
         ) : (
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid rgba(124, 96, 70, 0.2)' }}>
-                <th style={{ padding: '1rem' }}>Código</th>
-                <th style={{ padding: '1rem' }}>Nombre</th>
-                <th style={{ padding: '1rem' }}>Departamento</th>
-                <th style={{ padding: '1rem' }}>Precio 1</th>
-                <th style={{ padding: '1rem' }}>Precio 2</th>
-                <th style={{ padding: '1rem' }}>Precio 3</th>
-                <th style={{ padding: '1rem', textAlign: 'right' }}>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map((product) => (
-                <tr key={product.id} style={{ borderBottom: '1px solid rgba(124, 96, 70, 0.1)' }}>
-                  <td style={{ padding: '1rem' }}>{product.code}</td>
-                  <td style={{ padding: '1rem' }}>{product.name}</td>
-                  <td style={{ padding: '1rem' }}>{product.department}</td>
-                  <td style={{ padding: '1rem' }}>${product.price1}</td>
-                  <td style={{ padding: '1rem' }}>${product.price2 || '-'}</td>
-                  <td style={{ padding: '1rem' }}>${product.price3 || '-'}</td>
-                  <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    <button 
-                      className="btn-secondary" 
-                      style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
-                      onClick={() => handleOpenEdit(product)}
-                    >
-                      ✏️ Editar
-                    </button>
-                  </td>
+          <div className="table-responsive-container">
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--border-divider)', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                  <th style={{ padding: '0.85rem 1rem' }}>Código</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Nombre</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Departamento</th>
+                  <th style={{ padding: '0.85rem 1rem' }}>Precio Venta</th>
+                  <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Acciones</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredProducts.map((product) => (
+                  <tr key={product.id || product._id} style={{ borderBottom: '1px solid var(--border-divider)', color: 'var(--text-dark)' }}>
+                    <td style={{ padding: '0.85rem 1rem', fontWeight: 700, color: 'var(--text-muted)' }}>{product.code}</td>
+                    <td style={{ padding: '0.85rem 1rem', fontWeight: 700 }}>{product.name}</td>
+                    <td style={{ padding: '0.85rem 1rem' }}>
+                      <span className="category-tag cat-panes" style={{ fontSize: '0.8rem' }}>
+                        {product.department || 'GENERAL'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem', fontWeight: 800, color: 'var(--primary-teal)' }}>
+                      ${product.price1}
+                    </td>
+                    <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                      <button 
+                        className="action-btn edit-action-btn"
+                        style={{ display: 'inline-flex', padding: '0.4rem 0.8rem', width: 'auto', height: 'auto', gap: '0.3rem', fontSize: '0.82rem', fontWeight: 700 }}
+                        onClick={() => handleOpenEdit(product)}
+                      >
+                        ✏️ Editar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

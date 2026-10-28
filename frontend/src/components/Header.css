@@ -6,16 +6,52 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 2.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme="dark"] .tuttis-header,
+.dark-theme .tuttis-header {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  min-width: 0;
+}
+
+/* Botón hamburguesa para teléfonos celulares */
+.mobile-menu-trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--header-title);
+  cursor: pointer;
+  border: 1px solid rgba(139, 58, 66, 0.15);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .mobile-menu-trigger,
+.dark-theme .mobile-menu-trigger {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(230, 171, 160, 0.2);
+  color: var(--header-title);
+}
+
+.mobile-menu-trigger:active {
+  transform: scale(0.95);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .logo-container {
@@ -24,6 +60,7 @@
   justify-content: center;
   cursor: pointer;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex-shrink: 0;
 }
 
 .logo-container:hover {
@@ -40,6 +77,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  min-width: 0;
 }
 
 .header-main-title {
@@ -51,59 +89,141 @@
   line-height: 1.1;
   text-transform: uppercase;
   font-family: 'Plus Jakarta Sans', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.25s ease;
 }
 
 .header-sub-title {
   color: var(--header-subtitle);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 500;
   margin-top: 2px;
   letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.25s ease;
 }
 
 .header-right {
   display: flex;
   align-items: center;
+  gap: 1.25rem;
+  flex-shrink: 0;
 }
 
-.smart-bakery-badge {
-  background-color: var(--primary-teal);
-  color: #FFFFFF;
-  padding: 0.65rem 1.8rem;
+.header-theme-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.smart-bakery-logo-badge {
+  background-color: #FFFFFF;
+  padding: 0.35rem 0.9rem;
   border-radius: 9999px;
-  font-size: 1.05rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  box-shadow: 0 4px 12px rgba(14, 124, 134, 0.25);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid rgba(14, 124, 134, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 48px;
+  box-sizing: border-box;
 }
 
-.smart-bakery-badge:hover {
-  background-color: var(--primary-teal-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(14, 124, 134, 0.35);
+[data-theme="dark"] .smart-bakery-logo-badge,
+.dark-theme .smart-bakery-logo-badge {
+  background-color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  border-color: rgba(31, 155, 168, 0.35);
+}
+
+.smart-bakery-logo-badge:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(14, 124, 134, 0.25);
+  border-color: var(--primary-teal);
+}
+
+.smart-bakery-brand-logo {
+  height: 35px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  user-select: none;
+}
+
+/* =========================================================================
+   RESPONSIVE PARA CELULARES Y TABLETS
+   ========================================================================= */
+@media (max-width: 900px) {
+  .tuttis-header {
+    padding: 0 1.5rem;
+  }
+  
+  .smart-bakery-logo-badge {
+    height: 42px;
+    padding: 0.25rem 0.65rem;
+  }
+
+  .smart-bakery-brand-logo {
+    height: 28px;
+  }
 }
 
 @media (max-width: 768px) {
   .tuttis-header {
-    padding: 0 1.25rem;
-    height: 75px;
+    height: 70px;
+    padding: 0 1rem;
+    position: sticky;
+    top: 0;
   }
   
+  .mobile-menu-trigger {
+    display: flex;
+  }
+
+  .header-left {
+    gap: 0.75rem;
+  }
+
   .header-main-title {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
+    letter-spacing: 1.2px;
   }
   
   .header-sub-title {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
   
-  .smart-bakery-badge {
-    padding: 0.5rem 1.2rem;
-    font-size: 0.85rem;
+  .header-right {
+    gap: 0.6rem;
+  }
+
+  .smart-bakery-logo-badge {
+    display: none; /* Ocultar en celular para priorizar toggle y logo principal */
+  }
+}
+
+@media (max-width: 420px) {
+  .tuttis-header {
+    height: 64px;
+    padding: 0 0.75rem;
+  }
+
+  .header-main-title {
+    font-size: 1.05rem;
+    letter-spacing: 0.8px;
+  }
+
+  .header-sub-title {
+    display: none; /* En pantallas ultra pequeñas ocultamos subtítulo */
+  }
+
+  .logo-container img {
+    width: 44px;
+    height: 44px;
   }
 }

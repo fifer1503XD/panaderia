@@ -81,7 +81,7 @@ router.get('/', async (req, res) => {
 
 // 2. Crear un producto y registrar en colecciones Productos, Inventario y Categorías
 router.post('/', async (req, res) => {
-  const { code, name, brand, id_categoria, department, price1, price2, price3, minStock, stock } = req.body;
+  const { code, name, brand, id_categoria, department, price1, price2, price3, minStock, stock, cost, precio_neto } = req.body;
   
   const initialStock = stock !== undefined ? Number(stock) : 0;
   let resolvedDepartment = department || 'PANES';
@@ -111,12 +111,16 @@ router.post('/', async (req, res) => {
     }
   }
 
+  const netCost = Number(cost !== undefined ? cost : precio_neto) || 0;
+
   const product = new Producto({
     code,
     name,
     brand,
     id_categoria: resolvedIdCategoria,
     department: resolvedDepartment,
+    cost: netCost,
+    precio_neto: netCost,
     price1: Number(price1) || 0,
     price2: price2 ? Number(price2) : undefined,
     price3: price3 ? Number(price3) : undefined,
@@ -145,7 +149,7 @@ router.post('/', async (req, res) => {
 // 3. Actualizar un producto o su stock (sincroniza Productos e Inventario)
 router.put('/:id', async (req, res) => {
   try {
-    const { code, name, brand, id_categoria, department, price1, price2, price3, minStock, stock } = req.body;
+    const { code, name, brand, id_categoria, department, price1, price2, price3, minStock, stock, cost, precio_neto } = req.body;
     const product = await Producto.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ message: 'Producto no encontrado' });
@@ -154,6 +158,11 @@ router.put('/:id', async (req, res) => {
     if (code !== undefined) product.code = code;
     if (name !== undefined) product.name = name;
     if (brand !== undefined) product.brand = brand;
+    if (cost !== undefined || precio_neto !== undefined) {
+      const parsedCost = Number(cost !== undefined ? cost : precio_neto) || 0;
+      product.cost = parsedCost;
+      product.precio_neto = parsedCost;
+    }
     
     // Si se envía id_categoria, actualizamos id_categoria y department desde la colección Categorias
     if (id_categoria !== undefined) {

@@ -3,7 +3,9 @@
   flex-direction: column;
   min-height: 100vh;
   width: 100%;
-  background-color: #FFFFFF;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .app-main-layout {
@@ -16,13 +18,16 @@
 .app-view-container {
   flex: 1;
   min-width: 0; /* Prevents flex children from overflowing horizontally */
-  background-color: #FFFFFF;
+  background-color: var(--bg-main);
   display: flex;
   flex-direction: column;
+  transition: background-color 0.25s ease;
 }
 
 @media (max-width: 768px) {
   .app-main-layout {
     flex-direction: column;
+    /* Margen inferior para que el contenido no quede oculto tras la barra móvil inferior */
+    padding-bottom: 74px;
   }
 }

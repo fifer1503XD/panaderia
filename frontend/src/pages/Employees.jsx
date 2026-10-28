@@ -4,6 +4,12 @@ import { IconSearch, IconEdit, IconTrash } from '../assets/icons';
 import './Employees.css';
 
 const ROLES_PREDEFINIDOS = [
+  'Cajera',
+  'Servicio al Cliente',
+  'Cocinera',
+  'Panadero',
+  'Pastelero',
+  'Administrador',
   'Maestro Panadero',
   'Pastelera Principal',
   'Cajero / Barista',
@@ -27,11 +33,20 @@ const Employees = () => {
   const [employees, setEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [toast, setToast] = useState(null); // { type: 'success' | 'error', message: '' }
+  const [toast, setToast] = useState(null);
 
   // Filtros de búsqueda
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('TODOS');
+
+  // Paginación (5 empleados por página)
+  const ITEMS_PER_PAGE = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reiniciar a la página 1 cuando cambia la búsqueda o el filtro de estado
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter]);
 
   // Estado de modales
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -45,8 +60,15 @@ const Employees = () => {
   // Datos del formulario
   const [formData, setFormData] = useState({
     nombre_empleado: '',
-    cargo: 'Maestro Panadero',
+    cargo: 'Cajera',
     usuario: '',
+    cedula: '',
+    fecha_nacimiento: '',
+    rh: '',
+    celular: '',
+    direccion: '',
+    contacto_emergencia: '',
+    eps: '',
     passwordHash: '',
     fecha_ingreso: new Date().toISOString().split('T')[0],
     turno: 'Mañana (06:00 - 14:00)',
@@ -98,8 +120,15 @@ const Employees = () => {
   const openCreateModal = () => {
     setFormData({
       nombre_empleado: '',
-      cargo: 'Maestro Panadero',
+      cargo: 'Cajera',
       usuario: '',
+      cedula: '',
+      fecha_nacimiento: '',
+      rh: '',
+      celular: '',
+      direccion: '',
+      contacto_emergencia: '',
+      eps: '',
       passwordHash: '',
       fecha_ingreso: new Date().toISOString().split('T')[0],
       turno: 'Mañana (06:00 - 14:00)',
@@ -113,7 +142,6 @@ const Employees = () => {
   const openEditModal = (emp) => {
     setSelectedEmployee(emp);
     
-    // Formatear fecha para el input date (YYYY-MM-DD)
     let fechaFormateada = new Date().toISOString().split('T')[0];
     if (emp.fecha_ingreso || emp.FECHA_INGRESO) {
       try {
@@ -125,13 +153,20 @@ const Employees = () => {
 
     setFormData({
       nombre_empleado: emp.nombre_empleado || '',
-      cargo: emp.cargo || 'Maestro Panadero',
-      usuario: emp.usuario || '',
-      passwordHash: '', // Opcional al editar
+      cargo: emp.cargo || 'Cajera',
+      usuario: emp.usuario || emp.cedula || '',
+      cedula: emp.cedula || emp.usuario || '',
+      fecha_nacimiento: emp.fecha_nacimiento || '',
+      rh: emp.rh || '',
+      celular: emp.celular || emp.telefono || '',
+      direccion: emp.direccion || '',
+      contacto_emergencia: emp.contacto_emergencia || emp.telefono_emergencia || '',
+      eps: emp.eps || '',
+      passwordHash: '',
       fecha_ingreso: fechaFormateada,
       turno: emp.turno || emp.TURNO || 'Mañana (06:00 - 14:00)',
       estado: emp.estado || emp.ESTADO || 'ACTIVO',
-      telefono_emergencia: emp.telefono_emergencia || emp.contacto_emergencia || emp.telefono || ''
+      telefono_emergencia: emp.telefono_emergencia || emp.contacto_emergencia || ''
     });
     setIsEditModalOpen(true);
   };
@@ -145,42 +180,46 @@ const Employees = () => {
   // 2. Guardar Nuevo Empleado (POST a MongoDB)
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.nombre_empleado.trim() || !formData.cargo.trim() || !formData.usuario.trim() || !formData.telefono_emergencia.trim()) {
-      showToast('Por favor completa los campos obligatorios (*)', 'error');
+    if (!formData.nombre_empleado.trim() || !formData.cargo.trim()) {
+      showToast('Por favor completa el nombre y cargo del empleado', 'error');
       return;
     }
 
     setIsSubmitting(true);
     try {
+      const payload = {
+        ...formData,
+        usuario: formData.cedula.trim() || formData.usuario.trim() || `EMP-${Date.now()}`,
+        telefono_emergencia: formData.contacto_emergencia.trim() || formData.celular.trim() || 'No registrado'
+      };
+
       const response = await fetch(EMPLOYEES_API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || 'Error al registrar empleado');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || 'Error al guardar empleado en MongoDB');
       }
 
-      showToast(`Empleado ${result.nombre_empleado} registrado con éxito en MongoDB!`, 'success');
+      const nuevoGuardado = await response.json();
+      setEmployees((prev) => [nuevoGuardado, ...prev]);
+      showToast('¡Empleado registrado exitosamente en la base de datos!');
       setIsCreateModalOpen(false);
-      fetchEmployees();
     } catch (err) {
-      console.error('Error al guardar empleado:', err);
       showToast(err.message, 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 3. Actualizar / Editar Empleado (PUT a MongoDB)
+  // 3. Editar Empleado (PUT a MongoDB)
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedEmployee) return;
-
-    if (!formData.nombre_empleado.trim() || !formData.cargo.trim() || !formData.usuario.trim() || !formData.telefono_emergencia.trim()) {
-      showToast('Por favor completa los campos obligatorios (*)', 'error');
+    if (!formData.nombre_empleado.trim() || !formData.cargo.trim()) {
+      showToast('El nombre y el cargo son obligatorios', 'error');
       return;
     }
 
@@ -188,30 +227,39 @@ const Employees = () => {
     const empId = selectedEmployee.id || selectedEmployee._id;
 
     try {
+      const payload = {
+        ...formData,
+        usuario: formData.cedula.trim() || formData.usuario.trim() || selectedEmployee.usuario,
+        telefono_emergencia: formData.contacto_emergencia.trim() || formData.celular.trim() || selectedEmployee.telefono_emergencia
+      };
+
       const response = await fetch(`${EMPLOYEES_API_URL}/${empId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || 'Error al actualizar empleado');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || 'Error al actualizar empleado en MongoDB');
       }
 
-      showToast(`Empleado ${result.nombre_empleado} actualizado exitosamente!`, 'success');
+      const empleadoActualizado = await response.json();
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          (emp.id || emp._id) === empId ? empleadoActualizado : emp
+        )
+      );
+      showToast('Información del empleado actualizada correctamente');
       setIsEditModalOpen(false);
-      setSelectedEmployee(null);
-      fetchEmployees();
     } catch (err) {
-      console.error('Error al actualizar empleado:', err);
       showToast(err.message, 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 4. Eliminar Empleado (DELETE a MongoDB)
+  // 4. Eliminar Empleado (DELETE en MongoDB)
   const handleDeleteConfirm = async () => {
     if (!selectedEmployee) return;
     setIsSubmitting(true);
@@ -222,37 +270,42 @@ const Employees = () => {
         method: 'DELETE'
       });
 
-      const result = await response.json();
       if (!response.ok) {
-        throw new Error(result.message || 'Error al eliminar empleado');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || 'Error al eliminar empleado de MongoDB');
       }
 
-      showToast(`Empleado eliminado correctamente de la base de datos`, 'success');
+      setEmployees((prev) => prev.filter((emp) => (emp.id || emp._id) !== empId));
+      showToast(`Empleado "${selectedEmployee.nombre_empleado}" eliminado`);
       setIsDeleteModalOpen(false);
-      setSelectedEmployee(null);
-      fetchEmployees();
     } catch (err) {
-      console.error('Error al eliminar empleado:', err);
       showToast(err.message, 'error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Filtrado reactivo en frontend
+  // Filtrado reactivo en memoria
   const filteredEmployees = useMemo(() => {
     return employees.filter((emp) => {
       const nombre = (emp.nombre_empleado || '').toLowerCase();
       const cargo = (emp.cargo || '').toLowerCase();
       const usuario = (emp.usuario || '').toLowerCase();
-      const turno = (emp.turno || emp.TURNO || '').toLowerCase();
-      const estado = (emp.estado || emp.ESTADO || '').toUpperCase();
+      const cedula = (emp.cedula || '').toLowerCase();
+      const celular = (emp.celular || emp.telefono || '').toLowerCase();
+      const eps = (emp.eps || '').toLowerCase();
+      const direccion = (emp.direccion || '').toLowerCase();
+      const estado = (emp.estado || emp.ESTADO || 'ACTIVO').toUpperCase();
 
+      const term = searchTerm.toLowerCase();
       const matchesSearch =
-        nombre.includes(searchTerm.toLowerCase()) ||
-        cargo.includes(searchTerm.toLowerCase()) ||
-        usuario.includes(searchTerm.toLowerCase()) ||
-        turno.includes(searchTerm.toLowerCase());
+        nombre.includes(term) ||
+        cargo.includes(term) ||
+        usuario.includes(term) ||
+        cedula.includes(term) ||
+        celular.includes(term) ||
+        eps.includes(term) ||
+        direccion.includes(term);
 
       const matchesStatus =
         statusFilter === 'TODOS' || estado === statusFilter;
@@ -260,6 +313,15 @@ const Employees = () => {
       return matchesSearch && matchesStatus;
     });
   }, [employees, searchTerm, statusFilter]);
+
+  // Cálculo de Paginación (5 por página)
+  const totalPages = Math.max(1, Math.ceil(filteredEmployees.length / ITEMS_PER_PAGE));
+  const validCurrentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+  const paginatedEmployees = useMemo(() => {
+    const startIndex = (validCurrentPage - 1) * ITEMS_PER_PAGE;
+    return filteredEmployees.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredEmployees, validCurrentPage, ITEMS_PER_PAGE]);
 
   // Formateador de fecha para tabla
   const formatFecha = (fechaStr) => {
@@ -292,12 +354,12 @@ const Employees = () => {
           {/* Búsqueda */}
           <div className="search-capsule-container">
             <span style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}>
-              <IconSearch size={18} color="#8E8E8E" />
+              <IconSearch size={18} color="var(--text-muted)" />
             </span>
             <input
               type="text"
               className="search-capsule-input"
-              placeholder="BUSCAR POR NOMBRE, CÉDULA O CARGO..."
+              placeholder="BUSCAR POR NOMBRE, CÉDULA, CARGO O EPS..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -343,80 +405,109 @@ const Employees = () => {
       {loading ? (
         <div className="employees-loading-state">
           <div className="spinner"></div>
-          <p style={{ color: '#667085', fontWeight: 600 }}>Cargando empleados desde MongoDB...</p>
+          <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>Cargando empleados desde MongoDB...</p>
         </div>
       ) : filteredEmployees.length === 0 ? (
         <div className="employees-empty-state">
           <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>👥</div>
-          <h3 style={{ color: '#101828', fontWeight: 800, margin: '0 0 0.5rem 0' }}>No se encontraron empleados</h3>
-          <p style={{ color: '#667085', margin: 0 }}>
+          <h3 style={{ color: 'var(--text-dark)', fontWeight: 800, margin: '0 0 0.5rem 0' }}>No se encontraron empleados</h3>
+          <p style={{ color: 'var(--text-muted)', margin: 0 }}>
             {searchTerm || statusFilter !== 'TODOS'
               ? 'Prueba ajustando los filtros de búsqueda.'
               : 'Empieza registrando tu primer empleado con el botón "+ NUEVO EMPLEADO".'}
           </p>
         </div>
       ) : (
-        /* Tabla de Empleados */
-        <div className="table-responsive-container">
+        /* Tabla de Empleados y Paginación */
+        <>
+          <div className="table-responsive-container">
           <table className="employees-table">
             <thead>
               <tr>
-                <th className="th-cell" style={{ width: '24%' }}><span className="pill-header">EMPLEADO</span></th>
-                <th className="th-cell" style={{ width: '16%' }}><span className="pill-header">CARGO</span></th>
-                <th className="th-cell" style={{ width: '18%' }}><span className="pill-header">TURNO</span></th>
-                <th className="th-cell" style={{ width: '12%' }}><span className="pill-header">INGRESO</span></th>
-                <th className="th-cell" style={{ width: '15%' }}><span className="pill-header">TEL. EMERGENCIA</span></th>
-                <th className="th-cell" style={{ width: '10%', textAlign: 'center' }}><span className="pill-header">ESTADO</span></th>
-                <th className="th-cell" style={{ width: '8%', textAlign: 'center' }}><span className="pill-header">ACCIONES</span></th>
+                <th className="th-cell" style={{ minWidth: '220px' }}><span className="pill-header">EMPLEADO</span></th>
+                <th className="th-cell" style={{ minWidth: '170px' }}><span className="pill-header">CARGO & EPS</span></th>
+                <th className="th-cell" style={{ minWidth: '180px' }}><span className="pill-header">CONTACTO DIRECTO</span></th>
+                <th className="th-cell" style={{ minWidth: '200px' }}><span className="pill-header">CONTACTO EMERGENCIA</span></th>
+                <th className="th-cell" style={{ minWidth: '160px' }}><span className="pill-header">TURNO & INGRESO</span></th>
+                <th className="th-cell" style={{ width: '100px', textAlign: 'center' }}><span className="pill-header">ESTADO</span></th>
+                <th className="th-cell" style={{ width: '90px', textAlign: 'center' }}><span className="pill-header">ACCIONES</span></th>
               </tr>
             </thead>
             <tbody>
-              {filteredEmployees.map((emp) => {
+              {paginatedEmployees.map((emp) => {
                 const empId = emp.id || emp._id;
                 const estado = (emp.estado || emp.ESTADO || 'ACTIVO').toUpperCase();
                 const turno = emp.turno || emp.TURNO || 'Mañana';
                 const fechaIngreso = emp.fecha_ingreso || emp.FECHA_INGRESO;
-                const telefono = emp.telefono_emergencia || emp.contacto_emergencia || emp.telefono || 'Sin teléfono';
+                const docIdentidad = emp.cedula || emp.usuario || 'Por asignar';
                 const inicial = (emp.nombre_empleado || 'E').charAt(0).toUpperCase();
 
                 return (
                   <tr key={empId} className="employees-row">
-                    {/* Empleado (Nombre y Cédula) */}
+                    {/* Empleado (Nombre, Cédula, RH y Nacimiento) */}
                     <td className="td-cell">
                       <div className="employee-profile-cell">
                         <div className="employee-avatar-circle">{inicial}</div>
                         <div>
-                          <div className="employee-name-title">{emp.nombre_empleado}</div>
-                          <div className="employee-cedula-sub">
-                            C.C: <strong>{emp.usuario}</strong>
+                          <div className="employee-name-title">
+                            {emp.nombre_empleado}
+                            {emp.rh && <span className="emp-rh-badge">{emp.rh}</span>}
                           </div>
+                          <div className="employee-cedula-sub">
+                            Doc: <strong>{docIdentidad}</strong>
+                          </div>
+                          {emp.fecha_nacimiento && (
+                            <span className="emp-birth-text">🎂 Nac: {emp.fecha_nacimiento}</span>
+                          )}
                         </div>
                       </div>
                     </td>
 
-                    {/* Cargo */}
+                    {/* Cargo y EPS */}
                     <td className="td-cell">
-                      <span className="employee-role-tag">{emp.cargo}</span>
+                      <div>
+                        <span className="employee-role-tag">{emp.cargo}</span>
+                      </div>
+                      {emp.eps && (
+                        <div>
+                          <span className="emp-eps-badge">🏥 {emp.eps}</span>
+                        </div>
+                      )}
                     </td>
 
-                    {/* Turno */}
+                    {/* Contacto Directo: Celular y Dirección */}
                     <td className="td-cell">
-                      <span className="employee-shift-tag">
-                        🕒 {turno}
-                      </span>
+                      {emp.celular ? (
+                        <div className="employee-phone-text">
+                          <span className="phone-icon-pill">📱</span>
+                          <strong>{emp.celular}</strong>
+                        </div>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>Sin celular</span>
+                      )}
+                      {emp.direccion && (
+                        <div className="emp-info-subtext" title={emp.direccion}>
+                          📍 {emp.direccion}
+                        </div>
+                      )}
                     </td>
 
-                    {/* Fecha de Ingreso */}
-                    <td className="td-cell">
-                      <span className="employee-date-text">{formatFecha(fechaIngreso)}</span>
-                    </td>
-
-                    {/* Teléfono de Contacto de Emergencia */}
+                    {/* Contacto de Emergencia */}
                     <td className="td-cell">
                       <span className="employee-phone-text">
-                        <span className="phone-icon-pill">📞</span>
-                        {telefono}
+                        <span className="phone-icon-pill">🆘</span>
+                        {emp.contacto_emergencia || emp.telefono_emergencia || 'No registrado'}
                       </span>
+                    </td>
+
+                    {/* Turno e Ingreso */}
+                    <td className="td-cell">
+                      <div className="employee-shift-tag">
+                        🕒 {turno}
+                      </div>
+                      <div className="emp-info-subtext">
+                        📅 {formatFecha(fechaIngreso)}
+                      </div>
                     </td>
 
                     {/* Estado */}
@@ -435,14 +526,14 @@ const Employees = () => {
                           onClick={() => openEditModal(emp)}
                           title="Editar información del empleado"
                         >
-                          <IconEdit size={16} color="#0284C7" />
+                          <IconEdit size={16} color="var(--primary-teal)" />
                         </button>
                         <button
                           className="emp-action-btn delete"
                           onClick={() => openDeleteModal(emp)}
                           title="Eliminar empleado de la base de datos"
                         >
-                          <IconTrash size={16} color="#DC2626" />
+                          <IconTrash size={16} color="var(--status-alerta)" />
                         </button>
                       </div>
                     </td>
@@ -452,7 +543,52 @@ const Employees = () => {
             </tbody>
           </table>
         </div>
-      )}
+
+        {/* Barra de Paginación (5 empleados por página) */}
+        <div className="employees-pagination-container">
+          <div className="pagination-count-badge">
+            Mostrando <strong>{Math.min((validCurrentPage - 1) * ITEMS_PER_PAGE + 1, filteredEmployees.length)}</strong> a <strong>{Math.min(validCurrentPage * ITEMS_PER_PAGE, filteredEmployees.length)}</strong> de <strong>{filteredEmployees.length}</strong> empleados
+          </div>
+
+          {totalPages > 1 && (
+            <div className="pagination-action-controls">
+              <button
+                type="button"
+                className="pagination-nav-btn prev"
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={validCurrentPage <= 1}
+                title="Página anterior"
+              >
+                ◀ Anterior
+              </button>
+
+              <div className="pagination-numbers-cluster">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    className={`pagination-number-btn ${pageNum === validCurrentPage ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                className="pagination-nav-btn next"
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                disabled={validCurrentPage >= totalPages}
+                title="Página siguiente"
+              >
+                Siguiente ▶
+              </button>
+            </div>
+          )}
+        </div>
+      </>
+    )}
 
       {/* =========================================================
           MODAL: CREAR NUEVO EMPLEADO
@@ -462,10 +598,10 @@ const Employees = () => {
           <div className="employee-modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header-section">
               <div className="modal-header-titles">
-                <div className="modal-header-icon-box">➕</div>
+                <div className="modal-header-icon-box">+</div>
                 <div>
                   <h2 className="modal-title">Registrar Nuevo Empleado</h2>
-                  <p className="modal-subtitle">Conexión directa con la base de datos MongoDB</p>
+                  <p className="modal-subtitle">Ingresa la información personal y laboral</p>
                 </div>
               </div>
               <button
@@ -488,34 +624,62 @@ const Employees = () => {
                     type="text"
                     name="nombre_empleado"
                     className="form-field-input"
-                    placeholder="Ej. Mateo Sánchez Gómez"
+                    placeholder="Ej. MARIOLY ESTHER HERRERA GUTIERREZ"
                     value={formData.nombre_empleado}
                     onChange={handleInputChange}
                     required
                   />
                 </div>
 
-                {/* 2. Cédula / Usuario */}
+                {/* 2. Cédula */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
-                    Cédula / Usuario <span className="required-star">*</span>
+                    Cédula / Documento
                   </label>
                   <input
                     type="text"
-                    name="usuario"
+                    name="cedula"
                     className="form-field-input"
-                    placeholder="Ej. 1013110341"
-                    value={formData.usuario}
+                    placeholder="Ej. 1000271559 CC o Permiso"
+                    value={formData.cedula}
                     onChange={handleInputChange}
-                    required
                   />
-                  <span className="form-field-hint">Número de identificación único</span>
                 </div>
 
-                {/* 3. Cargo */}
+                {/* 3. Fecha de Nacimiento */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
-                    Cargo / Puesto <span className="required-star">*</span>
+                    Fecha de Nacimiento
+                  </label>
+                  <input
+                    type="text"
+                    name="fecha_nacimiento"
+                    className="form-field-input"
+                    placeholder="DD/MM/AAAA (Ej. 14/08/1979)"
+                    value={formData.fecha_nacimiento}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 4. Grupo Sanguíneo RH */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Factor RH
+                  </label>
+                  <input
+                    type="text"
+                    name="rh"
+                    className="form-field-input"
+                    placeholder="Ej. O+, A+, etc."
+                    value={formData.rh}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 5. Cargo */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Cargo / Rol <span className="required-star">*</span>
                   </label>
                   <select
                     name="cargo"
@@ -530,38 +694,67 @@ const Employees = () => {
                   </select>
                 </div>
 
-                {/* 4. Contraseña (passwordHash) */}
+                {/* 6. EPS */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
-                    Contraseña (passwordHash)
+                    EPS
                   </label>
                   <input
-                    type="password"
-                    name="passwordHash"
+                    type="text"
+                    name="eps"
                     className="form-field-input"
-                    placeholder="Contraseña de acceso"
-                    value={formData.passwordHash}
+                    placeholder="Ej. SANITAS, CAPITAL SALUD"
+                    value={formData.eps}
                     onChange={handleInputChange}
-                  />
-                  <span className="form-field-hint">Opcional para el ingreso al sistema</span>
-                </div>
-
-                {/* 5. Fecha de Ingreso */}
-                <div className="form-field-wrapper">
-                  <label className="form-field-label">
-                    Fecha de Ingreso <span className="required-star">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="fecha_ingreso"
-                    className="form-field-input"
-                    value={formData.fecha_ingreso}
-                    onChange={handleInputChange}
-                    required
                   />
                 </div>
 
-                {/* 6. Turno */}
+                {/* 7. Celular Personal */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Celular Personal
+                  </label>
+                  <input
+                    type="tel"
+                    name="celular"
+                    className="form-field-input"
+                    placeholder="Ej. 3213688171"
+                    value={formData.celular}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 8. Dirección */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Dirección Residencial
+                  </label>
+                  <input
+                    type="text"
+                    name="direccion"
+                    className="form-field-input"
+                    placeholder="Ej. CALLE 74 65B 37"
+                    value={formData.direccion}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 9. Contacto de Emergencia */}
+                <div className="form-field-wrapper form-group-full">
+                  <label className="form-field-label">
+                    Contacto de Emergencia (Nombre, Parentesco y Teléfono)
+                  </label>
+                  <input
+                    type="text"
+                    name="contacto_emergencia"
+                    className="form-field-input"
+                    placeholder="Ej. LUIS CARDENAZ ESPOSO- 3194254498"
+                    value={formData.contacto_emergencia}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 10. Turno */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
                     Turno Asignado <span className="required-star">*</span>
@@ -579,7 +772,22 @@ const Employees = () => {
                   </select>
                 </div>
 
-                {/* 7. Estado */}
+                {/* 11. Fecha de Ingreso */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Fecha de Ingreso <span className="required-star">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="fecha_ingreso"
+                    className="form-field-input"
+                    value={formData.fecha_ingreso}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                {/* 12. Estado */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
                     Estado Laboral <span className="required-star">*</span>
@@ -595,23 +803,6 @@ const Employees = () => {
                       <option key={st} value={st}>{st}</option>
                     ))}
                   </select>
-                </div>
-
-                {/* 8. Teléfono Contacto de Emergencia */}
-                <div className="form-field-wrapper form-group-full">
-                  <label className="form-field-label">
-                    Teléfono de Contacto de Emergencia <span className="required-star">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="telefono_emergencia"
-                    className="form-field-input"
-                    placeholder="Ej. 3025682859"
-                    value={formData.telefono_emergencia}
-                    onChange={handleInputChange}
-                    required
-                  />
-                  <span className="form-field-hint">Número de contacto en caso de imprevistos o emergencias</span>
                 </div>
               </div>
 
@@ -638,7 +829,7 @@ const Employees = () => {
       )}
 
       {/* =========================================================
-          MODAL: EDITAR INFORMACIÓN DE EMPLEADO (EDITABLE)
+          MODAL: EDITAR INFORMACIÓN DE EMPLEADO
       ========================================================= */}
       {isEditModalOpen && selectedEmployee && (
         <div className="employee-modal-overlay" onClick={() => !isSubmitting && setIsEditModalOpen(false)}>
@@ -648,7 +839,7 @@ const Employees = () => {
                 <div className="modal-header-icon-box" style={{ background: '#FEF08A', color: '#854D0E' }}>✏️</div>
                 <div>
                   <h2 className="modal-title">Editar Empleado</h2>
-                  <p className="modal-subtitle">Modifica la información y actualiza en tiempo real en MongoDB</p>
+                  <p className="modal-subtitle">Modifica la información y actualiza en MongoDB</p>
                 </div>
               </div>
               <button
@@ -677,23 +868,49 @@ const Employees = () => {
                   />
                 </div>
 
-                {/* 2. Cédula / Usuario */}
+                {/* 2. Cédula */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
-                    Cédula / Usuario <span className="required-star">*</span>
+                    Cédula / Documento
                   </label>
                   <input
                     type="text"
-                    name="usuario"
+                    name="cedula"
                     className="form-field-input"
-                    value={formData.usuario}
+                    value={formData.cedula}
                     onChange={handleInputChange}
-                    required
                   />
-                  <span className="form-field-hint">Cédula del empleado</span>
                 </div>
 
-                {/* 3. Cargo */}
+                {/* 3. Fecha de Nacimiento */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Fecha de Nacimiento
+                  </label>
+                  <input
+                    type="text"
+                    name="fecha_nacimiento"
+                    className="form-field-input"
+                    value={formData.fecha_nacimiento}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 4. Grupo Sanguíneo RH */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Factor RH
+                  </label>
+                  <input
+                    type="text"
+                    name="rh"
+                    className="form-field-input"
+                    value={formData.rh}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 5. Cargo */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
                     Cargo / Puesto <span className="required-star">*</span>
@@ -711,38 +928,63 @@ const Employees = () => {
                   </select>
                 </div>
 
-                {/* 4. Cambiar Contraseña (Opcional) */}
+                {/* 6. EPS */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
-                    Nueva Contraseña
+                    EPS
                   </label>
                   <input
-                    type="password"
-                    name="passwordHash"
+                    type="text"
+                    name="eps"
                     className="form-field-input"
-                    placeholder="Dejar vacío para mantener la actual"
-                    value={formData.passwordHash}
+                    value={formData.eps}
                     onChange={handleInputChange}
-                  />
-                  <span className="form-field-hint">Solo llenar si deseas cambiar la contraseña</span>
-                </div>
-
-                {/* 5. Fecha de Ingreso */}
-                <div className="form-field-wrapper">
-                  <label className="form-field-label">
-                    Fecha de Ingreso <span className="required-star">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="fecha_ingreso"
-                    className="form-field-input"
-                    value={formData.fecha_ingreso}
-                    onChange={handleInputChange}
-                    required
                   />
                 </div>
 
-                {/* 6. Turno */}
+                {/* 7. Celular */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Celular Personal
+                  </label>
+                  <input
+                    type="tel"
+                    name="celular"
+                    className="form-field-input"
+                    value={formData.celular}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 8. Dirección */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Dirección Residencial
+                  </label>
+                  <input
+                    type="text"
+                    name="direccion"
+                    className="form-field-input"
+                    value={formData.direccion}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 9. Contacto de Emergencia */}
+                <div className="form-field-wrapper form-group-full">
+                  <label className="form-field-label">
+                    Contacto de Emergencia (Nombre, Parentesco y Teléfono)
+                  </label>
+                  <input
+                    type="text"
+                    name="contacto_emergencia"
+                    className="form-field-input"
+                    value={formData.contacto_emergencia}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                {/* 10. Turno */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
                     Turno Asignado <span className="required-star">*</span>
@@ -760,7 +1002,22 @@ const Employees = () => {
                   </select>
                 </div>
 
-                {/* 7. Estado */}
+                {/* 11. Fecha de Ingreso */}
+                <div className="form-field-wrapper">
+                  <label className="form-field-label">
+                    Fecha de Ingreso <span className="required-star">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="fecha_ingreso"
+                    className="form-field-input"
+                    value={formData.fecha_ingreso}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                {/* 12. Estado */}
                 <div className="form-field-wrapper">
                   <label className="form-field-label">
                     Estado Laboral <span className="required-star">*</span>
@@ -776,22 +1033,6 @@ const Employees = () => {
                       <option key={st} value={st}>{st}</option>
                     ))}
                   </select>
-                </div>
-
-                {/* 8. Teléfono Contacto de Emergencia */}
-                <div className="form-field-wrapper form-group-full">
-                  <label className="form-field-label">
-                    Teléfono de Contacto de Emergencia <span className="required-star">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    name="telefono_emergencia"
-                    className="form-field-input"
-                    placeholder="Ej. 3025682859"
-                    value={formData.telefono_emergencia}
-                    onChange={handleInputChange}
-                    required
-                  />
                 </div>
               </div>
 
@@ -809,7 +1050,7 @@ const Employees = () => {
                   className="modal-btn-submit"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Guardando Cambios...' : 'Guardar Cambios'}
+                  {isSubmitting ? 'Actualizando...' : 'Guardar Cambios'}
                 </button>
               </div>
             </form>
@@ -824,13 +1065,13 @@ const Employees = () => {
         <div className="employee-modal-overlay" onClick={() => !isSubmitting && setIsDeleteModalOpen(false)}>
           <div className="employee-modal-card" style={{ maxWidth: '440px' }} onClick={(e) => e.stopPropagation()}>
             <div className="delete-confirm-box">
-              <div className="delete-confirm-icon">🗑️</div>
-              <h3 className="delete-confirm-title">¿Eliminar Empleado?</h3>
+              <div className="delete-confirm-icon">⚠️</div>
+              <h3 className="delete-confirm-title">¿Eliminar empleado?</h3>
               <p className="delete-confirm-text">
-                ¿Estás seguro de que deseas eliminar a <strong>{selectedEmployee.nombre_empleado}</strong> (C.C: {selectedEmployee.usuario})?
-                Esta acción borrará el registro de la base de datos de MongoDB.
+                Estás a punto de eliminar a <strong>{selectedEmployee.nombre_empleado}</strong> ({selectedEmployee.cargo}).
+                Esta acción no se puede deshacer.
               </p>
-              <div className="modal-footer-actions" style={{ justifyContent: 'center', border: 'none', padding: 0 }}>
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
                 <button
                   type="button"
                   className="modal-btn-cancel"

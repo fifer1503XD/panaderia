@@ -4,9 +4,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(20, 20, 20, 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background-color: rgba(14, 16, 22, 0.65);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,15 +21,19 @@
 }
 
 .modal-card {
-  background: #FFFFFF;
+  background: var(--bg-card);
+  color: var(--text-main);
   border-radius: 20px;
   width: 100%;
   max-width: 580px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
   box-sizing: border-box;
   animation: modalScale 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
 }
 
 @keyframes modalScale {
@@ -49,8 +53,9 @@
   justify-content: space-between;
   padding: 1.35rem 1.8rem;
   border-bottom: 1px solid var(--border-divider);
-  background-color: #FAFAFA;
+  background-color: var(--bg-card-header);
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -62,30 +67,31 @@
 }
 
 .modal-close-btn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: #ECECEC;
-  color: #666;
+  background: var(--bg-input);
+  color: var(--text-muted);
   font-size: 1.2rem;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .modal-close-btn:hover {
-  background: #E0E0E0;
+  background: var(--bg-input-focus);
   color: var(--status-alerta);
   transform: rotate(90deg);
 }
 
 .modal-body {
   padding: 1.6rem 1.8rem;
-  max-height: 78vh;
   overflow-y: auto;
   overflow-x: hidden;
   box-sizing: border-box;
+  flex: 1;
 }
 
 .form-grid {
@@ -115,7 +121,7 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.45rem;
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
@@ -124,7 +130,7 @@
 .form-field label {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #555555;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.4px;
   white-space: nowrap;
@@ -133,7 +139,8 @@
 }
 
 .form-field input,
-.form-field select {
+.form-field select,
+.form-field textarea {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
@@ -141,25 +148,26 @@
   border: 1.5px solid var(--border-divider);
   border-radius: 10px;
   font-size: 0.95rem;
-  background-color: #FAFAFA;
+  background-color: var(--bg-input);
   color: var(--text-dark);
   transition: all 0.2s ease;
 }
 
 .form-field input:focus,
-.form-field select:focus {
+.form-field select:focus,
+.form-field textarea:focus {
   outline: none;
   border-color: var(--primary-teal);
-  background-color: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.12);
+  background-color: var(--bg-input-focus);
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.18);
 }
 
 .product-preview-badge {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background-color: #F7FBFB;
-  border: 1px solid var(--pill-bg);
+  background-color: var(--bg-card-subtle);
+  border: 1px solid var(--border-subtle);
   padding: 1rem;
   border-radius: 12px;
   margin-bottom: 0.5rem;
@@ -170,9 +178,9 @@
   height: 50px;
   border-radius: 8px;
   object-fit: contain;
-  background: #FFF;
+  background: var(--bg-card);
   padding: 4px;
-  border: 1px solid #EFEFEF;
+  border: 1px solid var(--border-divider);
 }
 
 .modal-footer {
@@ -181,7 +189,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.85rem;
-  background-color: #FAFAFA;
+  background-color: var(--bg-card-header);
+  flex-shrink: 0;
 }
 
 .btn-pill-cancel {
@@ -189,14 +198,15 @@
   border-radius: 9999px;
   font-weight: 700;
   font-size: 0.9rem;
-  color: #666666;
-  background: #ECECEC;
+  color: var(--text-main);
+  background: var(--bg-input);
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .btn-pill-cancel:hover {
-  background: #E0E0E0;
-  color: #333333;
+  background: var(--bg-input-focus);
+  color: var(--text-dark);
 }
 
 .btn-pill-submit {
@@ -208,6 +218,7 @@
   background: var(--primary-teal);
   box-shadow: 0 4px 10px rgba(14, 124, 134, 0.25);
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .btn-pill-submit:hover {
@@ -225,6 +236,7 @@
   background: var(--status-alerta);
   box-shadow: 0 4px 10px rgba(211, 47, 47, 0.25);
   transition: all 0.2s;
+  cursor: pointer;
 }
 
 .btn-pill-danger:hover {
@@ -232,23 +244,45 @@
   transform: translateY(-1px);
 }
 
+/* =========================================================================
+   RESPONSIVE PARA CELULARES
+   ========================================================================= */
 @media (max-width: 600px) {
+  .modal-backdrop {
+    padding: 0.75rem;
+  }
+
   .modal-card {
-    width: 95%;
-    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
     border-radius: 16px;
   }
 
   .modal-header,
   .modal-body,
   .modal-footer {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+
+  .modal-header h2 {
+    font-size: 1.15rem;
   }
 
   .form-row-2,
   .form-row-3 {
     grid-template-columns: 1fr;
     gap: 0.85rem;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .modal-footer button {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem;
   }
 }

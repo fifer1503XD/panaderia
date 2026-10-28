@@ -47,6 +47,13 @@ router.post('/', async (req, res) => {
       nombre_empleado,
       cargo,
       usuario,
+      cedula,
+      fecha_nacimiento,
+      rh,
+      celular,
+      direccion,
+      contacto_emergencia,
+      eps,
       passwordHash,
       fecha_ingreso,
       FECHA_INGRESO,
@@ -55,36 +62,50 @@ router.post('/', async (req, res) => {
       estado,
       ESTADO,
       telefono_emergencia,
-      contacto_emergencia,
       telefono
     } = req.body;
 
-    // Validar campos obligatorios
-    if (!nombre_empleado || !cargo || !usuario) {
+    // Validar campos obligatorios básicos
+    if (!nombre_empleado || !cargo) {
       return res.status(400).json({
-        message: 'Faltan campos obligatorios: nombre_empleado, cargo y usuario (cédula) son requeridos'
+        message: 'Faltan campos obligatorios: nombre_empleado y cargo son requeridos'
       });
     }
 
-    const cedulaLimpia = String(usuario).trim();
+    const cedulaFinal = String(cedula || usuario || '').trim();
+    const usuarioFinal = String(usuario || cedula || `EMP-${Date.now()}`).trim();
 
-    // Verificar si ya existe un empleado con la misma cédula / usuario
-    const existente = await Empleado.findOne({ usuario: cedulaLimpia });
-    if (existente) {
-      return res.status(400).json({
-        message: `Ya existe un empleado registrado con la cédula / usuario ${cedulaLimpia}`
+    // Verificar si ya existe un empleado con la misma cédula si está definida
+    if (usuarioFinal) {
+      const existente = await Empleado.findOne({ 
+        $or: [
+          { usuario: usuarioFinal },
+          ...(cedulaFinal ? [{ cedula: cedulaFinal }] : [])
+        ]
       });
+      if (existente) {
+        return res.status(400).json({
+          message: `Ya existe un empleado registrado con la cédula / usuario ${usuarioFinal}`
+        });
+      }
     }
 
     const nuevoEmpleado = new Empleado({
       nombre_empleado: String(nombre_empleado).trim(),
       cargo: String(cargo).trim(),
-      usuario: cedulaLimpia,
+      usuario: usuarioFinal,
+      cedula: cedulaFinal,
+      fecha_nacimiento: String(fecha_nacimiento || '').trim(),
+      rh: String(rh || '').trim(),
+      celular: String(celular || telefono || '').trim(),
+      direccion: String(direccion || '').trim(),
+      contacto_emergencia: String(contacto_emergencia || telefono_emergencia || '').trim(),
+      eps: String(eps || '').trim(),
       passwordHash: passwordHash ? String(passwordHash).trim() : '',
       fecha_ingreso: fecha_ingreso || FECHA_INGRESO || new Date(),
       turno: (turno || TURNO || 'Mañana (06:00 - 14:00)').trim(),
       estado: (estado || ESTADO || 'ACTIVO').trim().toUpperCase(),
-      telefono_emergencia: String(telefono_emergencia || contacto_emergencia || telefono || '').trim()
+      telefono_emergencia: String(telefono_emergencia || contacto_emergencia || celular || telefono || '').trim()
     });
 
     const guardado = await nuevoEmpleado.save();
@@ -109,6 +130,13 @@ router.put('/:id', async (req, res) => {
       nombre_empleado,
       cargo,
       usuario,
+      cedula,
+      fecha_nacimiento,
+      rh,
+      celular,
+      direccion,
+      contacto_emergencia,
+      eps,
       passwordHash,
       fecha_ingreso,
       FECHA_INGRESO,
@@ -117,7 +145,6 @@ router.put('/:id', async (req, res) => {
       estado,
       ESTADO,
       telefono_emergencia,
-      contacto_emergencia,
       telefono
     } = req.body;
 
@@ -127,21 +154,31 @@ router.put('/:id', async (req, res) => {
     }
 
     // Si se modifica la cédula/usuario, verificar que no esté ocupada por otro empleado
-    if (usuario !== undefined && usuario.trim() !== empleado.usuario) {
+    const userToVerify = usuario !== undefined ? usuario.trim() : (cedula !== undefined ? cedula.trim() : null);
+    if (userToVerify && userToVerify !== empleado.usuario && userToVerify !== empleado.cedula) {
       const cedulaEnUso = await Empleado.findOne({
-        usuario: usuario.trim(),
+        $or: [{ usuario: userToVerify }, { cedula: userToVerify }],
         _id: { $ne: empleado._id }
       });
       if (cedulaEnUso) {
         return res.status(400).json({
-          message: `La cédula / usuario ${usuario.trim()} ya pertenece a otro empleado`
+          message: `La cédula / usuario ${userToVerify} ya pertenece a otro empleado`
         });
       }
-      empleado.usuario = usuario.trim();
+      empleado.usuario = userToVerify;
+      empleado.cedula = userToVerify;
     }
 
     if (nombre_empleado !== undefined) empleado.nombre_empleado = String(nombre_empleado).trim();
     if (cargo !== undefined) empleado.cargo = String(cargo).trim();
+    if (cedula !== undefined) empleado.cedula = String(cedula).trim();
+    if (fecha_nacimiento !== undefined) empleado.fecha_nacimiento = String(fecha_nacimiento).trim();
+    if (rh !== undefined) empleado.rh = String(rh).trim();
+    if (celular !== undefined) empleado.celular = String(celular).trim();
+    if (direccion !== undefined) empleado.direccion = String(direccion).trim();
+    if (contacto_emergencia !== undefined) empleado.contacto_emergencia = String(contacto_emergencia).trim();
+    if (eps !== undefined) empleado.eps = String(eps).trim();
+
     if (passwordHash !== undefined && String(passwordHash).trim() !== '') {
       empleado.passwordHash = String(passwordHash).trim();
     }
@@ -155,7 +192,7 @@ router.put('/:id', async (req, res) => {
     const finalEstado = estado || ESTADO;
     if (finalEstado !== undefined) empleado.estado = String(finalEstado).trim().toUpperCase();
 
-    const finalTelefono = telefono_emergencia || contacto_emergencia || telefono;
+    const finalTelefono = telefono_emergencia || contacto_emergencia || celular || telefono;
     if (finalTelefono !== undefined) empleado.telefono_emergencia = String(finalTelefono).trim();
 
     const actualizado = await empleado.save();

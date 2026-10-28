@@ -1640,3 +1640,475 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* =========================================================================
+   SELECTOR DE PESTAÑAS Y CARRITO FLOTANTE PARA CELULARES (Mobile POS)
+   ========================================================================= */
+.pos-mobile-tab-bar {
+  display: none;
+}
+
+.pos-floating-mobile-cart {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .pos-mobile-tab-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1.1rem;
+    background: var(--bg-card);
+    padding: 0.35rem;
+    border-radius: 14px;
+    border: 1px solid var(--border-divider);
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+  }
+
+  .pos-mobile-tab-btn {
+    padding: 0.75rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.84rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .pos-mobile-tab-btn.active {
+    background: var(--primary-teal);
+    color: #FFFFFF;
+    box-shadow: 0 3px 10px rgba(14, 124, 134, 0.3);
+  }
+
+  /* Control de visibilidad según la pestaña activa en celular */
+  .mobile-pane-hidden {
+    display: none !important;
+  }
+
+  .mobile-pane-active {
+    display: flex !important;
+    width: 100% !important;
+    flex: 1 !important;
+  }
+
+  .pos-layout {
+    padding: 0.85rem;
+    min-height: calc(100vh - 140px);
+  }
+
+  .products-grid {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.75rem;
+    padding-right: 0;
+  }
+
+  .product-card {
+    padding: 0.85rem 0.6rem;
+  }
+
+  .p-name {
+    font-size: 0.85rem;
+  }
+
+  .p-price {
+    font-size: 0.95rem;
+  }
+
+  .pos-right.receipt-panel {
+    padding: 1.15rem;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .ticket-items {
+    max-height: 42vh;
+  }
+
+  /* Botón flotante para ver comanda desde el catálogo */
+  .pos-floating-mobile-cart {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    bottom: 74px; /* Justo arriba de la barra de navegación móvil */
+    left: 1rem;
+    right: 1rem;
+    background: var(--primary-teal);
+    color: #FFFFFF;
+    padding: 0.85rem 1.25rem;
+    border-radius: 9999px;
+    box-shadow: 0 8px 24px rgba(14, 124, 134, 0.45);
+    z-index: 950;
+    cursor: pointer;
+    animation: bounceUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes bounceUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .floating-cart-info {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .cart-badge {
+    background: rgba(255, 255, 255, 0.25);
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .cart-total {
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+  }
+
+  .floating-cart-action {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 800;
+    font-size: 0.85rem;
+  }
+
+  .floating-cart-arrow {
+    font-size: 1.1rem;
+    transition: transform 0.2s ease;
+  }
+
+  .pos-floating-mobile-cart:hover .floating-cart-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Modales en móvil */
+  .modal-content-sales {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 1.25rem !important;
+  }
+}
+
+/* =========================================================================
+   MODO OSCURO PARA EL MÓDULO DE VENTAS (POS) - DESCANSO VISUAL
+   ========================================================================= */
+[data-theme="dark"] .table-btn,
+.dark-theme .table-btn {
+  background-color: var(--bg-card);
+  border-color: var(--border-divider);
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .table-btn.paso-btn,
+.dark-theme .table-btn.paso-btn {
+  background: #25211B;
+  border-color: #5C4B25;
+  color: #E5C358;
+}
+
+[data-theme="dark"] .paso-badge,
+.dark-theme .paso-badge {
+  background: rgba(229, 195, 88, 0.18) !important;
+  color: #E5C358 !important;
+}
+
+[data-theme="dark"] .table-btn.paso-btn.selected,
+.dark-theme .table-btn.paso-btn.selected {
+  background: #2D2517;
+  border-color: #F59E0B;
+  color: #FBBF24;
+}
+
+[data-theme="dark"] .table-btn.libre,
+.dark-theme .table-btn.libre {
+  background-color: rgba(52, 211, 153, 0.08);
+  border-left-color: #34D399;
+  color: #34D399;
+}
+
+[data-theme="dark"] .table-btn.ocupada,
+.dark-theme .table-btn.ocupada {
+  background-color: rgba(248, 113, 113, 0.08);
+  border-left-color: #F87171;
+  color: #F87171;
+}
+
+[data-theme="dark"] .table-btn.selected,
+.dark-theme .table-btn.selected {
+  border-color: var(--primary-teal);
+  background-color: var(--pill-bg);
+}
+
+/* Tarjetas de Producto */
+[data-theme="dark"] .product-card,
+.dark-theme .product-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-divider);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .product-card:hover,
+.dark-theme .product-card:hover {
+  border-color: var(--primary-teal);
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="dark"] .p-name,
+.dark-theme .p-name {
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .p-stock,
+.dark-theme .p-stock {
+  color: var(--text-muted);
+}
+
+/* Recibo de Venta (Panel Derecho) */
+[data-theme="dark"] .pos-right.receipt-panel,
+.dark-theme .pos-right.receipt-panel {
+  background: linear-gradient(180deg, var(--receipt-bg-start) 0%, var(--receipt-bg-end) 100%);
+  border-color: var(--receipt-border);
+  box-shadow: 0 10px 30px var(--receipt-shadow);
+}
+
+[data-theme="dark"] .receipt-header,
+.dark-theme .receipt-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .receipt-title-badge,
+.dark-theme .receipt-title-badge {
+  color: var(--header-title);
+}
+
+[data-theme="dark"] .receipt-title-badge h3,
+.dark-theme .receipt-title-badge h3 {
+  color: var(--header-title);
+}
+
+[data-theme="dark"] .table-badge-indicator,
+.dark-theme .table-badge-indicator {
+  background: rgba(230, 171, 160, 0.15);
+  color: var(--header-title);
+  border-color: rgba(230, 171, 160, 0.25);
+}
+
+[data-theme="dark"] .table-badge-indicator.paso-indicator,
+.dark-theme .table-badge-indicator.paso-indicator {
+  background: rgba(229, 195, 88, 0.15);
+  color: #E5C358;
+  border-color: rgba(229, 195, 88, 0.3);
+}
+
+[data-theme="dark"] .receipt-item-card,
+.dark-theme .receipt-item-card {
+  background: var(--bg-card);
+  border-color: var(--border-divider);
+  box-shadow: none;
+}
+
+[data-theme="dark"] .receipt-item-card:hover,
+.dark-theme .receipt-item-card:hover {
+  border-color: var(--border-subtle);
+  background: var(--bg-hover);
+}
+
+[data-theme="dark"] .item-name,
+.dark-theme .item-name {
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .qty-controls,
+.dark-theme .qty-controls {
+  background: var(--bg-input);
+  border-color: var(--border-divider);
+}
+
+[data-theme="dark"] .qty-btn,
+.dark-theme .qty-btn {
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .qty-btn:hover,
+.dark-theme .qty-btn:hover {
+  background: var(--bg-input-focus);
+  color: var(--primary-teal);
+}
+
+[data-theme="dark"] .unit-price-display,
+.dark-theme .unit-price-display {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .item-total-price,
+.dark-theme .item-total-price {
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .empty-cart,
+.dark-theme .empty-cart {
+  color: var(--text-muted);
+}
+
+/* Modos de Pago */
+[data-theme="dark"] .payment-method-selector,
+.dark-theme .payment-method-selector {
+  background: var(--bg-card);
+  border-color: var(--border-divider);
+}
+
+[data-theme="dark"] .payment-pill,
+.dark-theme .payment-pill {
+  background: var(--bg-input);
+  border-color: var(--border-divider);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .payment-pill:hover,
+.dark-theme .payment-pill:hover {
+  background: var(--bg-hover);
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .payment-pill.selected,
+.dark-theme .payment-pill.selected {
+  background: var(--pill-bg);
+  border-color: var(--pill-text);
+  color: var(--pill-text);
+}
+
+/* Caja de Totales */
+[data-theme="dark"] .receipt-summary-box,
+.dark-theme .receipt-summary-box {
+  background: var(--bg-card-subtle);
+  border-color: var(--border-divider);
+}
+
+[data-theme="dark"] .summary-label,
+.dark-theme .summary-label {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .summary-value,
+.dark-theme .summary-value {
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .summary-row.total-row .summary-label,
+.dark-theme .summary-row.total-row .summary-label,
+[data-theme="dark"] .summary-row.total-row .summary-value,
+.dark-theme .summary-row.total-row .summary-value {
+  color: var(--primary-teal);
+}
+
+/* Botones de Cobro */
+[data-theme="dark"] .btn-cancel-receipt,
+.dark-theme .btn-cancel-receipt {
+  background: var(--bg-input);
+  color: var(--text-main);
+  border-color: var(--border-divider);
+}
+
+[data-theme="dark"] .btn-cancel-receipt:hover:not(:disabled),
+.dark-theme .btn-cancel-receipt:hover:not(:disabled) {
+  background: var(--status-alerta-bg);
+  color: var(--status-alerta);
+}
+
+/* Modales de Cobro (Efectivo / Transferencia) */
+[data-theme="dark"] .modal-content-sales,
+.dark-theme .modal-content-sales {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+}
+
+[data-theme="dark"] .modal-sales-header,
+.dark-theme .modal-sales-header {
+  background: var(--bg-card-header);
+  border-bottom-color: var(--border-divider);
+}
+
+[data-theme="dark"] .modal-sales-title h3,
+.dark-theme .modal-sales-title h3 {
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .cash-input-wrapper,
+.dark-theme .cash-input-wrapper {
+  background: var(--bg-input);
+  border-color: var(--primary-teal);
+}
+
+[data-theme="dark"] .cash-input-field,
+.dark-theme .cash-input-field {
+  background: transparent;
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .cash-sug-btn,
+.dark-theme .cash-sug-btn {
+  background: var(--bg-input);
+  border-color: var(--border-divider);
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .cash-sug-btn:hover,
+.dark-theme .cash-sug-btn:hover {
+  background: var(--pill-bg);
+  border-color: var(--primary-teal);
+  color: var(--pill-text);
+}
+
+[data-theme="dark"] .transfer-card-option,
+.dark-theme .transfer-card-option {
+  background: var(--bg-input);
+  border-color: var(--border-divider);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .transfer-card-option:hover,
+.dark-theme .transfer-card-option:hover,
+[data-theme="dark"] .transfer-card-option.selected,
+.dark-theme .transfer-card-option.selected {
+  background: var(--bg-card);
+  border-color: var(--primary-teal);
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .transfer-input,
+.dark-theme .transfer-input {
+  background: var(--bg-input);
+  border-color: var(--border-divider);
+  color: var(--text-dark);
+}
+
+[data-theme="dark"] .transfer-input:focus,
+.dark-theme .transfer-input:focus {
+  background: var(--bg-input-focus);
+  border-color: var(--primary-teal);
+}
+
+[data-theme="dark"] .print-modal-container,
+.dark-theme .print-modal-container {
+  background: var(--bg-card);
+  color: var(--text-main);
+}
+
