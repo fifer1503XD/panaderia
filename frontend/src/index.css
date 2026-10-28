@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@1,700&display=swap');
 
 :root {
-  /* Tuttis / SmartBakery BI Palette */
+  /* Tuttis / SmartBakery BI Palette - Light Mode */
   --header-bg: #F9D9C3;
   --header-title: #8B3A42;
   --header-subtitle: #5A4A42;
@@ -14,16 +14,25 @@
   --pill-bg-hover: #bdede8;
   
   --bg-main: #FFFFFF;
+  --bg-app: #F8F9FA;
   --bg-sidebar: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-header: #FAFAFA;
+  --bg-card-subtle: #F7FBFB;
   --bg-input: #ECECEC;
   --bg-input-focus: #E2E2E2;
+  --bg-hover: #F4FAF9;
   
   --text-main: #2D3142;
   --text-muted: #8E8E8E;
   --text-dark: #1E1E1E;
+  --text-on-accent: #FFFFFF;
   
   --border-subtle: #ECECEC;
   --border-divider: #E5E5E5;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.12);
   
   /* Category Colors */
   --cat-panes: #9E8000;
@@ -37,39 +46,164 @@
   --cat-lacteos: #2563EB;
   --cat-varios: #4B5563;
   
+  /* Category Badges (Background + Border) */
+  --cat-panes-bg: rgba(158, 128, 0, 0.12);
+  --cat-reposteria-bg: rgba(184, 27, 124, 0.12);
+  --cat-pasabocas-bg: rgba(217, 119, 6, 0.12);
+  --cat-desayunos-bg: rgba(234, 88, 12, 0.12);
+  --cat-combos-bg: rgba(124, 58, 237, 0.12);
+  --cat-bebidas-calientes-bg: rgba(146, 64, 14, 0.12);
+  --cat-bebidas-frias-bg: rgba(2, 132, 199, 0.12);
+  --cat-gaseosas-bg: rgba(220, 38, 38, 0.12);
+  --cat-lacteos-bg: rgba(37, 99, 235, 0.12);
+  --cat-varios-bg: rgba(75, 85, 99, 0.12);
+  
   /* Status Colors */
   --status-activo: #168F83;
+  --status-activo-bg: #E6F7F5;
   --status-alerta: #D32F2F;
+  --status-alerta-bg: #FEE2E2;
   --status-bajo: #5B9300;
+  --status-bajo-bg: #F4FBE8;
   --status-agotado: #9E1C1C;
+  --status-agotado-bg: #FCE8E8;
   
   /* Actions */
   --action-btn-bg: #D2F3F0;
   --action-btn-hover: #bdeee9;
   --action-edit: #168D8A;
   --action-delete: #D32F2F;
+  
+  /* POS Receipt */
+  --receipt-bg-start: #FFFCFA;
+  --receipt-bg-end: #FFF8F3;
+  --receipt-border: #F0DCD3;
+  --receipt-shadow: rgba(139, 58, 66, 0.06);
+
+  /* Scrollbars */
+  --scrollbar-track: #F1F1F1;
+  --scrollbar-thumb: #D0D0D0;
+  --scrollbar-thumb-hover: #B5B5B5;
 
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.4;
   color: var(--text-main);
-  background-color: #F8F9FA;
+  background-color: var(--bg-app);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* =========================================================================
+   MODO OSCURO - TONOS OPACOS Y MATE PARA DESCANSO VISUAL (Eye Strain Relief)
+   Diseñado específicamente para eliminar destellos, alto contraste doloroso
+   y prevenir fatiga ocular en turnos nocturnos o uso prolongado.
+   ========================================================================= */
+[data-theme="dark"],
+.dark-theme {
+  /* Cabecera con calidez sutil de panadería (cacao-pizarra oscuro apagado) */
+  --header-bg: #231C1F;
+  --header-title: #E6ABA0;
+  --header-subtitle: #B29B96;
+  
+  /* Acento verde azulado suave con excelente legibilidad sin brillo fosforescente */
+  --primary-teal: #1F9BA8;
+  --primary-teal-hover: #29ADC0;
+  
+  --pill-bg: #1A3438;
+  --pill-text: #61D5CB;
+  --pill-bg-hover: #22464D;
+  
+  /* Superficies oscuras opacas (nunca negro puro #000, sino carbón aterciopelado) */
+  --bg-main: #181A20;
+  --bg-app: #131418;
+  --bg-sidebar: #1C1F26;
+  --bg-card: #21252E;
+  --bg-card-header: #262B35;
+  --bg-card-subtle: #242933;
+  --bg-input: #292E38;
+  --bg-input-focus: #323846;
+  --bg-hover: #262B36;
+  
+  /* Texto atenuado para descanso de la vista (blanco perla mate, gris cálido) */
+  --text-main: #D5D9E2;
+  --text-muted: #8F97A6;
+  --text-dark: #E8ECF2;
+  --text-on-accent: #FFFFFF;
+  
+  /* Bordes suaves que no generan cortes duros */
+  --border-subtle: #2C323E;
+  --border-divider: #282E39;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.45);
+  
+  /* Categorías suavizadas en tonos pastel/opacos */
+  --cat-panes: #E5C358;
+  --cat-reposteria: #F472B6;
+  --cat-pasabocas: #FBBF24;
+  --cat-desayunos: #FB923C;
+  --cat-combos: #C084FC;
+  --cat-bebidas-calientes: #F59E0B;
+  --cat-bebidas-frias: #38BDF8;
+  --cat-gaseosas: #F87171;
+  --cat-lacteos: #60A5FA;
+  --cat-varios: #9CA3AF;
+  
+  --cat-panes-bg: rgba(229, 195, 88, 0.15);
+  --cat-reposteria-bg: rgba(244, 114, 182, 0.15);
+  --cat-pasabocas-bg: rgba(251, 191, 36, 0.15);
+  --cat-desayunos-bg: rgba(251, 146, 60, 0.15);
+  --cat-combos-bg: rgba(192, 132, 252, 0.15);
+  --cat-bebidas-calientes-bg: rgba(245, 158, 11, 0.15);
+  --cat-bebidas-frias-bg: rgba(56, 189, 248, 0.15);
+  --cat-gaseosas-bg: rgba(248, 113, 113, 0.15);
+  --cat-lacteos-bg: rgba(96, 165, 250, 0.15);
+  --cat-varios-bg: rgba(156, 163, 175, 0.15);
+  
+  /* Estados con contraste ergonómico */
+  --status-activo: #34D399;
+  --status-activo-bg: rgba(52, 211, 153, 0.14);
+  --status-alerta: #F87171;
+  --status-alerta-bg: rgba(248, 113, 113, 0.14);
+  --status-bajo: #FBBF24;
+  --status-bajo-bg: rgba(251, 191, 36, 0.14);
+  --status-agotado: #EF4444;
+  --status-agotado-bg: rgba(239, 68, 68, 0.16);
+  
+  /* Acciones */
+  --action-btn-bg: #1A3438;
+  --action-btn-hover: #22464D;
+  --action-edit: #61D5CB;
+  --action-delete: #F87171;
+  
+  /* Recibo de ventas oscuro descansado */
+  --receipt-bg-start: #232126;
+  --receipt-bg-end: #1F1E23;
+  --receipt-border: #3A353F;
+  --receipt-shadow: rgba(0, 0, 0, 0.35);
+
+  /* Scrollbars oscuras sin deslumbramiento */
+  --scrollbar-track: #1A1C22;
+  --scrollbar-thumb: #333946;
+  --scrollbar-thumb-hover: #454E60;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.15s ease;
 }
 
-body {
+html, body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #F8F9FA;
+  width: 100%;
+  background-color: var(--bg-main);
   color: var(--text-main);
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button {
@@ -81,6 +215,7 @@ button {
 
 input, select, textarea {
   font-family: inherit;
+  font-size: 16px; /* Evita zoom automático forzado en iOS Safari al enfocar */
 }
 
 a {
@@ -88,21 +223,33 @@ a {
   color: inherit;
 }
 
-/* Scrollbar styles */
+/* Transición suave al cambiar de tema */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Estilos de barras de desplazamiento adaptables */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Utilidad para accesibilidad táctil en celulares */
+@media (max-width: 768px) {
+  button, input, select {
+    touch-action: manipulation;
+  }
 }

@@ -32,7 +32,18 @@ const productoSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    // Precio 1: General (obligatorio)
+    // Precio Neto / Costo (opcional)
+    cost: {
+        type: Number,
+        min: 0,
+        default: 0
+    },
+    precio_neto: {
+        type: Number,
+        min: 0,
+        default: 0
+    },
+    // Precio 1: General / Venta (obligatorio)
     price1: {
         type: Number,
         required: true,

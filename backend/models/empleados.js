@@ -10,7 +10,7 @@ const empleadoSchema = new mongoose.Schema(
       trim: true
     },
 
-    // Cargo o rol del empleado (Maestro Panadero, Pastelera, Cajero / Barista, Auxiliar de Cocina, etc.)
+    // Cargo o rol del empleado (Cajera, Panadero, Pastelero, Cocinera, Administrador, etc.)
     cargo: {
       type: String,
       required: [true, 'El cargo del empleado es obligatorio'],
@@ -20,9 +20,57 @@ const empleadoSchema = new mongoose.Schema(
     // Identificación / Cédula del empleado (usado como usuario único)
     usuario: {
       type: String,
-      required: [true, 'El usuario (cédula) es obligatorio'],
-      unique: true,
-      trim: true
+      trim: true,
+      sparse: true
+    },
+
+    // Cédula o Documento de Identidad oficial
+    cedula: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+
+    // Fecha de Nacimiento
+    fecha_nacimiento: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+
+    // Grupo sanguíneo y factor RH (ej: O+, A+, etc.)
+    rh: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+
+    // Celular / Teléfono de contacto directo
+    celular: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+
+    // Dirección residencial
+    direccion: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+
+    // Información de Contacto de Emergencia (Nombre, Parentesco y Teléfono)
+    contacto_emergencia: {
+      type: String,
+      trim: true,
+      default: ''
+    },
+
+    // Entidad Promotora de Salud (EPS: Sanitas, Capital Salud, Compensar, etc.)
+    eps: {
+      type: String,
+      trim: true,
+      default: ''
     },
 
     // Contraseña cifrada o hash de autenticación
@@ -40,7 +88,6 @@ const empleadoSchema = new mongoose.Schema(
     // Turno asignado (Mañana (06:00 - 14:00), Tarde (13:00 - 21:00), Completa, Media (09:00 - 17:00))
     turno: {
       type: String,
-      required: [true, 'El turno es obligatorio'],
       trim: true,
       default: 'Mañana (06:00 - 14:00)'
     },
@@ -48,7 +95,6 @@ const empleadoSchema = new mongoose.Schema(
     // Estado laboral del empleado
     estado: {
       type: String,
-      required: [true, 'El estado es obligatorio'],
       trim: true,
       enum: ['ACTIVO', 'INACTIVO', 'VACACIONES', 'SUSPENDIDO'],
       default: 'ACTIVO'
@@ -57,8 +103,8 @@ const empleadoSchema = new mongoose.Schema(
     // Número de teléfono de contacto de emergencia
     telefono_emergencia: {
       type: String,
-      required: [true, 'El número de contacto de emergencia es obligatorio'],
-      trim: true
+      trim: true,
+      default: ''
     }
   },
   {
@@ -70,7 +116,6 @@ const empleadoSchema = new mongoose.Schema(
 empleadoSchema.set('toJSON', {
   transform: (document, returnedObject) => {
     returnedObject.id = returnedObject._id.toString();
-    // Alias para compatibilidad con mayúsculas si se requiere
     returnedObject.FECHA_INGRESO = returnedObject.fecha_ingreso;
     returnedObject.TURNO = returnedObject.turno;
     returnedObject.ESTADO = returnedObject.estado;

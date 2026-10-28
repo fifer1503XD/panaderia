@@ -27,6 +27,7 @@ const Sales = () => {
   const [selectedTableId, setSelectedTableId] = useState('paso');
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('Efectivo');
+  const [activeMobileTab, setActiveMobileTab] = useState('catalog'); // 'catalog' | 'receipt'
   
   // Edición de precio
   const [editingPriceProductId, setEditingPriceProductId] = useState(null);
@@ -555,10 +556,27 @@ const Sales = () => {
   const activeReceiptDate = printReceiptData?.fecha_hora_impresion || getFormattedCurrentDateTime();
 
   return (
-    <div className="page-container pos-layout">
+    <div className={`page-container pos-layout mobile-tab-${activeMobileTab}`}>
+      {/* Selector de pestañas exclusivo para pantallas de celular */}
+      <div className="pos-mobile-tab-bar">
+        <button
+          type="button"
+          className={`pos-mobile-tab-btn ${activeMobileTab === 'catalog' ? 'active' : ''}`}
+          onClick={() => setActiveMobileTab('catalog')}
+        >
+          🥖 Catálogo / Mesas
+        </button>
+        <button
+          type="button"
+          className={`pos-mobile-tab-btn ${activeMobileTab === 'receipt' ? 'active' : ''}`}
+          onClick={() => setActiveMobileTab('receipt')}
+        >
+          🧾 Comanda ({selectedTable?.order?.reduce((acc, i) => acc + (i.quantity || 1), 0) || 0}) • {formatPrice(totalNeto)}
+        </button>
+      </div>
       
       {/* Panel Izquierdo: Cliente de Paso + Mesas + Catálogo */}
-      <div className="pos-left">
+      <div className={`pos-left ${activeMobileTab === 'catalog' ? 'mobile-pane-active' : 'mobile-pane-hidden'}`}>
         <div className="tables-header">
           <h2>Atención & Mesas</h2>
         </div>
@@ -612,7 +630,7 @@ const Sales = () => {
       </div>
 
       {/* Panel Derecho: Recibo de Venta */}
-      <div className="pos-right receipt-panel">
+      <div className={`pos-right receipt-panel ${activeMobileTab === 'receipt' ? 'mobile-pane-active' : 'mobile-pane-hidden'}`}>
         <div className="ticket-header receipt-header">
           <div className="receipt-title-badge">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -799,6 +817,27 @@ const Sales = () => {
           </button>
         </div>
       </div>
+
+      {/* Botón flotante inferior para ver la comanda desde el catálogo en celular */}
+      {selectedTable?.order?.length > 0 && activeMobileTab === 'catalog' && (
+        <div 
+          className="pos-floating-mobile-cart" 
+          onClick={() => setActiveMobileTab('receipt')}
+          role="button"
+          tabIndex={0}
+        >
+          <div className="floating-cart-info">
+            <span className="cart-badge">
+              {selectedTable.order.reduce((acc, i) => acc + (i.quantity || 1), 0)} prod.
+            </span>
+            <span className="cart-total">{formatPrice(totalNeto)}</span>
+          </div>
+          <div className="floating-cart-action">
+            <span>Ver Comanda</span>
+            <span className="floating-cart-arrow">➔</span>
+          </div>
+        </div>
+      )}
 
       {/* ===================================================
           MODAL 1: COBRO EN EFECTIVO Y CÁLCULO DE VUELTAS

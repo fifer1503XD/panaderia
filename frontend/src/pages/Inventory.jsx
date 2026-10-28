@@ -457,11 +457,16 @@ const Inventory = () => {
                       </span>
                     </td>
 
-                    {/* PRECIO VENTA */}
+                    {/* PRECIO VENTA & COSTO */}
                     <td className="td-cell td-precio">
                       <span className="price-tag">
                         {formatCurrency(product.price1)}
                       </span>
+                      {product.cost > 0 && (
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #8E8E8E)', marginTop: '2px', fontWeight: 600 }}>
+                          Neto: {formatCurrency(product.cost)}
+                        </div>
+                      )}
                     </td>
 
                     {/* STOCK */}
