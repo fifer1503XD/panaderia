@@ -21,6 +21,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const paymentMethodRoutes = require('./routes/paymentMethodRoutes');
 const saleRoutes = require('./routes/saleRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 
@@ -109,6 +110,8 @@ apiRouter.use('/sales', saleRoutes);
 apiRouter.use('/ventas', saleRoutes);
 apiRouter.use('/employees', employeeRoutes);
 apiRouter.use('/empleados', employeeRoutes);
+apiRouter.use('/reports', reportRoutes);
+apiRouter.use('/reportes', reportRoutes);
 
 // Mount router on all potential Netlify path variations
 app.use('/.netlify/functions/api', apiRouter);
