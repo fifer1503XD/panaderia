@@ -7,4 +7,5 @@ export const INVENTORY_API_URL = `${API_BASE_URL}/api/inventory`;
 export const PAYMENT_METHODS_API_URL = `${API_BASE_URL}/api/metodopagos`;
 export const SALES_API_URL = `${API_BASE_URL}/api/sales`;
 export const EMPLOYEES_API_URL = `${API_BASE_URL}/api/employees`;
+export const REPORTS_API_URL = `${API_BASE_URL}/api/reports`;
 
