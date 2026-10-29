@@ -1,29 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   IconCroissant,
   IconVentas,
   IconEmpleados,
   IconReportes,
   IconConfiguracion,
+  IconRoles,
   AdminAvatar,
   IconChevronDown
 } from '../assets/icons';
 import ThemeToggle from './ThemeToggle';
-import smartBakeryLogo from '../assets/smart-bakery-logo.png';
+import { useAuth, MOCK_USERS } from '../context/AuthContext';
 import './Sidebar.css';
 
 const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
-  const [currentRole, setCurrentRole] = useState(() => {
-    return localStorage.getItem('smartbakery_role') || 'ADMIN';
-  });
+  const { currentUser, role, hasPermission, logout, switchRole } = useAuth();
   const footerRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
-  // Cerrar el drawer en cambio de ruta
+  // Cerrar drawer y menú en cambio de ruta
   useEffect(() => {
-    onCloseMobile();
+    onCloseMobile(false);
     setShowAdminMenu(false);
   }, [location.pathname]);
 
@@ -42,28 +42,28 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
     };
   }, [showAdminMenu]);
 
-  // Alternar entre perfil Administrador y Empleado
-  const handleToggleRole = () => {
-    const nextRole = currentRole === 'ADMIN' ? 'EMPLEADO' : 'ADMIN';
-    setCurrentRole(nextRole);
-    localStorage.setItem('smartbakery_role', nextRole);
-    setShowAdminMenu(false);
-  };
-
-  // Cerrar sesión
+  // Manejar cierre de sesión
   const handleLogout = () => {
     setShowAdminMenu(false);
-    setCurrentRole('ADMIN');
-    localStorage.removeItem('smartbakery_role');
+    logout();
+    navigate('/login');
   };
 
-  const menuItems = [
-    { path: '/inventory', label: 'INVENTARIO', icon: IconCroissant },
-    { path: '/sales', label: 'VENTAS', icon: IconVentas },
-    { path: '/employees', label: 'EMPLEADOS', icon: IconEmpleados },
-    { path: '/reports', label: 'REPORTES', icon: IconReportes },
-    { path: '/settings', label: 'CONFIGURACIÓN', icon: IconConfiguracion },
+  // Definición completa de módulos
+  const allMenuItems = [
+    { path: '/inventory', label: 'INVENTARIO', icon: IconCroissant, permission: 'inventory' },
+    { path: '/sales', label: 'VENTAS', icon: IconVentas, permission: 'sales' },
+    { path: '/employees', label: 'EMPLEADOS', icon: IconEmpleados, permission: 'employees' },
+    { path: '/reports', label: 'REPORTES', icon: IconReportes, permission: 'reports' },
+    { path: '/settings', label: 'CONFIGURACIÓN', icon: IconConfiguracion, permission: 'settings' },
+    { path: '/roles', label: 'ROLES & PERMISOS', icon: IconRoles, permission: 'roles' },
   ];
+
+  // Filtrar módulos estrictamente según los permisos del rol activo
+  const visibleMenuItems = allMenuItems.filter((item) => hasPermission(item.permission));
+
+  // Ítems para la barra inferior en móvil (máximo 4 más el botón "Más")
+  const mobileNavItems = visibleMenuItems.slice(0, 4);
 
   return (
     <>
@@ -73,7 +73,7 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
       <aside className="sidebar-container">
         <nav className="sidebar-nav">
           <ul className="sidebar-menu">
-            {menuItems.map((item) => {
+            {visibleMenuItems.map((item) => {
               const Icon = item.icon;
               return (
                 <li key={item.path} className="sidebar-item">
@@ -94,7 +94,7 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
           </ul>
         </nav>
 
-        {/* User / Admin Pill Profile at Bottom */}
+        {/* User / Role Pill Profile at Bottom */}
         <div className="sidebar-footer" ref={footerRef}>
           <div 
             className="admin-profile-pill"
@@ -102,10 +102,17 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
             role="button"
             tabIndex={0}
           >
-            <div className="admin-avatar-box">
-              <AdminAvatar size={34} />
+            <div 
+              className="admin-avatar-box" 
+              style={{ background: currentUser?.badgeBg || 'var(--pill-bg)' }}
+            >
+              <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>
+                {currentUser?.avatar || '👤'}
+              </span>
             </div>
-            <span className="admin-text">{currentRole}</span>
+            <span className="admin-text">
+              {currentUser?.roleShort || 'USUARIO'}
+            </span>
             <span className="admin-chevron">
               <IconChevronDown size={14} />
             </span>
@@ -114,8 +121,22 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
           {showAdminMenu && (
             <div className="admin-dropdown-menu">
               <div className="dropdown-header">
-                <strong>{currentRole === 'ADMIN' ? 'Administrador' : 'Empleado'}</strong>
-                <small>{currentRole === 'ADMIN' ? 'admin@smartbakery.com' : 'empleado@smartbakery.com'}</small>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.2rem' }}>
+                  <strong>{currentUser?.name || 'Usuario'}</strong>
+                  <span 
+                    style={{
+                      fontSize: '0.65rem',
+                      fontWeight: 800,
+                      color: currentUser?.badgeColor || 'var(--primary-teal)',
+                      background: currentUser?.badgeBg || 'var(--pill-bg)',
+                      padding: '0.15rem 0.45rem',
+                      borderRadius: '9999px'
+                    }}
+                  >
+                    {currentUser?.roleShort}
+                  </span>
+                </div>
+                <small>{currentUser?.email || 'usuario@smartbakery.com'}</small>
               </div>
               <hr />
               <div className="dropdown-theme-row">
@@ -123,13 +144,33 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
                 <ThemeToggle compact showLabel={false} />
               </div>
               <hr />
-              <button 
-                type="button" 
-                className="dropdown-item" 
-                onClick={handleToggleRole}
-              >
-                {currentRole === 'ADMIN' ? '🔄 Cambiar al perfil empleado' : '🔄 Cambiar al perfil administrador'}
-              </button>
+              
+              {currentUser?.role === 'superadmin' && (
+                <>
+                  <div style={{ padding: '0.4rem 0.75rem', fontSize: '0.72rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                    Simular Perfil (Super Admin):
+                  </div>
+
+                  {Object.values(MOCK_USERS).map((u) => (
+                    <button
+                      key={u.id}
+                      type="button"
+                      className={`dropdown-item ${currentUser?.role === u.role ? 'active-role' : ''}`}
+                      onClick={() => {
+                        switchRole(u.role);
+                        setShowAdminMenu(false);
+                      }}
+                      style={{
+                        fontWeight: currentUser?.role === u.role ? 800 : 600,
+                        color: currentUser?.role === u.role ? u.badgeColor : 'var(--text-dark)'
+                      }}
+                    >
+                      {u.avatar} {u.roleLabel} {currentUser?.role === u.role ? '✓' : ''}
+                    </button>
+                  ))}
+                  <hr />
+                </>
+              )}
               <button 
                 type="button" 
                 className="dropdown-item danger" 
@@ -147,38 +188,25 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
           Diseñada para uso con 1 solo pulgar en smartphones
           ========================================================= */}
       <nav className="mobile-bottom-nav" aria-label="Navegación móvil">
-        <NavLink 
-          to="/inventory" 
-          className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}
-        >
-          <span className="mobile-nav-icon"><IconCroissant size={22} /></span>
-          <span className="mobile-nav-label">Inventario</span>
-        </NavLink>
+        {mobileNavItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <NavLink 
+              key={item.path}
+              to={item.path} 
+              className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <span className="mobile-nav-icon"><Icon size={22} /></span>
+              <span className="mobile-nav-label">
+                {item.label === 'CONFIGURACIÓN' ? 'Ajustes' :
+                 item.label === 'ROLES & PERMISOS' ? 'Roles' :
+                 item.label.charAt(0) + item.label.slice(1).toLowerCase()}
+              </span>
+            </NavLink>
+          );
+        })}
 
-        <NavLink 
-          to="/sales" 
-          className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}
-        >
-          <span className="mobile-nav-icon"><IconVentas size={22} /></span>
-          <span className="mobile-nav-label">Ventas</span>
-        </NavLink>
-
-        <NavLink 
-          to="/employees" 
-          className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}
-        >
-          <span className="mobile-nav-icon"><IconEmpleados size={22} /></span>
-          <span className="mobile-nav-label">Empleados</span>
-        </NavLink>
-
-        <NavLink 
-          to="/reports" 
-          className={({ isActive }) => `mobile-nav-item ${isActive ? 'active' : ''}`}
-        >
-          <span className="mobile-nav-icon"><IconReportes size={22} /></span>
-          <span className="mobile-nav-label">Reportes</span>
-        </NavLink>
-
+        {/* Botón "Más" para abrir el cajón lateral con opciones adicionales */}
         <button 
           type="button" 
           className={`mobile-nav-item ${isMobileOpen ? 'active' : ''}`}
@@ -207,10 +235,25 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
           >
             <div className="mobile-drawer-header">
               <div className="mobile-drawer-user">
-                <AdminAvatar size={40} />
+                <div 
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: currentUser?.badgeBg || 'var(--pill-bg)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.4rem'
+                  }}
+                >
+                  {currentUser?.avatar || '👤'}
+                </div>
                 <div className="mobile-drawer-user-info">
-                  <strong>{currentRole === 'ADMIN' ? 'Administrador' : 'Empleado'}</strong>
-                  <span>{currentRole === 'ADMIN' ? 'admin@smartbakery.com' : 'empleado@smartbakery.com'}</span>
+                  <strong>{currentUser?.name || 'Usuario'}</strong>
+                  <span style={{ color: currentUser?.badgeColor || 'var(--primary-teal)', fontWeight: 700 }}>
+                    {currentUser?.roleLabel}
+                  </span>
                 </div>
               </div>
               <button 
@@ -229,68 +272,59 @@ const Sidebar = ({ isMobileOpen = false, onCloseMobile = () => {} }) => {
             </div>
 
             <div className="mobile-drawer-content">
-              <div className="drawer-section-title">MÓDULOS DEL SISTEMA</div>
+              <div className="drawer-section-title">MÓDULOS AUTORIZADOS</div>
               <ul className="drawer-links-list">
-                <li>
-                  <NavLink to="/inventory" className="drawer-link" onClick={() => onCloseMobile(false)}>
-                    <IconCroissant size={22} />
-                    <span>Control de Inventario</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/sales" className="drawer-link" onClick={() => onCloseMobile(false)}>
-                    <IconVentas size={22} />
-                    <span>Punto de Venta (POS)</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/employees" className="drawer-link" onClick={() => onCloseMobile(false)}>
-                    <IconEmpleados size={22} />
-                    <span>Gestión de Empleados</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/reports" className="drawer-link" onClick={() => onCloseMobile(false)}>
-                    <IconReportes size={22} />
-                    <span>Reportes y Métricas</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/settings" className="drawer-link" onClick={() => onCloseMobile(false)}>
-                    <IconConfiguracion size={22} />
-                    <span>Configuración General</span>
-                  </NavLink>
-                </li>
+                {visibleMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.path}>
+                      <NavLink 
+                        to={item.path} 
+                        className="drawer-link" 
+                        onClick={() => onCloseMobile(false)}
+                      >
+                        <Icon size={22} />
+                        <span>{item.label}</span>
+                      </NavLink>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
             <div className="mobile-drawer-footer">
-              <button 
-                type="button" 
-                className="drawer-role-btn"
-                style={{
-                  width: '100%',
-                  padding: '0.65rem 1rem',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-divider)',
-                  background: 'var(--bg-input)',
-                  color: 'var(--text-dark)',
-                  fontWeight: 700,
-                  fontSize: '0.85rem',
-                  cursor: 'pointer',
-                  marginBottom: '0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.5rem'
-                }}
-                onClick={() => {
-                  handleToggleRole();
-                  onCloseMobile(false);
-                }}
-              >
-                {currentRole === 'ADMIN' ? '🔄 Cambiar al perfil empleado' : '🔄 Cambiar al perfil administrador'}
-              </button>
+              {currentUser?.role === 'superadmin' && (
+                <>
+                  <div style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--text-muted)', marginBottom: '0.4rem', textTransform: 'uppercase' }}>
+                    Simular Perfil (Super Admin):
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.4rem', marginBottom: '0.75rem' }}>
+                    {Object.values(MOCK_USERS).map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        style={{
+                          padding: '0.5rem 0.25rem',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border-divider)',
+                          background: currentUser?.role === u.role ? u.badgeBg : 'var(--bg-input)',
+                          color: currentUser?.role === u.role ? u.badgeColor : 'var(--text-dark)',
+                          fontWeight: 700,
+                          fontSize: '0.74rem',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => {
+                          switchRole(u.role);
+                          onCloseMobile(false);
+                        }}
+                      >
+                        {u.avatar} {u.roleShort}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
               <button 
                 type="button" 
                 className="drawer-logout-btn"

@@ -141,3 +141,21 @@ export const IconChevronDown = ({ size = 14, color = "currentColor" }) => (
     <path d="M6 9l6 6 6-6"/>
   </svg>
 );
+
+// Roles & Permissions Shield Icon
+export const IconRoles = ({ size = 24, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    <path d="M12 8v4"/>
+    <circle cx="12" cy="16" r="0.8" fill={color}/>
+  </svg>
+);
+
+// Lock Icon for Security & Authentication
+export const IconLock = ({ size = 20, color = "currentColor" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+);
+

@@ -3,10 +3,12 @@ import { useLocation } from 'react-router-dom';
 import { TuttisLogo } from '../assets/icons';
 import smartBakeryLogo from '../assets/smart-bakery-logo.png';
 import ThemeToggle from './ThemeToggle';
+import { useAuth } from '../context/AuthContext';
 import './Header.css';
 
 const Header = ({ onOpenMobileMenu }) => {
   const location = useLocation();
+  const { currentUser } = useAuth();
 
   // Mapear rutas a títulos acordes
   const getHeaderInfo = () => {
@@ -23,8 +25,10 @@ const Header = ({ onOpenMobileMenu }) => {
         return { title: 'CONFIGURACIÓN', subtitle: 'Ajustes del sistema' };
       case '/products':
         return { title: 'PRODUCTOS', subtitle: 'Catálogo de panadería' };
+      case '/roles':
+        return { title: 'ROLES & PERMISOS', subtitle: 'Matriz de seguridad' };
       default:
-        return { title: 'INVENTARIO', subtitle: 'Control de productos' };
+        return { title: 'SMARTBAKERY BI', subtitle: 'Sistema de panadería' };
     }
   };
 
@@ -57,6 +61,29 @@ const Header = ({ onOpenMobileMenu }) => {
       </div>
 
       <div className="header-right">
+        {/* Distintivo del rol de usuario activo */}
+        {currentUser && (
+          <div 
+            className="header-user-role-badge"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.35rem 0.75rem',
+              borderRadius: '9999px',
+              background: currentUser.badgeBg || 'var(--pill-bg)',
+              color: currentUser.badgeColor || 'var(--primary-teal)',
+              fontSize: '0.78rem',
+              fontWeight: 800,
+              boxShadow: 'var(--shadow-sm)'
+            }}
+            title={`Sesión iniciada como ${currentUser.roleLabel}`}
+          >
+            <span>{currentUser.avatar}</span>
+            <span>{currentUser.roleShort}</span>
+          </div>
+        )}
+
         {/* Toggle de Modo Oscuro con tonos opacos para descanso visual */}
         <div className="header-theme-wrapper">
           <ThemeToggle />
